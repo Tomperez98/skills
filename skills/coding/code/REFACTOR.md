@@ -23,6 +23,10 @@ Run down this checklist and name the violation:
   → Map to transport once.
 - **Global state** — tests leak into each other, can't run in parallel. →
   Tame global state.
+- **Fat state / over-hydration** — a function or handler receives or loads
+  more state than it uses (a whole `Context`, `App`, `Database`, or entity
+  graph for one field), so tests must build the entire world. → Load only
+  the state you need.
 - **No seams** — no exported-API discipline, no way to swap a dependency. →
   Boundaries and seams.
 
