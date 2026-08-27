@@ -7,7 +7,7 @@ description: >
   expected failures, assertive programming), structuring code for testability
   (isolate side effects, parse at the edge, model errors as values, one
   error vocabulary per boundary, compose workflows, tame global state,
-  interfaces as seams), and testing well (golden files, fail-direct helpers,
+  load only the state you need, interfaces as seams), and testing well (golden files, fail-direct helpers,
   assert the discriminated shape, one test per error variant,
   short-circuiting, deterministic retries, compile-time pins). Use whenever
   the user writes code or tests, asks for help testing something, says code

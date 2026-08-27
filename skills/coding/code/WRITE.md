@@ -149,7 +149,30 @@ struct ServerOpts {
 }
 ```
 
-## 9. Boundaries and seams, judiciously
+## 9. Load only the state you need
+
+Give a function the narrowest slice of state its logic touches — not a
+reference to the whole world. A handler that reads one field shouldn't
+receive the entire `App`, `Context`, or `Database`.
+
+```
+// Too wide — depends on everything the app owns
+fn handle_checkout(app: App, cart_id: CartId) -> Result<Receipt, Error> {
+    // ... reaches into app.db, app.tax_rates, app.shipping ...
+}
+
+// Narrow — declares exactly what it needs
+fn handle_checkout(db: CartDb, tax: TaxRates, cart_id: CartId) -> Result<Receipt, Error> {
+    // ... only what the handler uses is in scope
+}
+```
+
+In a webserver, load only the state a request needs: query the rows it
+reads, don't hydrate the whole entity graph or pull every table. A narrow
+state surface means a narrow failure space, and a test that builds one small
+value instead of standing up the whole app.
+
+## 10. Boundaries and seams, judiciously
 
 - Test only the exported/public API unless a function is extremely complex;
   treat unexported internals as implementation details.
@@ -157,7 +180,7 @@ struct ServerOpts {
   swap a real dependency for a fake at test time — sparingly: every
   interface adds indirection.
 
-## 10. Overflow is a bug until you say otherwise
+## 11. Overflow is a bug until you say otherwise
 
 Fail on integer overflow rather than silently wrapping. If overflow is an
 expected case, handle it explicitly:
