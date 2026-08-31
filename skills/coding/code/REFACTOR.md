@@ -29,6 +29,9 @@ Run down this checklist and name the violation:
   the state you need.
 - **No seams** — no exported-API discipline, no way to swap a dependency. →
   Boundaries and seams.
+- **Stale references / pinned objects** — code passes and caches object
+  references, so a deleted entity keeps living and stale data gets served. →
+  Pass identity, not references.
 
 Pick the one doing the most damage and fix it first. Most often that's IO
 interleaved with logic, raw input deep inside, or implicit exceptions.

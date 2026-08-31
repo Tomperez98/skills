@@ -191,3 +191,51 @@ total = checked_add(a, b)   // returns None/Err on overflow instead of wrapping
 
 When something unrecoverable happens, crash and let a supervisor restart —
 crash-only recovery, rather than limping on in a corrupted state.
+
+## 12. Pass identity, not references
+
+Across a boundary, hand out an ID or token — not a reference to the object.
+A reference is a snapshot that silently goes stale; an ID is re-resolved, and
+the lookup is where staleness gets caught.
+
+```
+// Wrong — the caller caches the object, which rots and pins memory
+let user = db.get(user_id)
+cache.set("user", user)              // stale data served later
+
+// Right — store the ID; resolve it fresh at the edge
+cache.set("user_id", user_id)
+let user = db.get(cache.get("user_id"))   // fresh, or a loud miss
+```
+
+- **Pass IDs across boundaries, not hydrated objects.** The core receives
+  `user_id`, not a `User`; callers re-resolve when they need data.
+- **Cache IDs, not objects.** A cached object pins memory and rots; a cached
+  ID re-resolves fresh.
+- **Fail fast on stale identity.** Version the thing (etag, row version,
+  `updated_at`); a mismatch at the boundary is a loud `404`/`409`, not a
+  silently overwritten change.
+
+*Systems translation: "handles with generation counters instead of
+pointers." The lookup compares the generation and panics on a stale handle —
+same shape: identity plus a staleness check, resolved in one place.*
+
+## 13. Keep the hot path free of indirection
+
+When something runs many times — a loop, a request path, a query — the
+dominant cost is usually chasing something indirect. Identify the access
+pattern and remove indirection from it.
+
+- **One batched query, not one per item.** An N+1 loop is a dereference per
+  row: a round-trip for each item instead of one fetch.
+- **Set-based over row-by-row.** Filter, join, and aggregate in the store,
+  not by fetching rows and branching in a loop.
+- **Do checks once, outside the loop.** Split a mixed collection by kind
+  before iterating, instead of branching per element.
+- **Measure, don't assume.** These are constant-factor wins with identical
+  big-O. Profile first; a cold path may show no difference.
+
+*CPU-bound translation: "indirection" becomes cache misses and blocked
+vectorization — struct-of-arrays, contiguous arrays over linked structures,
+static over dynamic dispatch. Reach for those only when a profiler names the
+loop.*
