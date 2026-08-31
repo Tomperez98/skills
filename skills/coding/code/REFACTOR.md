@@ -32,6 +32,20 @@ Run down this checklist and name the violation:
 - **Stale references / pinned objects** — code passes and caches object
   references, so a deleted entity keeps living and stale data gets served. →
   Pass identity, not references.
+- **Unbounded loops / recursion / queues** — code loops or recurses with no
+  limit, so a bad input hangs the process instead of failing. → Bound
+  everything.
+- **Branchy call sites** — a function returns a fat type the caller must
+  exhaustively match, so every call site multiplies the test matrix. →
+  Minimize branches at the call site.
+- **Bloated interface surface** — an interface exposes too many methods or
+  parameters, and its failures are undocumented. → Minimize the interface
+  surface; name the fault model.
+- **Hot loop doing control work** — checks and assertions inside the tight
+  loop, killing performance and making the loop untestable in isolation. →
+  Split the control plane from the data plane.
+- **Vague names** — abbreviated or inconsistently-ordered names that blur the
+  mental model. → Name for the mental model.
 
 Pick the one doing the most damage and fix it first. Most often that's IO
 interleaved with logic, raw input deep inside, or implicit exceptions.
