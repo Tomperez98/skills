@@ -236,6 +236,15 @@ pattern and remove indirection from it.
   big-O. Profile first; a cold path may show no difference.
 
 *CPU-bound translation: "indirection" becomes cache misses and blocked
-vectorization — struct-of-arrays, contiguous arrays over linked structures,
-static over dynamic dispatch. Reach for those only when a profiler names the
-loop.*
+vectorization. The unit is the cache line — the smallest chunk moved between
+RAM and the CPU — so the goal is more useful data per line, read in order:*
+
+- *minimize footprint* — smaller types, structure packing (reorder fields,
+  drop padding), so one line holds more items;
+- *access sequentially* — iterate in memory order so a fetched line is fully
+  used;
+- *struct-of-arrays* — keep the fields a hot loop touches contiguous;
+- *contiguous arrays over linked structures, static over dynamic dispatch* —
+  less pointer chasing, so the compiler can vectorize.
+
+*Reach for these only when a profiler names the loop.*
