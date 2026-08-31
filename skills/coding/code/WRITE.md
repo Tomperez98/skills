@@ -245,6 +245,92 @@ RAM and the CPU — so the goal is more useful data per line, read in order:*
   used;
 - *struct-of-arrays* — keep the fields a hot loop touches contiguous;
 - *contiguous arrays over linked structures, static over dynamic dispatch* —
-  less pointer chasing, so the compiler can vectorize.
+  less pointer chasing, so the compiler can vectorize;
+- *zero copy in the data plane* — don't copy memory, don't serialize or
+  deserialize; operate on data in place;
+- *fixed-size, cache-line-aligned structs* — align a struct to its largest
+  field so it never straddles two cache lines.
 
 *Reach for these only when a profiler names the loop.*
+
+## 14. Sketch performance before you build
+
+The 1000x wins are only available at design time, when you can't profile.
+Do a back-of-the-envelope sketch over the four primary colors — network,
+storage, memory, compute — each with two textures: bandwidth and latency.
+Roughly right beats precisely wrong, and the sketch tells you which rule in
+this file actually matters for this system.
+
+## 15. Split the control plane from the data plane
+
+Batch work so decisions run once per batch, and let the hot loop sprint
+through data without branching. Checks, assertions, and validation live in
+the control plane — amortized across the batch — while the data plane stays
+a tight loop the CPU can vectorize.
+
+```
+// Control plane: one check, one decision
+if !batch_is_valid(batch): return Err(InvalidBatch)
+
+// Data plane: a branch-free sprint over the batch
+for item in batch { process(item) }
+```
+
+An assertion costs almost nothing once per batch; the same assert per item
+would dominate the data plane. This is where fail-fast and performance
+agree: the control plane can afford to be paranoid.
+
+## 16. Bound everything
+
+Everything has a limit; write it down. Bound loops, queues, buffers,
+concurrency, and recursion. A bound is a fail-fast device — when the code
+hits a limit that "can't happen," it panics at that line instead of
+hanging, ballooning, or looping forever.
+
+- Bound loops and queues to detect the infinite loop and the latency spike.
+- Avoid recursion, or give it an explicit depth limit.
+- Use fixed-width types (`u32`, `i64`) over architecture-specific ones
+  (`usize`, `int`) — the bound is visible in the type.
+- Prefer allocating at startup over allocating in the hot path; a fixed
+  allocation is a bound you can see and reason about.
+
+## 17. Minimize branches at the call site
+
+Every case the caller must handle is a test someone has to write. Simplify
+signatures so the call site branches as little as possible, and return the
+simplest type that answers the question. A `bool` beats a count, a count
+beats a nullable — and the simplicity propagates through the call graph.
+
+```
+fn is_ready() -> bool { ... }              // caller: one branch
+fn find_user(id) -> Option<User> { ... }   // caller: one match
+fn classify(x) -> enum { A, B, C }         // caller: three matches — is that the point?
+```
+
+Define variables near where they're used, closing the gap between where a
+value is born and where it's read.
+
+## 18. Minimize the interface surface; name the fault model
+
+An interface is a contract. Keep its surface small — fewer methods, fewer
+parameters — and document not just what it returns but what it can fail
+with. That fault model is "one error vocabulary per boundary" seen from the
+interface side: the caller handles the named failures and nothing else.
+
+Push control flow up and data flow down — callers decide, leaves compute.
+Abstract a non-deterministic physical interface (network, clock, disk)
+behind a deterministic logical one, so the caller and the test see a stable
+contract instead of the machine.
+
+## 19. Name for the mental model
+
+Names are the mental model; make them carry it.
+
+- Append qualifiers to a base name (`user_id`, `user_name`, `user_email`).
+- Sort by the most significant word first (big-endian): `revenue_total`,
+  not `total_revenue` — related names group and line up.
+- Give related names the same length so they align in the source
+  (`source` / `target`).
+- Use your language's prevailing case convention — `snake_case`,
+  `camelCase`, `PascalCase`, whatever the codebase already uses — and don't
+  abbreviate: a crisp name beats a short one.

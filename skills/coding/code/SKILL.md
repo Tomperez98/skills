@@ -8,14 +8,18 @@ description: >
   (isolate side effects, parse at the edge, model errors as values, one
   error vocabulary per boundary, compose workflows, tame global state,
   load only the state you need, pass identity (not references), keep the
-  hot path free of indirection, interfaces as seams), and testing well (golden files, fail-direct helpers,
+  hot path free of indirection, split the control plane from the data
+  plane, bound everything (explicit limits), minimize branches at the call
+  site, minimize the interface surface and name its fault model, interfaces
+  as seams, name for the mental model), and testing well (golden files,
+  fail-direct helpers,
   assert the discriminated shape, one test per error variant,
   short-circuiting, deterministic retries, compile-time pins). Use whenever
   the user writes code or tests, asks for help testing something, says code
   is hard to test or untestable, refactors code so it can be tested, designs
   APIs or functions, or asks about mocking, error handling, panics,
-  assertions, or test strategy — even if they never say "testability" or
-  "fail fast".
+  assertions, performance, resource limits, naming, or test strategy — even
+  if they never say "testability" or "fail fast".
 ---
 
 # Code
@@ -73,3 +77,5 @@ recovers it, TEST proves it.
 - [Better Result — Testing](https://better-result.dev/guides/testing)
 - [Handles are the better pointers — floooh](https://floooh.github.io/2018/06/17/handles-vs-pointers.html)
 - [An Introduction to Data-Oriented Design — jamesmcm](https://jamesmcm.github.io/blog/intro-dod/)
+- [TigerStyle — tigerstyle.dev](https://tigerstyle.dev/)
+- [The Power of Ten Rules — Gerard J. Holzmann](https://spinroot.com/gerard/pdf/P10.pdf)
