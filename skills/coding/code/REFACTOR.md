@@ -29,6 +29,10 @@ Run down this checklist and name the violation:
   the state you need.
 - **No seams** — no exported-API discipline, no way to swap a dependency. →
   Boundaries and seams.
+- **Dangling pointers / scattered ownership** — an object spiderweb (objects
+  pointing at each other through smart pointers), use-after-free, or "fake
+  leaks" from a forgotten reference. → Own memory centrally (handles, not
+  pointers).
 
 Pick the one doing the most damage and fix it first. Most often that's IO
 interleaved with logic, raw input deep inside, or implicit exceptions.

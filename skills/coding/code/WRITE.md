@@ -191,3 +191,41 @@ total = checked_add(a, b)   // returns None/Err on overflow instead of wrapping
 
 When something unrecoverable happens, crash and let a supervisor restart —
 crash-only recovery, rather than limping on in a corrupted state.
+
+## 12. Own memory centrally: handles, not pointers
+
+The fail-fast rule applies to ownership, not just invariants. A dangling
+pointer is a bug — detect it at the moment it would do damage, not after
+silent corruption.
+
+```
+let handle = world.spawn(Enemy)   // returns a Handle<Enemy>, not a pointer
+let enemy  = world.lookup(handle) // panics if the handle is stale
+enemy.take_damage(10)             // never store `enemy` beyond this block
+```
+
+- **Centralize ownership.** Allocation and deallocation live in a few central
+  systems (rendering, physics, animation, …) that are the sole owners of
+  their memory. User code never calls the allocator directly.
+- **Group like items into arrays.** Items of the same type are packed in
+  arrays; the array base pointer stays private to the owning system. Cache
+  locality, no per-item allocation, easy leak detection, reallocation without
+  invalidating references.
+- **Return index-handles, not pointers.** The public API hands out a small
+  index (a handle), never a pointer to the item. A pointer is never the owner
+  of an item's memory.
+- **Spend spare handle bits on safety.** A 16-bit handle that needs only 10
+  index bits has 6 spare bits — put a generation counter in them. On
+  handle→pointer conversion, compare the handle's generation against the
+  slot's current generation; a mismatch is a dangling access, so crash there.
+- **Bump the generation on release.** Each slot's counter increments when its
+  handle is released; on overflow, disable the slot so no new handle can
+  collide with one still in the wild.
+- **Convert rarely, never store.** A pointer obtained from a handle is a
+  short-lived reference: use it in one block, never store it, never pass it
+  across function calls.
+
+The handle lookup is where the fail-fast contract lives: a handle either
+resolves to the item it was created for, or the generation mismatch panics at
+the lookup line — use-after-free becomes a loud crash instead of silent
+corruption.
