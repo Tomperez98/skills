@@ -7,8 +7,8 @@ description: >
   expected failures, assertive programming), structuring code for testability
   (isolate side effects, parse at the edge, model errors as values, one
   error vocabulary per boundary, compose workflows, tame global state,
-  load only the state you need, own memory centrally (handles, not
-  pointers), interfaces as seams), and testing well (golden files, fail-direct helpers,
+  load only the state you need, pass identity (not references), keep the
+  hot path free of indirection, interfaces as seams), and testing well (golden files, fail-direct helpers,
   assert the discriminated shape, one test per error variant,
   short-circuiting, deterministic retries, compile-time pins). Use whenever
   the user writes code or tests, asks for help testing something, says code
@@ -72,3 +72,4 @@ recovers it, TEST proves it.
 - [Better Result — Application patterns](https://better-result.dev/guides/application-patterns)
 - [Better Result — Testing](https://better-result.dev/guides/testing)
 - [Handles are the better pointers — floooh](https://floooh.github.io/2018/06/17/handles-vs-pointers.html)
+- [An Introduction to Data-Oriented Design — jamesmcm](https://jamesmcm.github.io/blog/intro-dod/)

@@ -192,40 +192,50 @@ total = checked_add(a, b)   // returns None/Err on overflow instead of wrapping
 When something unrecoverable happens, crash and let a supervisor restart —
 crash-only recovery, rather than limping on in a corrupted state.
 
-## 12. Own memory centrally: handles, not pointers
+## 12. Pass identity, not references
 
-The fail-fast rule applies to ownership, not just invariants. A dangling
-pointer is a bug — detect it at the moment it would do damage, not after
-silent corruption.
+Across a boundary, hand out an ID or token — not a reference to the object.
+A reference is a snapshot that silently goes stale; an ID is re-resolved, and
+the lookup is where staleness gets caught.
 
 ```
-let handle = world.spawn(Enemy)   // returns a Handle<Enemy>, not a pointer
-let enemy  = world.lookup(handle) // panics if the handle is stale
-enemy.take_damage(10)             // never store `enemy` beyond this block
+// Wrong — the caller caches the object, which rots and pins memory
+let user = db.get(user_id)
+cache.set("user", user)              // stale data served later
+
+// Right — store the ID; resolve it fresh at the edge
+cache.set("user_id", user_id)
+let user = db.get(cache.get("user_id"))   // fresh, or a loud miss
 ```
 
-- **Centralize ownership.** Allocation and deallocation live in a few central
-  systems (rendering, physics, animation, …) that are the sole owners of
-  their memory. User code never calls the allocator directly.
-- **Group like items into arrays.** Items of the same type are packed in
-  arrays; the array base pointer stays private to the owning system. Cache
-  locality, no per-item allocation, easy leak detection, reallocation without
-  invalidating references.
-- **Return index-handles, not pointers.** The public API hands out a small
-  index (a handle), never a pointer to the item. A pointer is never the owner
-  of an item's memory.
-- **Spend spare handle bits on safety.** A 16-bit handle that needs only 10
-  index bits has 6 spare bits — put a generation counter in them. On
-  handle→pointer conversion, compare the handle's generation against the
-  slot's current generation; a mismatch is a dangling access, so crash there.
-- **Bump the generation on release.** Each slot's counter increments when its
-  handle is released; on overflow, disable the slot so no new handle can
-  collide with one still in the wild.
-- **Convert rarely, never store.** A pointer obtained from a handle is a
-  short-lived reference: use it in one block, never store it, never pass it
-  across function calls.
+- **Pass IDs across boundaries, not hydrated objects.** The core receives
+  `user_id`, not a `User`; callers re-resolve when they need data.
+- **Cache IDs, not objects.** A cached object pins memory and rots; a cached
+  ID re-resolves fresh.
+- **Fail fast on stale identity.** Version the thing (etag, row version,
+  `updated_at`); a mismatch at the boundary is a loud `404`/`409`, not a
+  silently overwritten change.
 
-The handle lookup is where the fail-fast contract lives: a handle either
-resolves to the item it was created for, or the generation mismatch panics at
-the lookup line — use-after-free becomes a loud crash instead of silent
-corruption.
+*Systems translation: "handles with generation counters instead of
+pointers." The lookup compares the generation and panics on a stale handle —
+same shape: identity plus a staleness check, resolved in one place.*
+
+## 13. Keep the hot path free of indirection
+
+When something runs many times — a loop, a request path, a query — the
+dominant cost is usually chasing something indirect. Identify the access
+pattern and remove indirection from it.
+
+- **One batched query, not one per item.** An N+1 loop is a dereference per
+  row: a round-trip for each item instead of one fetch.
+- **Set-based over row-by-row.** Filter, join, and aggregate in the store,
+  not by fetching rows and branching in a loop.
+- **Do checks once, outside the loop.** Split a mixed collection by kind
+  before iterating, instead of branching per element.
+- **Measure, don't assume.** These are constant-factor wins with identical
+  big-O. Profile first; a cold path may show no difference.
+
+*CPU-bound translation: "indirection" becomes cache misses and blocked
+vectorization — struct-of-arrays, contiguous arrays over linked structures,
+static over dynamic dispatch. Reach for those only when a profiler names the
+loop.*
