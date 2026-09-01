@@ -190,7 +190,9 @@ total = checked_add(a, b)   // returns None/Err on overflow instead of wrapping
 ```
 
 When something unrecoverable happens, crash and let a supervisor restart —
-crash-only recovery, rather than limping on in a corrupted state.
+crash-only recovery, rather than limping on in a corrupted state. Making
+that crash safe and the recovery fast is its own branch — see
+[CRASHONLY.md](CRASHONLY.md).
 
 ## 12. Pass identity, not references
 

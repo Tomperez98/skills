@@ -1,11 +1,13 @@
 ---
 name: code
 description: >
-  Write code that fails fast and tests well. One rule: bugs panic, expected
-  failures return values. Use when the user writes or tests code, says code
-  is hard to test, refactors for testability, designs APIs, or asks about
-  mocking, error handling, panics, assertions, naming, performance, or
-  resource limits — even if they never say "testability" or "fail fast".
+  Write code that fails fast, recovers fast, and tests well. One rule: bugs
+  panic, expected failures return values. Use when the user writes or tests
+  code, says code is hard to test, refactors for testability, designs APIs,
+  or asks about mocking, error handling, panics, assertions, naming,
+  performance, resource limits, crash-only design, crash safety, graceful
+  shutdown, recovery, restart/retry, idempotency, supervisors, or leases and
+  timeouts — even if they never say "testability" or "fail fast".
 ---
 
 # Code
@@ -23,18 +25,21 @@ code, or by asking if the user is around:
 
 - **"Write this / design this API / add this feature"** → [WRITE.md](WRITE.md).
   Build the fail-fast contract and structure for testability as you go.
+- **"Make this crash-safe / recover fast / crash-only / restart/retry"** →
+  [CRASHONLY.md](CRASHONLY.md). Design the crash and recovery paths so a
+  panic is safe and cheap.
 - **"This code is hard to test / untestable / help me refactor"** →
   [REFACTOR.md](REFACTOR.md). Diagnose which principle the code violates and
   fix that first, before writing tests.
 - **"Write tests for this"** → [TEST.md](TEST.md). Apply the testing
   techniques that the structure makes available.
 
-The three branches produce very different output, so getting this wrong
+The four branches produce very different output, so getting this wrong
 wastes the work. If the situation is genuinely ambiguous and the user isn't
 reachable, default to whichever branch matches the surrounding code (a
-feature/page/component → WRITE; a complaint about testing pain → REFACTOR; an
-explicit request for tests → TEST) and state the assumption at the top of
-your work.
+feature/page/component → WRITE; a shutdown/recovery/crash-safety concern →
+CRASHONLY; a complaint about testing pain → REFACTOR; an explicit request
+for tests → TEST) and state the assumption at the top of your work.
 
 ## The one rule
 
@@ -53,7 +58,8 @@ your work.
 Failing fast is what makes code testable: a function either returns one of
 its documented failures, or it guarantees its invariants hold — and that
 contract is exactly what a test asserts. WRITE builds the contract, REFACTOR
-recovers it, TEST proves it.
+recovers it, TEST proves it, and CRASHONLY makes the panic itself safe and
+cheap: a component you can kill at any instant and recover in milliseconds.
 
 ## Sources
 
@@ -65,3 +71,4 @@ recovers it, TEST proves it.
 - [An Introduction to Data-Oriented Design — jamesmcm](https://jamesmcm.github.io/blog/intro-dod/)
 - [TigerStyle — tigerstyle.dev](https://tigerstyle.dev/)
 - [The Power of Ten Rules — Gerard J. Holzmann](https://spinroot.com/gerard/pdf/P10.pdf)
+- [Crash-Only Software — Candea & Fox, HotOS 2003](https://www.usenix.org/legacy/events/hotos03/tech/full_papers/candea/candea_html/index.html)
