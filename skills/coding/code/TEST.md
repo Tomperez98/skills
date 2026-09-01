@@ -110,3 +110,37 @@ drift silently, using your language's compile-time type assertion
 // Asserts register_user is exactly (str) -> Result<User, RegisterUserError>
 type_assert(register_user, fn(str) -> Result<User, RegisterUserError>)
 ```
+
+## 9. Test that startup is recovery
+
+Recovery is the only startup path, so it must rebuild every invariant from
+durable state alone. Kill the component mid-write — no cleanup, no
+destructors — then restart it and assert the state is sound.
+
+```
+store.set("a", 1)
+store.crash()                    // just stop; no flush, no finalizers
+
+restarted = Store.open(path)     // open IS recover
+assert(restarted.get("a") in [Ok(1), Ok(absent)])   // rebuilt or dropped, never corrupt
+```
+
+Because this is the only startup path, this test exercises exactly what
+production runs every boot — recovery can't rot in the dark.
+
+## 10. Test idempotency by double-applying
+
+Restart/retry is only sound when re-running an effect applies it once. Pin
+that property: apply a retryable operation twice and assert the single
+effect.
+
+```
+key = new_idempotency_key()
+apply_payment(key, 100)
+apply_payment(key, 100)          // the "retry" after a crash
+
+assert(balance_delta == 100)     // applied once, not twice
+```
+
+The idempotency key (or sequence number) is what makes the retry safe; the
+test is what makes that safety explicit and non-negotiable.

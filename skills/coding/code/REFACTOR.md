@@ -46,14 +46,22 @@ Run down this checklist and name the violation:
   Split the control plane from the data plane.
 - **Vague names** — abbreviated or inconsistently-ordered names that blur the
   mental model. → Name for the mental model.
+- **Fragile crash path** — shutdown or crash depends on the component
+  cleaning itself up, and startup has a separate, untested "fresh" path. →
+  Crash-only design.
+- **Non-idempotent effects** — retrying an operation double-applies it, so
+  recovery and retry are unsafe. → Make retryable effects idempotent.
+- **Infinite waits / permanent holds** — a call blocks forever or a resource
+  is never released, so a hang never becomes a fail-stop. → Timeout every
+  interaction; lease every resource.
 
 Pick the one doing the most damage and fix it first. Most often that's IO
 interleaved with logic, raw input deep inside, or implicit exceptions.
 
 ## 2. Fix, then test
 
-Refactor so the code follows the WRITE.md rules, preserving external
-behavior. Then write the tests the new structure makes possible — see
+Refactor so the code follows the WRITE.md and CRASHONLY.md rules, preserving
+external behavior. Then write the tests the new structure makes possible — see
 TEST.md.
 
 ## 3. Treat pain as a signal
