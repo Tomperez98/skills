@@ -6,8 +6,8 @@ description: >
   code, says code is hard to test, refactors for testability, designs APIs,
   or asks about mocking, error handling, panics, assertions, naming,
   performance, resource limits, crash-only design, crash safety, graceful
-  shutdown, recovery, restart/retry, idempotency, supervisors, or leases and
-  timeouts — even if they never say "testability" or "fail fast".
+  shutdown, recovery, restart/retry, idempotency, supervisors, cancellation,
+  or leases and timeouts — even if they never say "testability" or "fail fast".
 ---
 
 # Code
@@ -72,3 +72,4 @@ cheap: a component you can kill at any instant and recover in milliseconds.
 - [TigerStyle — tigerstyle.dev](https://tigerstyle.dev/)
 - [The Power of Ten Rules — Gerard J. Holzmann](https://spinroot.com/gerard/pdf/P10.pdf)
 - [Crash-Only Software — Candea & Fox, HotOS 2003](https://www.usenix.org/legacy/events/hotos03/tech/full_papers/candea/candea_html/index.html)
+- [Cancelation Terminology — matklad](https://matklad.github.io/2026/08/31/cancelation-terminology.html)

@@ -144,3 +144,23 @@ assert(balance_delta == 100)     // applied once, not twice
 
 The idempotency key (or sequence number) is what makes the retry safe; the
 test is what makes that safety explicit and non-negotiable.
+
+## 11. Test cancellation before release
+
+Asynchronous cancellation is a protocol: the caller may release the
+resources in-flight work touches only *after* the worker acknowledges.
+Assert that ordering — the ack fires before the release.
+
+```
+events = []
+worker = spawn(() -> { use(buffer); events.push("worker_done") })
+
+shutdown(worker)              // must not return until the worker acked
+events.push("released")
+
+assert(events == ["worker_done", "released"])
+```
+
+If `shutdown` returned early and the caller freed the buffer while the
+worker still read it, this test fails with a data race — the exact bug the
+protocol exists to prevent.

@@ -3,7 +3,34 @@
 You're making a component safe to crash and fast to recover. The one rule
 says bugs panic; this branch makes the panic cheap. A crash-only component
 has exactly one way to stop — crash — and exactly one way to start —
-recover. Apply in order.
+recover. Before you write any stop path, name which way you're stoppingx.
+
+## Ways to stop
+
+A component stops in more ways than the one rule names. Conflating them is a
+bug source — the wrong shutdown path either leaks resources or races. Name
+the mechanism first:
+
+- **Synchronous cancellation** — control flow: unwind the stack and run
+  cleanup (`defer`, `finally`, RAII). "Return a value" and "panic" are both
+  this. → WRITE.md.
+- **Asynchronous cancellation** — a protocol: one party *requests*
+  cancellation, then *waits for acknowledgment* before it may release the
+  resources the work was using. Freeing a buffer while a worker still reads
+  it is a data race; and a worker deep in a SIMD loop can't check a flag per
+  byte, so split the work into chunks and check between them. → rules 6–7
+  below, plus the ordering note at the end of this section.
+- **Graceful shutdown** — stop accepting new work, drain in-flight work to
+  completion. Useful for rolling upgrades, but it's a second stop path: if
+  you can survive a `kill -9`, you can implement "Quit" by killing yourself.
+  Ask whether crash-only makes it redundant before building it. → rule 1.
+- **Crash** — the uncooperative off-switch: `kill -9`, the OOM killer,
+  powerloss. Recovery *is* startup. → the rest of this file.
+
+If you need asynchronous cancellation, the ordering is the whole contract:
+request, wait for acknowledgment, *then* release. If you can't wait for an
+ack because the peer may never respond, the ack itself needs a timeout — a
+lease (rule 6), not an open-ended wait.
 
 ## 1. Stop = crash, start = recover
 
