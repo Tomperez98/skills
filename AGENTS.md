@@ -21,12 +21,16 @@ does not restate them.
 - One skill per folder: `skills/<category>/<skill>/SKILL.md` plus branch
   guides, one per situation the skill handles.
 - Frontmatter: `name` (lowercase, hyphenated) + `description`.
-- **Keep `description` ≤ 1024 characters** (folded). pi rejects longer ones
-  with "description exceeds 1024 characters". Count the folded string —
-  block-scalar newlines fold to spaces — not the source lines.
-- The description is the trigger. Name the situations that should fire the
-  skill in the reader's vocabulary, and keep the "even if they never say X"
-  cases that would otherwise miss it.
+- **Keep `description` short — it's a trigger, not a table of contents.**
+  The branch guides carry the detail; the description only decides whether
+  the skill fires. Aim for under ~450 folded characters — the 1024 ceiling
+  is a hard limit, not a target (pi rejects longer with "description
+  exceeds 1024 characters"). Count the folded string — block-scalar
+  newlines fold to spaces — not the source lines.
+- Name the situations that should fire the skill, in the reader's
+  vocabulary, including the "even if they never say X" cases that would
+  otherwise miss it. One trigger per branch: collapse synonyms that rename
+  a single situation.
 - One rule per skill, stated once up top; the branches turn it into
   procedure, applied in order.
 

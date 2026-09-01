@@ -2,20 +2,11 @@
 name: docs
 description: >
   Write docs and developer-marketing copy that meets a developer at their
-  task. One rule: lead with the reader's task, win the 10-second skim, and
-  never mislead. Covers READMEs and repo docs (10-second hero, what-it-is,
-  install, one working example, link onward), API references (signature,
-  parameters, the error vocabulary, one example per operation), tutorials
-  and quickstarts (one scoped outcome, copy-paste steps, expected output),
-  changelogs (impact-first, breaking changes loudest, Keep a Changelog +
-  SemVer), landing pages and positioning (value proposition, who it's for,
-  why not the alternative, proof over adjectives), and docs-as-marketing
-  (findability, shareability, examples that sell, converting at the moment
-  of success). Use whenever the user writes or fixes a README, API docs, a
-  tutorial or quickstart, a changelog, a blog post, or landing-page copy,
-  or asks about docs-driven growth, developer marketing, making docs
-  convert, or ranking in search — even if they never say "documentation" or
-  "marketing".
+  task. One rule: lead with the reader's task, win the 10-second skim,
+  never mislead. Use when the user writes or fixes a README, API docs, a
+  tutorial or quickstart, a changelog or release notes, landing-page or
+  blog copy, or asks about docs-driven growth, developer marketing, or
+  ranking in search — even if they never say "documentation" or "marketing".
 ---
 
 # Docs & Developer Marketing
