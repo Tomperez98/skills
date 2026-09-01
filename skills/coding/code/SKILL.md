@@ -1,25 +1,11 @@
 ---
 name: code
 description: >
-  Write code that fails fast and can be tested well. The one rule: bugs
-  panic, expected failures return values. Covers failing fast (panic on
-  broken invariants and programmer errors, return an error value for
-  expected failures, assertive programming), structuring code for testability
-  (isolate side effects, parse at the edge, model errors as values, one
-  error vocabulary per boundary, compose workflows, tame global state,
-  load only the state you need, pass identity (not references), keep the
-  hot path free of indirection, split the control plane from the data
-  plane, bound everything (explicit limits), minimize branches at the call
-  site, minimize the interface surface and name its fault model, interfaces
-  as seams, name for the mental model), and testing well (golden files,
-  fail-direct helpers,
-  assert the discriminated shape, one test per error variant,
-  short-circuiting, deterministic retries, compile-time pins). Use whenever
-  the user writes code or tests, asks for help testing something, says code
-  is hard to test or untestable, refactors code so it can be tested, designs
-  APIs or functions, or asks about mocking, error handling, panics,
-  assertions, performance, resource limits, naming, or test strategy — even
-  if they never say "testability" or "fail fast".
+  Write code that fails fast and tests well. One rule: bugs panic, expected
+  failures return values. Use when the user writes or tests code, says code
+  is hard to test, refactors for testability, designs APIs, or asks about
+  mocking, error handling, panics, assertions, naming, performance, or
+  resource limits — even if they never say "testability" or "fail fast".
 ---
 
 # Code
