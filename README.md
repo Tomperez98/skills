@@ -2,11 +2,11 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Two skills today,
-nine branch guides, 77 numbered rules.
+ten branch guides, 96 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
-| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · REFACTOR · TEST |
+| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · REFACTOR · TEST · CRASHONLY |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 
 ## What it is
@@ -46,10 +46,13 @@ The `description` in each `SKILL.md` decides when the skill fires:
 ```yaml
 name: code
 description: >
-  Write code that fails fast and can be tested well. The one rule: bugs
-  panic, expected failures return values. Use whenever the user writes code
-  or tests, says code is hard to test, refactors code so it can be tested,
-  or asks about error handling — even if they never say "testability".
+  Write code that fails fast and tests well. One rule: bugs panic, expected
+  failures return values. Use when the user writes or tests code, finds it
+  hard to test, designs an API or config, or asks about mocking, error
+  handling, assertions, naming, performance, environment variables, resource
+  limits, crash-only design, shutdown, recovery, retry, idempotency,
+  cancellation, or timeouts — even if they never say "testability" or "fail
+  fast".
 ```
 
 When a task matches, the agent reads the branch that fits the situation and
@@ -57,9 +60,10 @@ follows its rules in order:
 
 | Situation | Branch guide | What it does |
 |-----------|--------------|--------------|
-| "Write this feature / design this API" | [`code/WRITE.md`](skills/coding/code/WRITE.md) | Panic on broken invariants, return values for expected failures, parse at the edge, one error vocabulary per boundary |
+| "Write this feature / design this API" | [`code/WRITE.md`](skills/coding/code/WRITE.md) | Panic on broken invariants, return values for expected failures, parse at the edge, configure explicitly at the edge, one error vocabulary per boundary |
 | "This code is hard to test" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
 | "Write tests for this" | [`code/TEST.md`](skills/coding/code/TEST.md) | Assert the shape before the payload, one test per error variant, test short-circuiting |
+| "Make this crash-safe / recover fast / crash-only" | [`code/CRASHONLY.md`](skills/coding/code/CRASHONLY.md) | Stop = crash, start = recover: make the panic safe and the recovery cheap |
 | "Write / fix the README" | [`docs/README.md`](skills/coding/docs/README.md) | Win the 10-second skim: hero, what-it-is, install, one working example, link onward |
 | "Write / fix API docs" | [`docs/API.md`](skills/coding/docs/API.md) | Signature first, name the fault model, one example per operation |
 | "Write / fix a tutorial" | [`docs/TUTORIAL.md`](skills/coding/docs/TUTORIAL.md) | One scoped outcome, copy-paste steps, observable output |

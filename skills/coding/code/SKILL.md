@@ -1,13 +1,13 @@
 ---
 name: code
 description: >
-  Write code that fails fast, recovers fast, and tests well. One rule: bugs
-  panic, expected failures return values. Use when the user writes or tests
-  code, says code is hard to test, refactors for testability, designs APIs,
-  or asks about mocking, error handling, panics, assertions, naming,
-  performance, resource limits, crash-only design, crash safety, graceful
-  shutdown, recovery, restart/retry, idempotency, supervisors, cancellation,
-  or leases and timeouts — even if they never say "testability" or "fail fast".
+  Write code that fails fast and tests well. One rule: bugs panic, expected
+  failures return values. Use when the user writes or tests code, finds it
+  hard to test, designs an API or config, or asks about mocking, error
+  handling, assertions, naming, performance, environment variables, resource
+  limits, crash-only design, shutdown, recovery, retry, idempotency,
+  cancellation, or timeouts — even if they never say "testability" or "fail
+  fast".
 ---
 
 # Code
@@ -70,6 +70,7 @@ cheap: a component you can kill at any instant and recover in milliseconds.
 - [Handles are the better pointers — floooh](https://floooh.github.io/2018/06/17/handles-vs-pointers.html)
 - [An Introduction to Data-Oriented Design — jamesmcm](https://jamesmcm.github.io/blog/intro-dod/)
 - [TigerStyle — tigerstyle.dev](https://tigerstyle.dev/)
+- [TigerBeetle CLI guidelines — stdx/flags.zig](https://github.com/tigerbeetle/tigerbeetle/blob/main/src/stdx/flags.zig)
 - [The Power of Ten Rules — Gerard J. Holzmann](https://spinroot.com/gerard/pdf/P10.pdf)
 - [Crash-Only Software — Candea & Fox, HotOS 2003](https://www.usenix.org/legacy/events/hotos03/tech/full_papers/candea/candea_html/index.html)
 - [Cancelation Terminology — matklad](https://matklad.github.io/2026/08/31/cancelation-terminology.html)

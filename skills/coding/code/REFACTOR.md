@@ -23,6 +23,10 @@ Run down this checklist and name the violation:
   → Map to transport once.
 - **Global state** — tests leak into each other, can't run in parallel. →
   Tame global state.
+- **Ambient configuration** — functions read environment variables deep in
+  the call stack, so behavior depends on process-wide state that no
+  signature names; tests set and restore variables, and pass only in a
+  particular order. → Configure explicitly, at the edge.
 - **Fat state / over-hydration** — a function or handler receives or loads
   more state than it uses (a whole `Context`, `App`, `Database`, or entity
   graph for one field), so tests must build the entire world. → Load only
