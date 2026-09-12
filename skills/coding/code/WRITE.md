@@ -149,7 +149,54 @@ struct ServerOpts {
 }
 ```
 
-## 9. Load only the state you need
+## 9. Configure explicitly, at the edge
+
+Environment variables are global state with extra steps: ambient, untyped,
+and invisible in every signature that depends on them. A `getenv` deep in
+the call stack is a hidden input — the function lies about what it needs,
+and only the environment reveals the truth. Prefer TigerBeetle's shape:
+config arrives as explicit arguments at the entry point, is validated once
+into a typed value, and is passed down.
+
+```
+// Wrong — an ambient lookup far from the entry point; the signature hides it
+fn connect() -> Result<Conn, IOError> {
+    url = env("DATABASE_URL") ?? panic("missing")   // untyped, late, global
+    // ...
+}
+
+// Right — read the environment once, at the edge, into a typed value
+fn main() -> Result<(), Error> {
+    config = parse_config(args, env)   // the only read; failure is loud and early
+    return serve(config)               // everything inside takes Config, not the world
+}
+
+fn connect(url: DbUrl) -> Result<Conn, IOError> { ... }
+```
+
+- **Read the environment once, at the edge — `main` or the CLI parser.**
+  Below that line, no `getenv`. Every layer receives the parsed value as an
+  argument; the parser takes the environment as a parameter rather than
+  reaching into the process, so a test can drive it directly.
+- **Validate into a type at that boundary.** A missing or malformed value
+  is a startup failure that names the offender, not a wrong answer three
+  hours in. A typo'd variable silently falling back to a default is the
+  classic production incident; `getenv` returning null is the bug.
+- **No silent defaults for required config.** A default that is safe in
+  development is a latent bug in production: it turns a typo'd variable
+  name into a wrong answer instead of a crash. An option's default is
+  visible in the type (rule 8); an environment variable's is invisible.
+  Require the value, and let the crash name what is missing.
+- **Pass the narrowest slice each component needs** — a `DbUrl`, not the
+  whole `Config` (rule 10).
+
+The environment is a legitimate *boundary*, not a config store. systemd,
+Kubernetes, and CI hand a process its world as variables; TigerBeetle's own
+unit converts `TIGERBEETLE_*` into explicit `--flags` before the binary
+starts, and the binary itself reads no environment config. Read it there —
+at the seam — and nowhere else.
+
+## 10. Load only the state you need
 
 Give a function the narrowest slice of state its logic touches — not a
 reference to the whole world. A handler that reads one field shouldn't
@@ -172,7 +219,7 @@ reads, don't hydrate the whole entity graph or pull every table. A narrow
 state surface means a narrow failure space, and a test that builds one small
 value instead of standing up the whole app.
 
-## 10. Boundaries and seams, judiciously
+## 11. Boundaries and seams, judiciously
 
 - Test only the exported/public API unless a function is extremely complex;
   treat unexported internals as implementation details.
@@ -180,7 +227,7 @@ value instead of standing up the whole app.
   swap a real dependency for a fake at test time — sparingly: every
   interface adds indirection.
 
-## 11. Overflow is a bug until you say otherwise
+## 12. Overflow is a bug until you say otherwise
 
 Fail on integer overflow rather than silently wrapping. If overflow is an
 expected case, handle it explicitly:
@@ -194,7 +241,7 @@ crash-only recovery, rather than limping on in a corrupted state. Making
 that crash safe and the recovery fast is its own branch — see
 [CRASHONLY.md](CRASHONLY.md).
 
-## 12. Pass identity, not references
+## 13. Pass identity, not references
 
 Across a boundary, hand out an ID or token — not a reference to the object.
 A reference is a snapshot that silently goes stale; an ID is re-resolved, and
@@ -222,7 +269,7 @@ let user = db.get(cache.get("user_id"))   // fresh, or a loud miss
 pointers." The lookup compares the generation and panics on a stale handle —
 same shape: identity plus a staleness check, resolved in one place.*
 
-## 13. Keep the hot path free of indirection
+## 14. Keep the hot path free of indirection
 
 When something runs many times — a loop, a request path, a query — the
 dominant cost is usually chasing something indirect. Identify the access
@@ -255,7 +302,7 @@ RAM and the CPU — so the goal is more useful data per line, read in order:*
 
 *Reach for these only when a profiler names the loop.*
 
-## 14. Sketch performance before you build
+## 15. Sketch performance before you build
 
 The 1000x wins are only available at design time, when you can't profile.
 Do a back-of-the-envelope sketch over the four primary colors — network,
@@ -263,7 +310,7 @@ storage, memory, compute — each with two textures: bandwidth and latency.
 Roughly right beats precisely wrong, and the sketch tells you which rule in
 this file actually matters for this system.
 
-## 15. Split the control plane from the data plane
+## 16. Split the control plane from the data plane
 
 Batch work so decisions run once per batch, and let the hot loop sprint
 through data without branching. Checks, assertions, and validation live in
@@ -282,7 +329,7 @@ An assertion costs almost nothing once per batch; the same assert per item
 would dominate the data plane. This is where fail-fast and performance
 agree: the control plane can afford to be paranoid.
 
-## 16. Bound everything
+## 17. Bound everything
 
 Everything has a limit; write it down. Bound loops, queues, buffers,
 concurrency, and recursion. A bound is a fail-fast device — when the code
@@ -296,7 +343,7 @@ hanging, ballooning, or looping forever.
 - Prefer allocating at startup over allocating in the hot path; a fixed
   allocation is a bound you can see and reason about.
 
-## 17. Minimize branches at the call site
+## 18. Minimize branches at the call site
 
 Every case the caller must handle is a test someone has to write. Simplify
 signatures so the call site branches as little as possible, and return the
@@ -312,7 +359,7 @@ fn classify(x) -> enum { A, B, C }         // caller: three matches — is that 
 Define variables near where they're used, closing the gap between where a
 value is born and where it's read.
 
-## 18. Minimize the interface surface; name the fault model
+## 19. Minimize the interface surface; name the fault model
 
 An interface is a contract. Keep its surface small — fewer methods, fewer
 parameters — and document not just what it returns but what it can fail
@@ -324,7 +371,7 @@ Abstract a non-deterministic physical interface (network, clock, disk)
 behind a deterministic logical one, so the caller and the test see a stable
 contract instead of the machine.
 
-## 19. Name for the mental model
+## 20. Name for the mental model
 
 Names are the mental model; make them carry it.
 

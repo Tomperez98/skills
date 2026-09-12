@@ -94,13 +94,39 @@ fn setup() -> Db { ... }
 db = setup()
 ```
 
-## 7. Golden files for complex output
+## 7. Arrange config by value, not by environment
+
+Config is a value (WRITE.md), so tests pass it in. Setting a variable
+mutates process-wide state for every test in the process: leaked values make
+tests order-dependent, and nothing runs in parallel.
+
+```
+// Wrong — process-wide mutation, restored in a finally, tests serialized
+env_set("DATABASE_URL", "postgres://test")
+try { assert(connect() is Ok) } finally { env_unset("DATABASE_URL") }
+
+// Right — the value is an argument; the test owns it completely
+assert(connect(url = "postgres://test") is Ok)
+```
+
+To test the environment-to-config seam itself, hand the parser the
+environment as an argument — don't set a variable and hope it is restored.
+
+```
+config = parse_config(args = [], env = { "DATABASE_URL": "postgres://test" })
+assert(config.url == "postgres://test")
+
+// The failure case is just another input value
+assert(parse_config(args = [], env = {}) == Err(Missing("DATABASE_URL")))
+```
+
+## 8. Golden files for complex output
 
 Capture a correct run, eyeball it, commit it as the golden file, and compare
 future output against it. Don't hand-write brittle per-line assertions for
 complex structures (config rendering, serialization, formatted text).
 
-## 8. Pin the important unions at compile time
+## 9. Pin the important unions at compile time
 
 The compiler is a test runner you already have. Pin a signature so it can't
 drift silently, using your language's compile-time type assertion
@@ -111,7 +137,7 @@ drift silently, using your language's compile-time type assertion
 type_assert(register_user, fn(str) -> Result<User, RegisterUserError>)
 ```
 
-## 9. Test that startup is recovery
+## 10. Test that startup is recovery
 
 Recovery is the only startup path, so it must rebuild every invariant from
 durable state alone. Kill the component mid-write — no cleanup, no
@@ -128,7 +154,7 @@ assert(restarted.get("a") in [Ok(1), Ok(absent)])   // rebuilt or dropped, never
 Because this is the only startup path, this test exercises exactly what
 production runs every boot — recovery can't rot in the dark.
 
-## 10. Test idempotency by double-applying
+## 11. Test idempotency by double-applying
 
 Restart/retry is only sound when re-running an effect applies it once. Pin
 that property: apply a retryable operation twice and assert the single
@@ -145,7 +171,7 @@ assert(balance_delta == 100)     // applied once, not twice
 The idempotency key (or sequence number) is what makes the retry safe; the
 test is what makes that safety explicit and non-negotiable.
 
-## 11. Test cancellation before release
+## 12. Test cancellation before release
 
 Asynchronous cancellation is a protocol: the caller may release the
 resources in-flight work touches only *after* the worker acknowledges.
