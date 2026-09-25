@@ -3,11 +3,11 @@ name: code
 description: >
   Write code that fails fast and tests well. One rule: bugs panic, expected
   failures return values. Use when the user writes or tests code, finds it
-  hard to test, designs an API or config, or asks about mocking, error
-  handling, assertions, naming, performance, environment variables, resource
-  limits, crash-only design, shutdown, recovery, retry, idempotency,
-  cancellation, or timeouts — even if they never say "testability" or "fail
-  fast".
+  hard to test, designs an API or config, adds or updates a dependency, or
+  asks about mocking, error handling, assertions, naming, performance,
+  environment variables, resource limits, crash-only design, shutdown,
+  recovery, retry, idempotency, cancellation, or timeouts — even if they
+  never say "testability" or "fail fast".
 ---
 
 # Code
@@ -33,13 +33,17 @@ code, or by asking if the user is around:
   fix that first, before writing tests.
 - **"Write tests for this"** → [TEST.md](TEST.md). Apply the testing
   techniques that the structure makes available.
+- **"Add / update / audit this dependency"** →
+  [DEPENDENCIES.md](DEPENDENCIES.md). Decide whether the code gets in and
+  when it's allowed to change: own it, pin it, update on purpose.
 
-The four branches produce very different output, so getting this wrong
+The five branches produce very different output, so getting this wrong
 wastes the work. If the situation is genuinely ambiguous and the user isn't
 reachable, default to whichever branch matches the surrounding code (a
 feature/page/component → WRITE; a shutdown/recovery/crash-safety concern →
 CRASHONLY; a complaint about testing pain → REFACTOR; an explicit request
-for tests → TEST) and state the assumption at the top of your work.
+for tests → TEST; a manifest, lockfile, or Dependabot PR → DEPENDENCIES)
+and state the assumption at the top of your work.
 
 ## The one rule
 
@@ -58,19 +62,6 @@ for tests → TEST) and state the assumption at the top of your work.
 Failing fast is what makes code testable: a function either returns one of
 its documented failures, or it guarantees its invariants hold — and that
 contract is exactly what a test asserts. WRITE builds the contract, REFACTOR
-recovers it, TEST proves it, and CRASHONLY makes the panic itself safe and
+recovers it, TEST proves it, CRASHONLY makes the panic itself safe and
 cheap: a component you can kill at any instant and recover in milliseconds.
-
-## Sources
-
-- [Fail-fast — tomperez98.github.io](https://tomperez98.github.io/posts/fail-fast/)
-- [Can we test it? Yes, we can! — Mitchell Hashimoto](https://www.youtube.com/watch?v=MqC3tudPH6w)
-- [Better Result — Application patterns](https://better-result.dev/guides/application-patterns)
-- [Better Result — Testing](https://better-result.dev/guides/testing)
-- [Handles are the better pointers — floooh](https://floooh.github.io/2018/06/17/handles-vs-pointers.html)
-- [An Introduction to Data-Oriented Design — jamesmcm](https://jamesmcm.github.io/blog/intro-dod/)
-- [TigerStyle — tigerstyle.dev](https://tigerstyle.dev/)
-- [TigerBeetle CLI guidelines — stdx/flags.zig](https://github.com/tigerbeetle/tigerbeetle/blob/main/src/stdx/flags.zig)
-- [The Power of Ten Rules — Gerard J. Holzmann](https://spinroot.com/gerard/pdf/P10.pdf)
-- [Crash-Only Software — Candea & Fox, HotOS 2003](https://www.usenix.org/legacy/events/hotos03/tech/full_papers/candea/candea_html/index.html)
-- [Cancelation Terminology — matklad](https://matklad.github.io/2026/08/31/cancelation-terminology.html)
+DEPENDENCIES holds code you didn't write to the same contract.

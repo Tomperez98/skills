@@ -72,15 +72,3 @@ assumption at the top.
   claim you can back up is proof. Delete the company history, the adjective
   pile-ups, the "powerful, flexible, robust," and every sentence that
   doesn't serve the reader's task.
-
-## Sources
-
-- [Diátaxis — A systematic framework for technical documentation](https://diataxis.fr/)
-- [The documentation system — Divio](https://documentation.divio.com/)
-- [Google Technical Writing courses](https://developers.google.com/tech-writing)
-- [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
-- [Semantic Versioning](https://semver.org/)
-- [Obviously Awesome — April Dunford](https://www.aprildunford.com/books)
-- [Heavybit — Developer marketing library](https://www.heavybit.com/library/)
-- [SlashData — Developer marketing research](https://www.slashdata.co/)
-- [GitLab — Developer marketing handbook](https://handbook.gitlab.com/handbook/marketing/developer-relations/)
