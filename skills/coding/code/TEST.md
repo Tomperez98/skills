@@ -190,3 +190,35 @@ assert(events == ["worker_done", "released"])
 If `shutdown` returned early and the caller freed the buffer while the
 worker still read it, this test fails with a data race — the exact bug the
 protocol exists to prevent.
+
+## 13. Test a refactor against the original
+
+A refactor promises identical behavior, so hold it to that. Keep the old
+implementation as the reference and assert that the new one agrees on every
+input you can generate.
+
+```
+fn old_should_fail(x, y) { return !((x && y) || !x) }
+fn new_should_fail(x, y) { return x && !y }
+
+// Few Boolean inputs: enumerate the whole truth table
+for x in [true, false] {
+    for y in [true, false] {
+        assert(new_should_fail(x, y) == old_should_fail(x, y),
+               "differs at x={x} y={y}")
+    }
+}
+```
+
+- **Small Boolean domain: test every combination.** `n` inputs means `2ⁿ`
+  cases; up to a dozen or so inputs, check them all.
+- **Large domain: generate inputs.** Use a property-testing library to feed
+  both versions random inputs, including empty collections and duplicates,
+  and compare the results.
+- **Compare effects, not just values.** If the code has side effects,
+  record calls (as in "Test short-circuiting") and assert both versions
+  produce the same sequence. A rewrite that reorders `f() && g()` can pass
+  a value check and still change behavior.
+
+Once the refactor lands, delete the old implementation and its equivalence
+test. They've done their job.

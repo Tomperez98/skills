@@ -2,7 +2,7 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Two skills today,
-eleven branch guides, 103 numbered rules.
+eleven branch guides, 107 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
@@ -47,12 +47,12 @@ The `description` in each `SKILL.md` decides when the skill fires:
 name: code
 description: >
   Write code that fails fast and tests well. One rule: bugs panic, expected
-  failures return values. Use when the user writes or tests code, finds it
-  hard to test, designs an API or config, or asks about mocking, error
-  handling, assertions, naming, performance, environment variables, resource
-  limits, crash-only design, shutdown, recovery, retry, idempotency,
-  cancellation, or timeouts — even if they never say "testability" or "fail
-  fast".
+  failures return values. Use when the user writes, tests, or refactors
+  code, finds it hard to test, designs an API or config, adds or updates a
+  dependency, or asks about mocking, error handling, assertions, naming,
+  conditionals, performance, environment variables, resource limits,
+  crash-only design, shutdown, recovery, retry, idempotency, cancellation,
+  or timeouts — even if they never say "testability" or "fail fast".
 ```
 
 When a task matches, the agent reads the branch that fits the situation and
@@ -61,7 +61,7 @@ follows its rules in order:
 | Situation | Branch guide | What it does |
 |-----------|--------------|--------------|
 | "Write this feature / design this API" | [`code/WRITE.md`](skills/coding/code/WRITE.md) | Panic on broken invariants, return values for expected failures, parse at the edge, configure explicitly at the edge, one error vocabulary per boundary |
-| "This code is hard to test" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
+| "This code is hard to test / simplify this conditional" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
 | "Write tests for this" | [`code/TEST.md`](skills/coding/code/TEST.md) | Assert the shape before the payload, one test per error variant, test short-circuiting |
 | "Make this crash-safe / recover fast / crash-only" | [`code/CRASHONLY.md`](skills/coding/code/CRASHONLY.md) | Stop = crash, start = recover: make the panic safe and the recovery cheap |
 | "Add / update this dependency" | [`code/DEPENDENCIES.md`](skills/coding/code/DEPENDENCIES.md) | Own every dependency, pin it, update on purpose, review in proportion to risk |
