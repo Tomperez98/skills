@@ -3,7 +3,7 @@
 You're making a component safe to crash and fast to recover. The one rule
 says bugs panic; this branch makes the panic cheap. A crash-only component
 has exactly one way to stop — crash — and exactly one way to start —
-recover. Before you write any stop path, name which way you're stoppingx.
+recover. Before you write any stop path, name which way you're stopping.
 
 ## Ways to stop
 

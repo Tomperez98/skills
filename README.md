@@ -2,11 +2,11 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Two skills today,
-ten branch guides, 96 numbered rules.
+eleven branch guides, 103 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
-| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · REFACTOR · TEST · CRASHONLY |
+| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 
 ## What it is
@@ -64,6 +64,7 @@ follows its rules in order:
 | "This code is hard to test" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
 | "Write tests for this" | [`code/TEST.md`](skills/coding/code/TEST.md) | Assert the shape before the payload, one test per error variant, test short-circuiting |
 | "Make this crash-safe / recover fast / crash-only" | [`code/CRASHONLY.md`](skills/coding/code/CRASHONLY.md) | Stop = crash, start = recover: make the panic safe and the recovery cheap |
+| "Add / update this dependency" | [`code/DEPENDENCIES.md`](skills/coding/code/DEPENDENCIES.md) | Own every dependency, pin it, update on purpose, review in proportion to risk |
 | "Write / fix the README" | [`docs/README.md`](skills/coding/docs/README.md) | Win the 10-second skim: hero, what-it-is, install, one working example, link onward |
 | "Write / fix API docs" | [`docs/API.md`](skills/coding/docs/API.md) | Signature first, name the fault model, one example per operation |
 | "Write / fix a tutorial" | [`docs/TUTORIAL.md`](skills/coding/docs/TUTORIAL.md) | One scoped outcome, copy-paste steps, observable output |
