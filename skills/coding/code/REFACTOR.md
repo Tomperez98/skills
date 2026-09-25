@@ -42,6 +42,13 @@ Run down this checklist and name the violation:
 - **Branchy call sites** — a function returns a fat type the caller must
   exhaustively match, so every call site multiplies the test matrix. →
   Minimize branches at the call site.
+- **Tangled conditionals** — nested or negated conditions that re-check
+  what an enclosing branch already proved, so the test matrix covers cases
+  that can't happen. → Write conditions as logic.
+- **Hand-rolled search or uniqueness loops** — a loop that returns on the
+  first match, or skips duplicates by hand, so the invariant lives in code
+  you have to test instead of in the type. → Write conditions as logic; let
+  the type hold the guarantee.
 - **Bloated interface surface** — an interface exposes too many methods or
   parameters, and its failures are undocumented. → Minimize the interface
   surface; name the fault model.
@@ -69,7 +76,10 @@ interleaved with logic, raw input deep inside, or implicit exceptions.
 ## 2. Fix, then test
 
 Refactor so the code follows the WRITE.md and CRASHONLY.md rules, preserving
-external behavior. Then write the tests the new structure makes possible — see
+external behavior. Make one behavior-preserving rewrite at a time, rewrite
+conditions logically only when they're side-effect-free, and prove each
+rewrite against the original (TEST.md, "Test a refactor against the
+original"). Then write the tests the new structure makes possible — see
 TEST.md.
 
 ## 3. Treat pain as a signal

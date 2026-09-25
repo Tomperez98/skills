@@ -411,3 +411,117 @@ handlers[mode](event)
 Every layer you don't add is one fewer place for a contract to hide. The
 functions that do the work stay in plain view, where their failures are
 easy to see and easy to test.
+
+## 22. Write conditions as logic
+
+A condition is a Boolean formula, and formulas have rewrite rules that keep
+their value: De Morgan, distribution, double negation. Apply one rule per
+step and the behavior can't change. A simpler condition has fewer branches
+for a reader to follow and a test to cover (rule 18).
+
+```
+// Before
+if !((x && y) || !x) { do_thing() }
+
+// After: distribution, x || !x is true, De Morgan, double negation
+if x && !y { do_thing() }
+```
+
+- **Don't re-check what a branch already proved.** Inside `if P`, `P` is
+  true; inside its `else`, `P` is false.
+
+  ```
+  if P || !Q { body1 }
+  else if Q && R { body2 }   // in this else, Q is already true
+  // becomes
+  else if R { body2 }
+  ```
+
+- **A search loop is a quantifier.** Write `any` / `all`.
+
+  ```
+  // Before
+  for s in servers { if s.status == Offline { return true } }
+  return false
+
+  // After
+  return any(s.status == Offline for s in servers)
+  ```
+
+- **Fewer quantifiers, one pass.** `!all(P) || any(!Q)` is
+  `any(!P || !Q)`: one loop instead of two. Move any term that doesn't
+  depend on the loop variable outside the quantifier.
+
+  ```
+  // Before: `a.chunks` doesn't depend on `df`
+  if !all(!a.chunks || len(a.chunks[0]) == df.parts for df in dfs) { fail() }
+
+  // After
+  if a.chunks && any(len(a.chunks[0]) != df.parts for df in dfs) { fail() }
+  ```
+
+- **Name the negation away.** Prefer `!=` over `!(==)`, and
+  `wrong_password(p)` over `!correct_password(p)`, but only when the new
+  name is obvious.
+- **Keep the normal case in the `if`.** Swapping branches to drop a
+  top-level `!` preserves behavior. Do it only if the reader still sees
+  the expected case first.
+
+Programs are not math. The rules hold only when:
+
+- **The condition is pure.** Evaluating `f(x)` may mutate `x`, so
+  `x == [] && f(x) && x != []` isn't necessarily false. Short-circuiting
+  means `g() && f()` can run different side effects than `f() && g()`. If
+  any clause changes state, isolate the effect first (rule 4), then
+  rewrite.
+- **The operator exists.** Most languages have no implication (`=>`).
+  Filter instead: `all(Q(x) for x in xs if P(x))` means
+  "for all `x`, `P(x) => Q(x)`".
+
+Switch between code and formula as needed; for hard cases, pen and paper
+or a symbolic solver (such as sympy) is faster. Then prove the rewrite
+changed nothing: see TEST.md, "Test a refactor against the original".
+
+*Rules 22–23 adapt Hillel Wayne, Logic for Programmers, ch. 3.*
+
+## 23. Let the type hold the guarantee
+
+Pick the collection whose guarantees match the data. A type that can
+represent less guarantees more, and every guarantee the type holds is a
+check you don't write, test, or get wrong.
+
+```
+// List: uniqueness is a check you maintain by hand
+out = []
+for c in conns[user] {
+    for u in conns[c] {
+        if u != user && u not in out { out.append(u) }
+    }
+}
+
+// Set: uniqueness is the type's job
+out = set()
+for c in conns[user] { out |= conns[c] }   // union
+out -= {user}                              // difference
+```
+
+- **Set:** unique, unordered. Because it rules out duplicates and order,
+  union and membership can be much faster than a list scan. On large
+  inputs the gap can reach orders of magnitude, even counting the
+  list-to-set conversion.
+- **Bag** (multiset, counter): duplicates, no order.
+- **Ordered set:** order, no duplicates.
+- **List:** order and duplicates. Use it when the data needs them.
+
+The choice also documents intent. In a codebase that uses both, a set says
+"unique, unordered" and a list says "order or duplicates matter." Convert
+to the guaranteeing type at the edge (rule 3) so inner code can rely on it.
+
+Know your language's set semantics before relying on them. Some compare
+members by identity, not value:
+
+```
+// JavaScript
+s = new Set(); s.add([1]); s.add([1])   // two members: different identities
+s.has([1])                               // false
+```
