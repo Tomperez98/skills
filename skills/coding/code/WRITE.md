@@ -383,3 +383,31 @@ Names are the mental model; make them carry it.
 - Use your language's prevailing case convention — `snake_case`,
   `camelCase`, `PascalCase`, whatever the codebase already uses — and don't
   abbreviate: a crisp name beats a short one.
+
+## 21. Solve the problem before you abstract
+
+Write the functionality first and make it work. A class hierarchy, a plugin
+interface, or a dispatch layer doesn't solve anything by itself. It's a
+structure you then have to write the real program inside, and conform to
+from then on.
+
+- Start with the plainest dispatch that works: an `if` or a `switch` that
+  picks the behavior.
+- Add indirection (a function pointer, an interface, a registry) only when
+  a *concrete* need shows up: a second real implementation, a test seam
+  (see "Boundaries and seams, judiciously"), a measured cost. "We might
+  need it later" is not a concrete need.
+- Keep the abstraction as small as that need. Don't build a framework to
+  head off a problem you don't have yet.
+
+```
+// first: the real work, plain dispatch
+if mode == Mode.Vim { vim_keys(event) } else { default_keys(event) }
+
+// later, only if a real third mode or plugin API shows up
+handlers[mode](event)
+```
+
+Every layer you don't add is one fewer place for a contract to hide. The
+functions that do the work stay in plain view, where their failures are
+easy to see and easy to test.

@@ -48,6 +48,10 @@ Run down this checklist and name the violation:
 - **Hot loop doing control work** — checks and assertions inside the tight
   loop, killing performance and making the loop untestable in isolation. →
   Split the control plane from the data plane.
+- **Speculative structure** — hierarchies, interfaces, or plugin layers
+  built ahead of any concrete need, so a test has to satisfy the framework
+  before it can reach the code that does the work. → Solve the problem
+  before you abstract.
 - **Vague names** — abbreviated or inconsistently-ordered names that blur the
   mental model. → Name for the mental model.
 - **Fragile crash path** — shutdown or crash depends on the component
