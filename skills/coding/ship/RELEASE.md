@@ -1,100 +1,58 @@
 # Running the release process
 
-You're deciding what ships, what the version is, and what to do when a
-release goes wrong. Whatever the cadence, the goal is a process dull enough
-that anyone on the team can run it and nobody dreads it. Apply the rules in
-order.
+You're deciding what ships, what it's called, and what happens when it's
+wrong. Whatever the cadence, the process should be dull enough that anyone
+on the team can run it. Apply the rules in order.
 
-## 1. Write the checklist; don't rely on a person
+## 1. Write the checklist down
 
-Keep a release checklist in the repo: numbered steps with the exact
-commands, and the reasoning after the steps. Someone at step 4 wants the
-command, not the rationale. The knowledge lives in the checklist and the
-scripts, not in one person's head, so anyone can run a release. Having
-different people run them keeps the checklist honest.
+Keep the release checklist in the repo: numbered steps with the exact
+commands, and the reasoning after the steps. Script every step you can
+(PUBLISH.md). If only one person knows how to release, the project can
+only release when that person is available.
 
 ## 2. Never rush a change into a release
 
-If someone feels pressure to land a change before a release, let it land
-at its normal pace and release later. When unsure whether to release,
-wait. A delay costs a little time; a rushed release can ship the bug that
-soaking would have caught. This only works if releasing is cheap, which is
-what the rest of this skill is for.
+If someone wants to land a change just to get it into a release, let it
+land at its normal pace and release it later. If you're unsure whether a
+release is ready, wait. A late release costs a little time, and a rushed
+one ships the bug that a bit more testing would have caught.
 
 ## 3. Keep the version in one place
 
-Store the version in exactly one place and derive it everywhere else: the
-top entry of the changelog, a git tag, or one manifest field, but not a
-string repeated across the source tree. The release script reads it from
-that place. Validate it with a parser that CI runs as a test, so a
-malformed or out-of-order version fails the build, not the release.
+Store the version in one place, such as a git tag, one manifest field, or
+the top changelog entry, and have everything else read it from there. When
+the same version string is written in several files, they drift apart.
+Versions only go up. A number that was published, or burned by a failed
+attempt, is never used again. Pick a scheme users can understand, such as
+SemVer, and stick to it.
 
-```
-assert(entry.version > previous.version)  // newest first, strictly increasing
-```
+## 4. Build the changelog from what merged
 
-Versions only go up but can have gaps. A number burned by a failed attempt
-stays burned, and you never reuse it. Unreleased work sits under an
-`Unreleased` heading until it gets a version.
+Start from the list of changes merged since the last release, so nothing
+gets left out. Then edit it for readers: group related changes, drop the
+trivial ones, and put breaking changes first, with migration steps. The raw
+list is for checking completeness; what users read is the edited entry. For
+how to write each entry, see docs/CHANGELOG.md.
 
-## 4. Scaffold the changelog from merges, then curate
+## 5. Release a frozen, tested commit
 
-Generate a skeleton from the changes merged since the last release (for
-example `git log --merges --first-parent <last-release>..main`), so nothing
-is missed. Then edit it into something people will read:
+Choose a specific commit on main that has passed CI and the post-merge
+checks (MONITOR.md), and release exactly that commit, never whatever a
+branch happens to point at when the job starts. Before publishing, look for
+open failures and unexplained metric changes. Have a second person approve
+the publish step. It costs one click and catches the mistakes the person
+running the release can't see.
 
-- sort into buckets that suit the project, such as *Safety and
-  performance*, *Features*, *Internals*;
-- drop trivial changes and group related ones into one bullet that tells
-  the story;
-- describe safety and performance changes by their effect on users;
-- keep meaningful internal changes even if users can't see them, since the
-  changelog is also the team's shared record.
+## 6. Published versions are immutable; fix forward
 
-The merge list is a checklist, not the finished entry. If the team writes
-entries as it goes (docs/CHANGELOG.md rule 6), the scaffold is how you check
-that nothing was left out. For how to write each entry, see
-docs/CHANGELOG.md.
-
-## 5. Freeze a candidate, soak it, then publish
-
-Freeze the candidate by pointing a release branch or tag at a commit on
-main that passed CI. Let long-running tests run against it for a while
-(MONITOR.md rule 1). Before publishing, check for failures on the candidate,
-read the dashboard, and triage anything open. Start the release from the
-frozen candidate, never from a moving branch, and have someone other than
-the person who started it approve the publish step (PUBLISH.md rule 6).
-
-## 6. State compatibility in every release
-
-If users upgrade in place or run mixed versions, each release says how far
-back it reaches:
-
-- **Oldest version you can upgrade from.** Anything older needs to step
-  through intermediate releases.
-- **Oldest compatible client or peer version,** and which side upgrades
-  first.
-
-Treat both as guarantees and put them in the release notes. Derive them
-from the build rather than typing them by hand. Any change that touches
-cross-version behavior gets an extra reviewer (CI.md rule 3).
-
-## 7. Fix forward; hotfix only when the normal path is broken
-
-If a shipped release has a bug, make a normal release with the fix. It
-goes through the same checks and the normal upgrade path, and there's no
-limit on how soon it can follow. Rolling back leaves users on two
-different histories.
-
-Special hotfixes (a patch on an old branch, or a rebuild that reuses a
-version's compatibility identity under a new tag) are only for when the
-normal upgrade itself is broken. Make them an explicit override: the
-release script asserts the normal invariants, and the release manager has
-to change that assert on purpose. It shouldn't be possible to do by
-accident.
+Never overwrite, re-tag, or re-publish an existing version. Users and
+caches have already pulled it. If a release is bad, ship a new version with
+the fix, through the same process. When a release is dangerous to keep
+running, also mark it (yank or deprecate it on the registry, and flag it on
+the release page) and tell users how to move off it.
 
 ---
 
-RELEASE decides what ships and what version it is. CI.md and MONITOR.md
-keep main in shape to cut from, and PUBLISH.md turns "go" into artifacts
-that have been built, published, and checked.
+RELEASE decides what ships and what it's called. CI.md and MONITOR.md
+decide whether it's ready, and PUBLISH.md does the shipping.

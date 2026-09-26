@@ -22,47 +22,41 @@ rule:
 Identify which situation you're in, from the user's prompt, the repo, or by
 asking if the user is around:
 
-- **"Set up / fix / speed up CI, write a workflow, flaky or slow checks"** →
-  [CI.md](CI.md). The gate before merge: one entry point you can run
-  locally, pinned, reproducible, quiet until it fails.
-- **"Catch regressions after merge / benchmarks / long-running tests /
-  dashboards / alerts"** → [MONITOR.md](MONITOR.md). Keep testing and
-  measuring main after the gate, and put a person on every failure.
-- **"Plan the release process / versioning / changelog / hotfix"** →
-  [RELEASE.md](RELEASE.md). The human side: a written checklist, one
-  source for the version, a soak, and fix-forward.
-- **"Write / fix the release script, publish packages, handle secrets, a
-  failed or partial release"** → [PUBLISH.md](PUBLISH.md). The machine
-  side: build, publish idempotently, then check what actually shipped.
+- **"Set up / fix / speed up CI, flaky or slow checks"** → [CI.md](CI.md).
+  The gate before merge: runnable locally, reproducible, actionable when
+  it fails.
+- **"Catch regressions after merge / scheduled checks / alerts"** →
+  [MONITOR.md](MONITOR.md). Keep testing and measuring main after the
+  gate, and put a person on every failure.
+- **"Plan the release process / versioning / changelog / bad release"** →
+  [RELEASE.md](RELEASE.md). The human side: what ships, what it's called,
+  and what happens when it's wrong.
+- **"Write / fix the release script, publish packages, handle secrets"** →
+  [PUBLISH.md](PUBLISH.md). The machine side: build, publish safely, then
+  check what actually shipped.
 
 CI and MONITOR keep main releasable; RELEASE and PUBLISH make the release
 boring. If the situation is ambiguous and the user isn't reachable, pick by
 the file in front of you (a PR workflow → CI; a scheduled job or dashboard
-→ MONITOR; a changelog or runbook → RELEASE; a publish script or release
-workflow → PUBLISH) and state the assumption at the top of your work.
+→ MONITOR; a changelog or release checklist → RELEASE; a publish script →
+PUBLISH) and state the assumption at the top of your work.
 
 ## The one rule
 
 **Keep main releasable; make every release boring — scripted, re-runnable,
 verified.**
 
-- **Main is releasable.** Nothing lands on main that CI hasn't run on the
-  exact merge commit, and main keeps being tested and measured after it
-  lands. Any commit on main is a release candidate, so shipping means
-  picking one, not preparing one.
-- **Scripted.** One command builds every artifact and a flag publishes
-  them. The only manual steps are the decisions: which commit, and "go".
-- **Re-runnable.** Every publish step checks whether it's already done. A
-  release that fails halfway gets fixed and re-run, and no version number
-  is burned.
-- **Verified.** After publishing, a separate job downloads what users will
-  download, rebuilds it from the tag, compares the bytes, and runs it.
+- **Main is releasable.** Nothing lands on main without passing CI, and
+  main keeps being tested after it lands. Any commit on main could be
+  released, so shipping means picking a commit, not preparing one.
+- **Scripted.** Building and publishing are commands, not a sequence of
+  manual steps. The only manual parts are the decisions: which commit, and
+  "go".
+- **Re-runnable.** A release that fails halfway can be fixed and run again
+  without breaking anything or burning a version.
+- **Verified.** After publishing, check what users will actually get, not
+  what you meant to ship.
 
-When releasing is this cheap, not releasing is cheap too: nobody rushes a
-change to make a release, and "should we wait?" defaults to yes.
-
-The `code` skill's rule applies to CI and release scripts too: a broken
-precondition (the tag already exists, the build mode is wrong) is a bug, so
-assert and stop. A registry timeout is an expected failure, so return it,
-retry, or report it. CI is the gate and MONITOR watches what got through.
-RELEASE decides what ships, and PUBLISH ships it and then checks the result.
+The `code` skill's rule applies to pipelines too. A broken precondition
+(the version already exists, the tests didn't run) is a bug: stop loudly.
+A network or registry failure is expected: retry it or report it.

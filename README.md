@@ -2,7 +2,7 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Three skills today,
-fifteen branch guides, 137 numbered rules.
+fifteen branch guides, 131 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
@@ -72,10 +72,10 @@ follows its rules in order:
 | "Write / fix a changelog" | [`docs/CHANGELOG.md`](skills/coding/docs/CHANGELOG.md) | Impact first, breaking changes loudest, Keep a Changelog + SemVer |
 | "Write landing copy" | [`docs/LANDING.md`](skills/coding/docs/LANDING.md) | Position before you write, hero leads with the job, proof over adjectives |
 | "Make docs acquire / convert" | [`docs/DOCS_MARKETING.md`](skills/coding/docs/DOCS_MARKETING.md) | One page one search intent, the example is the ad, convert at the moment of success |
-| "Set up / fix / speed up CI" | [`ship/CI.md`](skills/coding/ship/CI.md) | One entry point you run locally, gate the merge commit, pin everything, seed from the commit |
-| "Catch regressions after merge" | [`ship/MONITOR.md`](skills/coding/ship/MONITOR.md) | Fuzz and measure main continuously, re-check what you don't control, page a person |
-| "Plan the release process" | [`ship/RELEASE.md`](skills/coding/ship/RELEASE.md) | Written checklist, one source for the version, never rush, soak, fix forward |
-| "Write / fix the release script" | [`ship/PUBLISH.md`](skills/coding/ship/PUBLISH.md) | Build then publish, assert preconditions, idempotent steps, verify the shipped bytes |
+| "Set up / fix / speed up CI" | [`ship/CI.md`](skills/coding/ship/CI.md) | Runnable locally, fast checks first, test the merged result, reproducible and actionable failures |
+| "Catch regressions after merge" | [`ship/MONITOR.md`](skills/coding/ship/MONITOR.md) | Slow tests and key metrics on main, re-check the outside world, every failure reaches a person |
+| "Plan the release process" | [`ship/RELEASE.md`](skills/coding/ship/RELEASE.md) | Written checklist, never rush, one source for the version, release a frozen commit, fix forward |
+| "Write / fix the release script" | [`ship/PUBLISH.md`](skills/coding/ship/PUBLISH.md) | Build once and ship those bytes, check first, idempotent steps, verify from the outside |
 
 ## Why one rule
 
