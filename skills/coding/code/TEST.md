@@ -214,7 +214,8 @@ for x in [true, false] {
   cases; up to a dozen or so inputs, check them all.
 - **Large domain: generate inputs.** Use a property-testing library to feed
   both versions random inputs, including empty collections and duplicates,
-  and compare the results.
+  and compare the results (the "oracle" shape in "Test the contract as
+  properties").
 - **Compare effects, not just values.** If the code has side effects,
   record calls (as in "Test short-circuiting") and assert both versions
   produce the same sequence. A rewrite that reorders `f() && g()` can pass
@@ -222,3 +223,73 @@ for x in [true, false] {
 
 Once the refactor lands, delete the old implementation and its equivalence
 test. They've done their job.
+
+## 14. Test the contract as properties
+
+An example test checks one input. A property test states the contract
+(WRITE.md: state the contract) once, and a library such as Hypothesis, fast-check,
+proptest, or QuickCheck checks it against hundreds of generated inputs.
+Generate only inputs that meet the precondition. A precondition violation
+is a bug, so it belongs in `expect_crash` ("Keep defects separate"), not
+here.
+
+```
+property(xs: nonempty_list<int>) {
+    m = max(xs)
+    assert(m in xs)                       // postcondition, part 1
+    assert(all(m >= x for x in xs))       // postcondition, part 2
+}
+```
+
+Shapes that find bugs:
+
+- **Postcondition or invariant.** For any valid input, the result is `Ok`
+  and meets the postcondition, or it is one of the named errors. It never
+  crashes.
+- **Round-trip.** `parse(render(x)) == Ok(x)`, the check for WRITE.md's
+  "parse at the edge".
+- **Oracle.** The result matches a slow but obviously correct version, or
+  the original code during a refactor ("Test a refactor against the
+  original").
+- **Split and combine.** If `f(xs ++ ys) == combine(f(xs), f(ys))`, then
+  `f([])` must be the identity of `combine`. That is why `all([])` is
+  `true`, `any([])` is `false`, and `sum([])` is `0`. Assert the empty case
+  explicitly. If an empty input should be rejected, reject it at the edge,
+  because `all(valid(x) for x in xs)` passes on `[]`.
+- **Same properties, every implementation.** Run the same property suite
+  against each implementation of an interface and against the new version
+  of an API. That is how you check "requires no more, promises no less".
+
+Make the generators include empty collections, single elements,
+duplicates, and boundary numbers. When a property fails, keep the shrunk
+counterexample as a plain example test, so it stays pinned. Fix the seed
+in CI, or log it, so a failure can be replayed.
+
+## 15. Test every row of the decision table
+
+A decision table (WRITE.md: tabulate multi-input decisions) is already a
+test plan. Write one
+case per row, and add one test that proves the table itself is complete and
+unambiguous: enumerate every combination of inputs and assert that exactly
+one row matches.
+
+```
+rows = [
+    ({member: true,  big: ANY,   region: Domestic}, Free),
+    ({member: false, big: true,  region: Domestic}, Free),
+    ({member: false, big: false, region: Domestic}, Flat),
+    ({member: ANY,   big: ANY,   region: Intl},     ByWeight),
+]
+
+for (inputs, expected) in rows {
+    assert(shipping(inputs) == expected)          // one case per row
+}
+
+for combo in product([true, false], [true, false], [Domestic, Intl]) {
+    assert(count(r for r in rows if matches(r, combo)) == 1,
+           "gap or overlap at {combo}")
+}
+```
+
+A gap or an overlap fails at the input that causes it, before a customer
+finds it.

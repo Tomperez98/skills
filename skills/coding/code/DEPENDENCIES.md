@@ -54,6 +54,11 @@ updates also pile up. Five major versions at once is a harder, riskier
 migration than five separate ones, so take updates in small, reviewed steps
 rather than never.
 
+Judge a change by its contract, not its version number. A new version is
+a safe substitute only if it requires no more and promises no less
+(WRITE.md: state the contract). Tighter input validation, a new error
+variant, or a removed field is a breaking change, even in a patch release.
+
 ## 5. Review in proportion to risk
 
 Match the review to what the update can break. A patch release of a leaf

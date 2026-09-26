@@ -23,7 +23,8 @@ fn set_quantity(q: int) {
 
 Sprinkle `assert` wherever an assumption is clever or load-bearing. Stop
 running the moment it stops holding — assertions turn "that can't happen"
-into "that won't happen."
+into "that won't happen." Rule 24 says whose bug each assertion catches:
+the caller's (precondition) or yours (postcondition).
 
 ```
 let adult = generate_adult()
@@ -365,6 +366,7 @@ An interface is a contract. Keep its surface small — fewer methods, fewer
 parameters — and document not just what it returns but what it can fail
 with. That fault model is "one error vocabulary per boundary" seen from the
 interface side: the caller handles the named failures and nothing else.
+Every implementation must keep that contract (rule 24).
 
 Push control flow up and data flow down — callers decide, leaves compute.
 Abstract a non-deterministic physical interface (network, clock, disk)
@@ -525,3 +527,108 @@ members by identity, not value:
 s = new Set(); s.add([1]); s.add([1])   // two members: different identities
 s.has([1])                               // false
 ```
+
+## 24. State the contract; substitute only what keeps it
+
+A contract has three parts, and each part says whose bug a violation is:
+
+- **Precondition:** what the caller must supply. A violation is the
+  caller's bug, so assert it at entry.
+- **Postcondition:** what you promise on return, including the named
+  failures in the `Result`. A violation is your bug, so assert it before
+  you return.
+- **Invariant:** what holds before and after every call. Rule 1 guards it.
+
+```
+// pre:  xs != []                       (caller's bug → panic)
+// post: result in xs && all(result >= x for x in xs)   (our bug → panic)
+fn max(xs: list<int>) -> int { ... }
+
+// Expected failures belong to the postcondition, not the precondition
+// post: Ok(u) with u.email == normalize(raw.email), or Err(EmailTaken | InvalidEmail)
+fn register_user(raw: CreateUser) -> Result<User, RegisterUserError> { ... }
+```
+
+A substitute can be a subclass, a second implementation of an interface,
+or the next version of your API. It is safe only if it **requires no more
+and promises no less**:
+
+| Change | Why | Safe? |
+|--------|-----|-------|
+| Accept a wider input, add an optional parameter | weaker precondition | yes |
+| Stop returning one error variant | stronger postcondition | yes |
+| Reject input that used to be accepted (tighter validation) | stronger precondition | **breaking** |
+| Add an error variant to the returned union | weaker postcondition: callers' matches miss a case | **breaking** |
+| Remove or loosen a field in the result | weaker postcondition | **breaking** |
+
+The classic failure is `Square` inheriting from `Rect`. `Rect.set_width(w)`
+promises that the height is unchanged, and a `Square` can't keep that
+promise, so it isn't a `Rect`. Fix it with separate types, or with
+immutable shapes that have no setters to break.
+
+Where the contract lives: the types first (rules 3 and 23), then asserts at
+entry and exit, then a comment for anything the types can't hold. TEST.md,
+"Test the contract as properties", proves it.
+
+## 25. Tabulate multi-input decisions
+
+When the outcome depends on several inputs at once, write the decision as a
+table before you write the code. List the inputs as columns, each case as a
+row, and `-` for "doesn't matter".
+
+```
+member | total >= 50 | region   || shipping
+-------+-------------+----------++---------
+yes    | -           | domestic || free
+no     | yes         | domestic || free
+no     | no          | domestic || flat
+-      | -           | intl     || by_weight
+```
+
+Check the table before you code it:
+
+- **Complete:** every combination of inputs matches a row. Count them: 2 ×
+  2 × 2 = 8 combinations here, and the rows cover 2 + 1 + 1 + 4 = 8. A
+  missing combination is a missing requirement, so ask about it; don't
+  guess.
+- **Unambiguous:** no combination matches two rows with different
+  outcomes. An overlap is a contradiction in the requirements.
+
+Then code it from the table, as one branch per row or as a lookup. Each row
+is one test (TEST.md, "Test every row of the decision table"). A condition
+with fewer inputs is still logic: see rule 22.
+
+## 26. Let the store enforce data invariants
+
+A check in application code guards one code path. A constraint in the
+store guards every writer: other services, migrations, a script someone
+runs by hand, and two requests racing each other. Declare data invariants
+in the schema, so a broken invariant fails at the write.
+
+```
+CREATE TABLE users (
+  id     BIGINT PRIMARY KEY,
+  email  TEXT   NOT NULL UNIQUE,
+  age    INT    NOT NULL CHECK (age >= 0),
+  org_id BIGINT NOT NULL REFERENCES orgs(id)
+);
+```
+
+- **Check-then-write races.** `if !exists(email) { insert(user) }` lets two
+  requests insert the same email. `UNIQUE` doesn't. Keep the application
+  check if you want a friendlier error, but treat the constraint as the
+  guarantee.
+- **Rules that span several rows or tables:** use a trigger or an exclusion
+  constraint if your store has one. Otherwise, derive the value in a view
+  instead of storing a copy that can drift.
+- **Map the violation once, at the boundary (rule 5).** A violation that
+  user input can cause, such as a duplicate email, is an expected failure,
+  so return `Err(EmailTaken)`. A violation that only your code can cause,
+  such as a foreign key to a row you just created, is a bug, so panic.
+- **Test the constraint directly.** Write the bad row with raw SQL, skipping
+  your code, and assert the store rejects it. Otherwise nothing proves the
+  constraint exists.
+
+*Rules 24–26 cover the topics of Logic for Programmers chs. 5, 7, and 8
+(contracts and subtyping, database theory, decision tables), using standard
+Design by Contract, Liskov substitution, and decision-table practice.*
