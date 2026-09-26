@@ -45,6 +45,19 @@ Run down this checklist and name the violation:
 - **Tangled conditionals** — nested or negated conditions that re-check
   what an enclosing branch already proved, so the test matrix covers cases
   that can't happen. → Write conditions as logic.
+- **Decisions nobody can list** — a multi-input decision spread across
+  nested branches, so no one can say which cases exist or whether any
+  are missing or contradict each other. → Tabulate multi-input decisions.
+- **Unstated contract** — nobody can say what a function requires or
+  promises, so a test can't say what "correct" means and a change can't
+  say whether it breaks callers. → State the contract.
+- **Substitutes that surprise** — an override or a second implementation
+  rejects inputs the original accepted, or breaks one of its promises
+  (`Square` extends `Rect`), so code written for the parent fails on the
+  child. → Substitute only what keeps the contract.
+- **Data invariants only in app code** — uniqueness or referential checks
+  done as check-then-write, so a race, a migration, or a second writer
+  breaks them. → Let the store enforce data invariants.
 - **Hand-rolled search or uniqueness loops** — a loop that returns on the
   first match, or skips duplicates by hand, so the invariant lives in code
   you have to test instead of in the type. → Write conditions as logic; let
