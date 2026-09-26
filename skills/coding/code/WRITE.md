@@ -70,7 +70,7 @@ _ = log.flush()   // best-effort: dropping the error is deliberate
 Make the compiler enforce it with `#[must_use]`, `[[nodiscard]]`,
 `errcheck`, or `no-floating-promises`. The other half of the check lives
 with the function being called: it asserts its own parameters as
-preconditions (rule 24).
+preconditions (rule 21).
 
 ## 3. Parse at the edge
 
@@ -263,6 +263,34 @@ fn shipping_zone(city: City) -> Zone { zone_of(city) }
   swap a real dependency for a fake at test time — sparingly: every
   interface adds indirection.
 
+A seam belongs at a boundary that actually varies at test time — a network
+call, a clock, a queue — not on every function. Put the interface where the
+real dependency lives, and let the function that does the work take it as a
+parameter:
+
+```
+// The interface is the seam; the function doesn't know which side it's on
+interface RateSource { fn quote(pair: Pair) -> Result<Rate, RateError> }
+
+fn convert(amount: Money, pair: Pair, rates: RateSource) -> Result<Money, RateError> {
+    rate = rates.quote(pair)?
+    return Ok(amount * rate)
+}
+
+// Test: a fake RateSource, no network call, no mocking framework
+fake_rates = FakeRateSource(pair: Pair("USD", "EUR"), rate: 0.9)
+assert(convert(100, Pair("USD", "EUR"), fake_rates) == Ok(90))
+```
+
+`convert` doesn't know it's talking to a fake — the seam is one parameter,
+and the fake is a plain value, not a mock library standing in for a method
+call. This is the same boundary DEPENDENCIES.md wraps a vendor behind
+(wrap it behind one boundary); the difference is only which side owns the
+interface. Add the seam only when a second implementation is real (rule
+18: solve the problem before you abstract) — a fake for tests counts — not
+on every internal helper, where it's one more layer between the reader and
+the code that does the work.
+
 ## 12. Overflow is a bug until you say otherwise
 
 Fail on integer overflow rather than silently wrapping. If overflow is an
@@ -305,67 +333,12 @@ let user = db.get(cache.get("user_id"))   // fresh, or a loud miss
 pointers." The lookup compares the generation and panics on a stale handle —
 same shape: identity plus a staleness check, resolved in one place.*
 
-## 14. Keep the hot path free of indirection
+Once the structure is fail-fast and testable, speed is a separate concern
+with its own branch — see [PERFORMANCE.md](PERFORMANCE.md) for keeping the
+hot path free of indirection, sketching costs before you build, and
+splitting the control plane from the data plane.
 
-When something runs many times — a loop, a request path, a query — the
-dominant cost is usually chasing something indirect. Identify the access
-pattern and remove indirection from it.
-
-- **One batched query, not one per item.** An N+1 loop is a dereference per
-  row: a round-trip for each item instead of one fetch.
-- **Set-based over row-by-row.** Filter, join, and aggregate in the store,
-  not by fetching rows and branching in a loop.
-- **Do checks once, outside the loop.** Split a mixed collection by kind
-  before iterating, instead of branching per element.
-- **Measure, don't assume.** These are constant-factor wins with identical
-  big-O. Profile first; a cold path may show no difference.
-
-*CPU-bound translation: "indirection" becomes cache misses and blocked
-vectorization. The unit is the cache line — the smallest chunk moved between
-RAM and the CPU — so the goal is more useful data per line, read in order:*
-
-- *minimize footprint* — smaller types, structure packing (reorder fields,
-  drop padding), so one line holds more items;
-- *access sequentially* — iterate in memory order so a fetched line is fully
-  used;
-- *struct-of-arrays* — keep the fields a hot loop touches contiguous;
-- *contiguous arrays over linked structures, static over dynamic dispatch* —
-  less pointer chasing, so the compiler can vectorize;
-- *zero copy in the data plane* — don't copy memory, don't serialize or
-  deserialize; operate on data in place;
-- *fixed-size, cache-line-aligned structs* — align a struct to its largest
-  field so it never straddles two cache lines.
-
-*Reach for these only when a profiler names the loop.*
-
-## 15. Sketch performance before you build
-
-The 1000x wins are only available at design time, when you can't profile.
-Do a back-of-the-envelope sketch over the four primary colors — network,
-storage, memory, compute — each with two textures: bandwidth and latency.
-Roughly right beats precisely wrong, and the sketch tells you which rule in
-this file actually matters for this system.
-
-## 16. Split the control plane from the data plane
-
-Batch work so decisions run once per batch, and let the hot loop sprint
-through data without branching. Checks, assertions, and validation live in
-the control plane — amortized across the batch — while the data plane stays
-a tight loop the CPU can vectorize.
-
-```
-// Control plane: one check, one decision
-if !batch_is_valid(batch): return Err(InvalidBatch)
-
-// Data plane: a branch-free sprint over the batch
-for item in batch { process(item) }
-```
-
-An assertion costs almost nothing once per batch; the same assert per item
-would dominate the data plane. This is where fail-fast and performance
-agree: the control plane can afford to be paranoid.
-
-## 17. Bound everything
+## 14. Bound everything
 
 Everything has a limit; write it down. Bound loops, queues, buffers,
 concurrency, and recursion. A bound is a fail-fast device — when the code
@@ -413,7 +386,7 @@ fn root_of(node: Node) -> Node {
   Don't grow the buffer. In a garbage-collected language the rule becomes:
   every collection that grows has a cap.
 
-## 18. Minimize branches at the call site
+## 15. Minimize branches at the call site
 
 Every case the caller must handle is a test someone has to write. Simplify
 signatures so the call site branches as little as possible, and return the
@@ -442,20 +415,20 @@ for item in cart { total += item.price }
 let total = sum(item.price for item in cart)
 ```
 
-## 19. Minimize the interface surface; name the fault model
+## 16. Minimize the interface surface; name the fault model
 
 An interface is a contract. Keep its surface small — fewer methods, fewer
 parameters — and document not just what it returns but what it can fail
 with. That fault model is "one error vocabulary per boundary" seen from the
 interface side: the caller handles the named failures and nothing else.
-Every implementation must keep that contract (rule 24).
+Every implementation must keep that contract (rule 21).
 
 Push control flow up and data flow down — callers decide, leaves compute.
 Abstract a non-deterministic physical interface (network, clock, disk)
 behind a deterministic logical one, so the caller and the test see a stable
 contract instead of the machine.
 
-## 20. Name for the mental model
+## 17. Name for the mental model
 
 Names are the mental model; make them carry it.
 
@@ -468,7 +441,7 @@ Names are the mental model; make them carry it.
   `camelCase`, `PascalCase`, whatever the codebase already uses — and don't
   abbreviate: a crisp name beats a short one.
 
-## 21. Solve the problem before you abstract
+## 18. Solve the problem before you abstract
 
 Write the functionality first and make it work. A class hierarchy, a plugin
 interface, or a dispatch layer doesn't solve anything by itself. It's a
@@ -496,12 +469,12 @@ Every layer you don't add is one fewer place for a contract to hide. The
 functions that do the work stay in plain view, where their failures are
 easy to see and easy to test.
 
-## 22. Write conditions as logic
+## 19. Write conditions as logic
 
 A condition is a Boolean formula, and formulas have rewrite rules that keep
 their value: De Morgan, distribution, double negation. Apply one rule per
 step and the behavior can't change. A simpler condition has fewer branches
-for a reader to follow and a test to cover (rule 18).
+for a reader to follow and a test to cover (rule 15).
 
 ```
 // Before
@@ -566,9 +539,9 @@ Switch between code and formula as needed; for hard cases, pen and paper
 or a symbolic solver (such as sympy) is faster. Then prove the rewrite
 changed nothing: see TEST.md, "Test a refactor against the original".
 
-*Rules 22–23 adapt Hillel Wayne, Logic for Programmers, ch. 3.*
+*Rules 19–20 adapt Hillel Wayne, Logic for Programmers, ch. 3.*
 
-## 23. Let the type hold the guarantee
+## 20. Let the type hold the guarantee
 
 Pick the collection whose guarantees match the data. A type that can
 represent less guarantees more, and every guarantee the type holds is a
@@ -610,7 +583,7 @@ s = new Set(); s.add([1]); s.add([1])   // two members: different identities
 s.has([1])                               // false
 ```
 
-## 24. State the contract; substitute only what keeps it
+## 21. State the contract; substitute only what keeps it
 
 A contract has three parts, and each part says whose bug a violation is:
 
@@ -648,11 +621,11 @@ promises that the height is unchanged, and a `Square` can't keep that
 promise, so it isn't a `Rect`. Fix it with separate types, or with
 immutable shapes that have no setters to break.
 
-Where the contract lives: the types first (rules 3 and 23), then asserts at
+Where the contract lives: the types first (rules 3 and 20), then asserts at
 entry and exit, then a comment for anything the types can't hold. TEST.md,
 "Test the contract as properties", proves it.
 
-## 25. Tabulate multi-input decisions
+## 22. Tabulate multi-input decisions
 
 When the outcome depends on several inputs at once, write the decision as a
 table before you write the code. List the inputs as columns, each case as a
@@ -678,9 +651,9 @@ Check the table before you code it:
 
 Then code it from the table, as one branch per row or as a lookup. Each row
 is one test (TEST.md, "Test every row of the decision table"). A condition
-with fewer inputs is still logic: see rule 22.
+with fewer inputs is still logic: see rule 19.
 
-## 26. Let the store enforce data invariants
+## 23. Let the store enforce data invariants
 
 A check in application code guards one code path. A constraint in the
 store guards every writer: other services, migrations, a script someone
@@ -711,11 +684,11 @@ CREATE TABLE users (
   your code, and assert the store rejects it. Otherwise nothing proves the
   constraint exists.
 
-*Rules 24–26 cover the topics of Logic for Programmers chs. 5, 7, and 8
+*Rules 21–23 cover the topics of Logic for Programmers chs. 5, 7, and 8
 (contracts and subtyping, database theory, decision tables), using standard
 Design by Contract, Liskov substitution, and decision-table practice.*
 
-## 27. Keep functions short
+## 24. Keep functions short
 
 A function should fit on one screen, with a hard limit of about 60–70
 lines. A reviewer who can see the whole function can check its contract;
@@ -723,15 +696,15 @@ one who has to scroll only checks it in pieces. A short function also has a
 small contract, with few inputs and few failures, so it's cheap to test.
 
 - **Split by role, not at line 60.** Keep the branching in the parent and
-  move loops and computation into leaf helpers (rule 19: control flow up,
+  move loops and computation into leaf helpers (rule 16: control flow up,
   data flow down). The parent then reads as the decision, and each leaf
   does one job with no branches of its own.
 - **Name each piece for what it does.** If a helper can only be called
   `step_two`, the split is in the wrong place.
 - **Don't split below the natural size.** A one-use helper that saves three
-  lines is one more jump for the reader to follow (rule 21).
+  lines is one more jump for the reader to follow (rule 18).
 
-## 28. Turn every warning into an error
+## 25. Turn every warning into an error
 
 The compiler and the static analyzer can catch a bug before the code ever
 runs, which makes them the earliest crash you have. Let them fail the build.

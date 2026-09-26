@@ -2,11 +2,11 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Three skills today,
-sixteen branch guides, 145 numbered rules.
+seventeen branch guides, 147 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
-| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
+| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · PERFORMANCE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 
@@ -48,11 +48,10 @@ The `description` in each `SKILL.md` decides when the skill fires:
 name: code
 description: >
   Write code that fails fast and tests well. One rule: bugs panic, expected
-  failures return values. Use when the user writes, tests, or refactors
-  code, finds it hard to test, designs an API or config, adds or updates a
-  dependency, or asks about mocking, error handling, assertions, naming,
-  conditionals, performance, environment variables, resource limits,
-  crash-only design, shutdown, recovery, retry, idempotency, cancellation,
+  failures return values. Use when the user writes, tests, or refactors code,
+  finds it hard to test, designs an API or config, adds a dependency, or asks
+  about mocking, error handling, assertions, naming, conditionals,
+  performance, env vars, crash-only design, retry, idempotency, cancellation,
   or timeouts — even if they never say "testability" or "fail fast".
 ```
 
@@ -62,6 +61,7 @@ follows its rules in order:
 | Situation | Branch guide | What it does |
 |-----------|--------------|--------------|
 | "Write this feature / design this API" | [`code/WRITE.md`](skills/coding/code/WRITE.md) | Panic on broken invariants, return values for expected failures, parse at the edge, configure explicitly at the edge, one error vocabulary per boundary |
+| "Make this faster / optimize this hot path" | [`code/PERFORMANCE.md`](skills/coding/code/PERFORMANCE.md) | Sketch costs before you build, keep the hot path free of indirection, split the control plane from the data plane |
 | "This code is hard to test / simplify this conditional" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
 | "Write tests for this" | [`code/TEST.md`](skills/coding/code/TEST.md) | Assert the shape before the payload, one test per error variant, test short-circuiting |
 | "Make this crash-safe / recover fast / crash-only" | [`code/CRASHONLY.md`](skills/coding/code/CRASHONLY.md) | Stop = crash, start = recover: make the panic safe and the recovery cheap |
