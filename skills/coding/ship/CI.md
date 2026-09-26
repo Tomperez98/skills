@@ -32,13 +32,21 @@ result of merging into current main, with a merge queue or by requiring the
 branch to be up to date, and only let main move to commits that passed.
 Nobody merges past a red check.
 
+Cancel superseded runs on pull requests only. Every commit on main keeps
+its own result, so a release (RELEASE.md rule 5) and a regression hunt
+(MONITOR.md rule 1) always have a green commit to point at.
+
 ## 4. Make runs reproducible
 
 The same commit should give the same result today and next month.
 
 - **Pin the inputs:** toolchain versions, dependencies (DEPENDENCIES.md),
   and third-party CI actions, preferably to an immutable reference such as
-  a checksum or commit SHA rather than a tag that can move.
+  a checksum or commit SHA rather than a tag that can move. Pin each
+  version in one place that both a laptop and CI read, ideally one the
+  tool enforces itself (such as a `required-version` setting), so a
+  mismatch fails at once. A "keep in sync with X" comment is a second
+  copy, and it drifts.
 - **Least privilege:** jobs get no permissions or secrets by default. Each
   job asks for exactly what it needs.
 - **Cache only what's derived from pinned inputs,** keyed on the files that
