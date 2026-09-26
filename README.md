@@ -1,13 +1,14 @@
 # skills
 
 One rule per skill, branch guides that turn the rule into procedure, and a
-description that triggers at exactly the right moment. Two skills today,
-eleven branch guides, 107 numbered rules.
+description that triggers at exactly the right moment. Three skills today,
+fifteen branch guides, 137 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
 | [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
+| [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH |
 
 ## What it is
 
@@ -22,7 +23,7 @@ the branches are the procedure.
 npx skills add Tomperez98/skills
 ```
 
-The [`skills`](https://github.com/vercel-labs/skills) CLI finds both skills,
+The [`skills`](https://github.com/vercel-labs/skills) CLI finds every skill,
 detects which agents you have installed, and asks where to put them.
 Target pi (or any agent) globally in one shot:
 
@@ -36,7 +37,7 @@ Already have the repo? Copy the folders directly — Claude and Codex read
 the same layout (`~/.claude/skills`, `~/.codex/skills`):
 
 ```bash
-cp -r skills/coding/code skills/coding/docs ~/.pi/agent/skills/
+cp -r skills/coding/code skills/coding/docs skills/coding/ship ~/.pi/agent/skills/
 ```
 
 ## How it works
@@ -71,6 +72,10 @@ follows its rules in order:
 | "Write / fix a changelog" | [`docs/CHANGELOG.md`](skills/coding/docs/CHANGELOG.md) | Impact first, breaking changes loudest, Keep a Changelog + SemVer |
 | "Write landing copy" | [`docs/LANDING.md`](skills/coding/docs/LANDING.md) | Position before you write, hero leads with the job, proof over adjectives |
 | "Make docs acquire / convert" | [`docs/DOCS_MARKETING.md`](skills/coding/docs/DOCS_MARKETING.md) | One page one search intent, the example is the ad, convert at the moment of success |
+| "Set up / fix / speed up CI" | [`ship/CI.md`](skills/coding/ship/CI.md) | One entry point you run locally, gate the merge commit, pin everything, seed from the commit |
+| "Catch regressions after merge" | [`ship/MONITOR.md`](skills/coding/ship/MONITOR.md) | Fuzz and measure main continuously, re-check what you don't control, page a person |
+| "Plan the release process" | [`ship/RELEASE.md`](skills/coding/ship/RELEASE.md) | Written checklist, one source for the version, never rush, soak, fix forward |
+| "Write / fix the release script" | [`ship/PUBLISH.md`](skills/coding/ship/PUBLISH.md) | Build then publish, assert preconditions, idempotent steps, verify the shipped bytes |
 
 ## Why one rule
 
