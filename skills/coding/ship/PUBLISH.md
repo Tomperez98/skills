@@ -19,7 +19,8 @@ Because the build needs no credentials, CI can run it on every merge
 
 Generate the mechanical parts of the release notes too: the install
 command for each package manager, and the compatibility facts (the oldest
-version users can upgrade from, which versions work together). Take them
+version users can upgrade from, which versions work together; COMPAT.md
+rule 5). Take them
 from the build, not from memory. People write only the story of what
 changed (RELEASE.md rule 4).
 

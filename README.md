@@ -2,13 +2,13 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Three skills today,
-fifteen branch guides, 131 numbered rules.
+sixteen branch guides, 140 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
 | [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
-| [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH |
+| [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 
 ## What it is
 
@@ -76,6 +76,7 @@ follows its rules in order:
 | "Catch regressions after merge" | [`ship/MONITOR.md`](skills/coding/ship/MONITOR.md) | Slow tests and key metrics on main, re-check the outside world, every failure reaches a person |
 | "Plan the release process" | [`ship/RELEASE.md`](skills/coding/ship/RELEASE.md) | Written checklist, never rush, one source for the version, freeze and soak a commit, fix forward |
 | "Write / fix the release script" | [`ship/PUBLISH.md`](skills/coding/ship/PUBLISH.md) | Build once and ship those bytes, check first, idempotent steps, verify from the outside |
+| "Keep clients / services compatible" | [`ship/COMPAT.md`](skills/coding/ship/COMPAT.md) | One contract, generated copies checked fresh, same scenarios for every client, test upgrades against real past releases |
 
 ## Why one rule
 

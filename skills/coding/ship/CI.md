@@ -72,7 +72,7 @@ flaking.
 If reviewers keep catching the same kind of problem, make it a check:
 formatting, lint rules, banned APIs (with the replacement in the error
 message), leftover debug code, and generated files that weren't
-regenerated. Reviewers should be spending their time on design.
+regenerated (COMPAT.md rule 2). Reviewers should be spending their time on design.
 
 ## 8. Exercise the release path on every merge
 
