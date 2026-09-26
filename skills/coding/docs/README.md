@@ -58,7 +58,8 @@ Give the exact command(s), no ceremony. One block, runnable as written.
 
 The example must run as pasted — imports, setup, expected output. It is the
 strongest thing on the page; don't truncate it with `...` in the interesting
-part.
+part. To keep it that way, cut it from a file CI runs (ship skill,
+COMPAT.md rule 4).
 
 ```
 // complete, self-contained, with the output shown

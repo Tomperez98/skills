@@ -17,7 +17,7 @@ does not restate them.
 
 - `skills/coding/code/WRITE.md` · `REFACTOR.md` · `TEST.md`
 - `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING, DOCS_MARKETING
-- `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH
+- `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH, COMPAT
 
 ## Skill format
 
