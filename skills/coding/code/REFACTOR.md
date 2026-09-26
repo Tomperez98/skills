@@ -15,6 +15,9 @@ Run down this checklist and name the violation:
 - **Implicit exceptions** — failures thrown across stack frames, invisible in
   signatures. → Model errors as values (a Result/Either type, tagged union, or
   checked error).
+- **Dropped results** — a call returns a failure and the caller ignores it,
+  so the error vanishes and the code continues as if the call worked. →
+  Return a value for expected failures (never drop a returned failure).
 - **Driver/framework error types leaking** — database exceptions reaching the
   domain. → One error vocabulary per boundary.
 - **Scattered steps** — the operation's failure space documented nowhere. →
@@ -31,14 +34,26 @@ Run down this checklist and name the violation:
   more state than it uses (a whole `Context`, `App`, `Database`, or entity
   graph for one field), so tests must build the entire world. → Load only
   the state you need.
+- **Reach-through chains** — `a.b.c.d` walks an object graph the signature
+  never names, so a test has to build every hop. → Load only the state you
+  need (reach one hop).
 - **No seams** — no exported-API discipline, no way to swap a dependency. →
   Boundaries and seams.
 - **Stale references / pinned objects** — code passes and caches object
   references, so a deleted entity keeps living and stale data gets served. →
   Pass identity, not references.
-- **Unbounded loops / recursion / queues** — code loops or recurses with no
-  limit, so a bad input hangs the process instead of failing. → Bound
-  everything.
+- **Unbounded loops / recursion / queues / allocation** — code loops,
+  recurses, or grows with no limit, so a bad input hangs the process or
+  exhausts memory instead of failing. → Bound everything.
+- **Wide scope** — variables declared at the top of a long function or on
+  a shared object, so many lines can change a value before it's read. →
+  Declare every variable in the smallest scope that works.
+- **Long functions** — a function doesn't fit on one screen, and it mixes
+  decisions with work, so a test has to drive many paths to reach one. →
+  Keep functions short.
+- **Ignored warnings** — the build prints warnings nobody reads, or the
+  analyzer is silenced instead of satisfied. → Turn every warning into an
+  error.
 - **Branchy call sites** — a function returns a fat type the caller must
   exhaustively match, so every call site multiplies the test matrix. →
   Minimize branches at the call site.

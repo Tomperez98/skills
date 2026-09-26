@@ -50,6 +50,28 @@ fn read_config(path: str) -> Result<Config, IOError> {
 Unsure which camp a failure belongs in? Ask: *"is this a bug, or an expected
 outcome?"* Bugs panic; expected outcomes return.
 
+**Never drop a returned failure.** If the caller ignores a returned error,
+the error disappears and the program carries on as if the call worked.
+That is worse than a panic. Every returned failure is handled, propagated,
+or discarded where a reader can see it:
+
+```
+// Wrong — the Result is dropped; a failed write looks like a saved file
+write(file, buf)
+
+// Right — handled, or discarded on purpose
+match write(file, buf) {
+    Err(e) -> return Err(SaveFailed(e))
+    Ok(_)  -> {}
+}
+_ = log.flush()   // best-effort: dropping the error is deliberate
+```
+
+Make the compiler enforce it with `#[must_use]`, `[[nodiscard]]`,
+`errcheck`, or `no-floating-promises`. The other half of the check lives
+with the function being called: it asserts its own parameters as
+preconditions (rule 21).
+
 ## 3. Parse at the edge
 
 Parse raw input once, at the boundary, and pass meaningful domain values
@@ -220,6 +242,19 @@ reads, don't hydrate the whole entity graph or pull every table. A narrow
 state surface means a narrow failure space, and a test that builds one small
 value instead of standing up the whole app.
 
+Reach one hop, not four. A chain like `order.customer.account.address.city`
+depends on four objects that the signature never mentions. Each hop can be
+null, and each is something a test has to build. Pass in the value the
+function needs, or ask the nearest object for it (the Law of Demeter).
+
+```
+// Reaches through the object graph
+fn shipping_zone(order: Order) -> Zone { zone_of(order.customer.account.address.city) }
+
+// Takes what it uses
+fn shipping_zone(city: City) -> Zone { zone_of(city) }
+```
+
 ## 11. Boundaries and seams, judiciously
 
 - Test only the exported/public API unless a function is extremely complex;
@@ -227,6 +262,34 @@ value instead of standing up the whole app.
 - Use interfaces (interfaces, protocols, traits, abstract types) as seams to
   swap a real dependency for a fake at test time — sparingly: every
   interface adds indirection.
+
+A seam belongs at a boundary that actually varies at test time — a network
+call, a clock, a queue — not on every function. Put the interface where the
+real dependency lives, and let the function that does the work take it as a
+parameter:
+
+```
+// The interface is the seam; the function doesn't know which side it's on
+interface RateSource { fn quote(pair: Pair) -> Result<Rate, RateError> }
+
+fn convert(amount: Money, pair: Pair, rates: RateSource) -> Result<Money, RateError> {
+    rate = rates.quote(pair)?
+    return Ok(amount * rate)
+}
+
+// Test: a fake RateSource, no network call, no mocking framework
+fake_rates = FakeRateSource(pair: Pair("USD", "EUR"), rate: 0.9)
+assert(convert(100, Pair("USD", "EUR"), fake_rates) == Ok(90))
+```
+
+`convert` doesn't know it's talking to a fake — the seam is one parameter,
+and the fake is a plain value, not a mock library standing in for a method
+call. This is the same boundary DEPENDENCIES.md wraps a vendor behind
+(wrap it behind one boundary); the difference is only which side owns the
+interface. Add the seam only when a second implementation is real (rule
+18: solve the problem before you abstract) — a fake for tests counts — not
+on every internal helper, where it's one more layer between the reader and
+the code that does the work.
 
 ## 12. Overflow is a bug until you say otherwise
 
@@ -270,81 +333,60 @@ let user = db.get(cache.get("user_id"))   // fresh, or a loud miss
 pointers." The lookup compares the generation and panics on a stale handle —
 same shape: identity plus a staleness check, resolved in one place.*
 
-## 14. Keep the hot path free of indirection
+Once the structure is fail-fast and testable, speed is a separate concern
+with its own branch — see [PERFORMANCE.md](PERFORMANCE.md) for keeping the
+hot path free of indirection, sketching costs before you build, and
+splitting the control plane from the data plane.
 
-When something runs many times — a loop, a request path, a query — the
-dominant cost is usually chasing something indirect. Identify the access
-pattern and remove indirection from it.
-
-- **One batched query, not one per item.** An N+1 loop is a dereference per
-  row: a round-trip for each item instead of one fetch.
-- **Set-based over row-by-row.** Filter, join, and aggregate in the store,
-  not by fetching rows and branching in a loop.
-- **Do checks once, outside the loop.** Split a mixed collection by kind
-  before iterating, instead of branching per element.
-- **Measure, don't assume.** These are constant-factor wins with identical
-  big-O. Profile first; a cold path may show no difference.
-
-*CPU-bound translation: "indirection" becomes cache misses and blocked
-vectorization. The unit is the cache line — the smallest chunk moved between
-RAM and the CPU — so the goal is more useful data per line, read in order:*
-
-- *minimize footprint* — smaller types, structure packing (reorder fields,
-  drop padding), so one line holds more items;
-- *access sequentially* — iterate in memory order so a fetched line is fully
-  used;
-- *struct-of-arrays* — keep the fields a hot loop touches contiguous;
-- *contiguous arrays over linked structures, static over dynamic dispatch* —
-  less pointer chasing, so the compiler can vectorize;
-- *zero copy in the data plane* — don't copy memory, don't serialize or
-  deserialize; operate on data in place;
-- *fixed-size, cache-line-aligned structs* — align a struct to its largest
-  field so it never straddles two cache lines.
-
-*Reach for these only when a profiler names the loop.*
-
-## 15. Sketch performance before you build
-
-The 1000x wins are only available at design time, when you can't profile.
-Do a back-of-the-envelope sketch over the four primary colors — network,
-storage, memory, compute — each with two textures: bandwidth and latency.
-Roughly right beats precisely wrong, and the sketch tells you which rule in
-this file actually matters for this system.
-
-## 16. Split the control plane from the data plane
-
-Batch work so decisions run once per batch, and let the hot loop sprint
-through data without branching. Checks, assertions, and validation live in
-the control plane — amortized across the batch — while the data plane stays
-a tight loop the CPU can vectorize.
-
-```
-// Control plane: one check, one decision
-if !batch_is_valid(batch): return Err(InvalidBatch)
-
-// Data plane: a branch-free sprint over the batch
-for item in batch { process(item) }
-```
-
-An assertion costs almost nothing once per batch; the same assert per item
-would dominate the data plane. This is where fail-fast and performance
-agree: the control plane can afford to be paranoid.
-
-## 17. Bound everything
+## 14. Bound everything
 
 Everything has a limit; write it down. Bound loops, queues, buffers,
 concurrency, and recursion. A bound is a fail-fast device — when the code
 hits a limit that "can't happen," it panics at that line instead of
-hanging, ballooning, or looping forever.
+hanging, ballooning, or looping forever. When hitting the limit *can*
+happen, it's an expected failure, so return it.
 
-- Bound loops and queues to detect the infinite loop and the latency spike.
-- Avoid recursion, or give it an explicit depth limit.
+```
+MAX_REDIRECTS = 10          // a server can send a redirect loop: expected
+
+fn fetch_following(url: Url) -> Result<Response, FetchError> {
+    for _ in 0..MAX_REDIRECTS {
+        response = fetch(url)
+        if !response.is_redirect { return Ok(response) }
+        url = response.location
+    }
+    return Err(TooManyRedirects(url))
+}
+
+MAX_DEPTH = 64              // our own tree deeper than this is a bug
+
+fn root_of(node: Node) -> Node {
+    for _ in 0..MAX_DEPTH {
+        if node.is_root { return node }
+        node = node.parent
+    }
+    panic("tree deeper than MAX_DEPTH")
+}
+```
+
+- **Every loop has a named upper bound**: a constant, or the length of the
+  collection it walks. A `while true` that waits for a condition gets a
+  counter or a deadline (CRASHONLY.md: timeout every interaction).
+- **Avoid recursion, or give it an explicit depth limit.** A loop over an
+  explicit stack is usually better, because the stack's size is a number
+  you can bound and check.
+- **Keep control flow local.** No `goto`, no `setjmp`/`longjmp`, and no
+  exceptions thrown to steer normal logic. A reader should see every way
+  out of a function inside it: a return or a panic.
 - Use fixed-width types (`u32`, `i64`) over architecture-specific ones
   (`usize`, `int`) — the bound is visible in the type.
-- Prefer allocating at startup over allocating in the hot path; a fixed
-  allocation is a bound you can see and reason about.
+- **Allocate at startup, not after.** Size pools, buffers, and caches once
+  at init, from config, and reuse them. Running out of preallocated space
+  is hitting a bound: return the failure or panic, following the one rule.
+  Don't grow the buffer. In a garbage-collected language the rule becomes:
+  every collection that grows has a cap.
 
-## 18. Minimize branches at the call site
+## 15. Minimize branches at the call site
 
 Every case the caller must handle is a test someone has to write. Simplify
 signatures so the call site branches as little as possible, and return the
@@ -357,23 +399,36 @@ fn find_user(id) -> Option<User> { ... }   // caller: one match
 fn classify(x) -> enum { A, B, C }         // caller: three matches — is that the point?
 ```
 
-Define variables near where they're used, closing the gap between where a
-value is born and where it's read.
+**Declare every variable in the smallest scope that works.** Put it inside
+the loop or branch that uses it, not at the top of the function or on a
+shared object. The shorter the gap between where a value is set and where
+it's read, the fewer lines can change it and the fewer states a test has
+to cover.
 
-## 19. Minimize the interface surface; name the fault model
+```
+// Wide — `total` is visible and mutable for the whole function
+let total = 0
+// ... 30 lines ...
+for item in cart { total += item.price }
+
+// Narrow — born where it's used
+let total = sum(item.price for item in cart)
+```
+
+## 16. Minimize the interface surface; name the fault model
 
 An interface is a contract. Keep its surface small — fewer methods, fewer
 parameters — and document not just what it returns but what it can fail
 with. That fault model is "one error vocabulary per boundary" seen from the
 interface side: the caller handles the named failures and nothing else.
-Every implementation must keep that contract (rule 24).
+Every implementation must keep that contract (rule 21).
 
 Push control flow up and data flow down — callers decide, leaves compute.
 Abstract a non-deterministic physical interface (network, clock, disk)
 behind a deterministic logical one, so the caller and the test see a stable
 contract instead of the machine.
 
-## 20. Name for the mental model
+## 17. Name for the mental model
 
 Names are the mental model; make them carry it.
 
@@ -386,7 +441,7 @@ Names are the mental model; make them carry it.
   `camelCase`, `PascalCase`, whatever the codebase already uses — and don't
   abbreviate: a crisp name beats a short one.
 
-## 21. Solve the problem before you abstract
+## 18. Solve the problem before you abstract
 
 Write the functionality first and make it work. A class hierarchy, a plugin
 interface, or a dispatch layer doesn't solve anything by itself. It's a
@@ -414,12 +469,12 @@ Every layer you don't add is one fewer place for a contract to hide. The
 functions that do the work stay in plain view, where their failures are
 easy to see and easy to test.
 
-## 22. Write conditions as logic
+## 19. Write conditions as logic
 
 A condition is a Boolean formula, and formulas have rewrite rules that keep
 their value: De Morgan, distribution, double negation. Apply one rule per
 step and the behavior can't change. A simpler condition has fewer branches
-for a reader to follow and a test to cover (rule 18).
+for a reader to follow and a test to cover (rule 15).
 
 ```
 // Before
@@ -484,9 +539,9 @@ Switch between code and formula as needed; for hard cases, pen and paper
 or a symbolic solver (such as sympy) is faster. Then prove the rewrite
 changed nothing: see TEST.md, "Test a refactor against the original".
 
-*Rules 22–23 adapt Hillel Wayne, Logic for Programmers, ch. 3.*
+*Rules 19–20 adapt Hillel Wayne, Logic for Programmers, ch. 3.*
 
-## 23. Let the type hold the guarantee
+## 20. Let the type hold the guarantee
 
 Pick the collection whose guarantees match the data. A type that can
 represent less guarantees more, and every guarantee the type holds is a
@@ -528,7 +583,7 @@ s = new Set(); s.add([1]); s.add([1])   // two members: different identities
 s.has([1])                               // false
 ```
 
-## 24. State the contract; substitute only what keeps it
+## 21. State the contract; substitute only what keeps it
 
 A contract has three parts, and each part says whose bug a violation is:
 
@@ -566,11 +621,11 @@ promises that the height is unchanged, and a `Square` can't keep that
 promise, so it isn't a `Rect`. Fix it with separate types, or with
 immutable shapes that have no setters to break.
 
-Where the contract lives: the types first (rules 3 and 23), then asserts at
+Where the contract lives: the types first (rules 3 and 20), then asserts at
 entry and exit, then a comment for anything the types can't hold. TEST.md,
 "Test the contract as properties", proves it.
 
-## 25. Tabulate multi-input decisions
+## 22. Tabulate multi-input decisions
 
 When the outcome depends on several inputs at once, write the decision as a
 table before you write the code. List the inputs as columns, each case as a
@@ -596,9 +651,9 @@ Check the table before you code it:
 
 Then code it from the table, as one branch per row or as a lookup. Each row
 is one test (TEST.md, "Test every row of the decision table"). A condition
-with fewer inputs is still logic: see rule 22.
+with fewer inputs is still logic: see rule 19.
 
-## 26. Let the store enforce data invariants
+## 23. Let the store enforce data invariants
 
 A check in application code guards one code path. A constraint in the
 store guards every writer: other services, migrations, a script someone
@@ -629,6 +684,40 @@ CREATE TABLE users (
   your code, and assert the store rejects it. Otherwise nothing proves the
   constraint exists.
 
-*Rules 24–26 cover the topics of Logic for Programmers chs. 5, 7, and 8
+*Rules 21–23 cover the topics of Logic for Programmers chs. 5, 7, and 8
 (contracts and subtyping, database theory, decision tables), using standard
 Design by Contract, Liskov substitution, and decision-table practice.*
+
+## 24. Keep functions short
+
+A function should fit on one screen, with a hard limit of about 60–70
+lines. A reviewer who can see the whole function can check its contract;
+one who has to scroll only checks it in pieces. A short function also has a
+small contract, with few inputs and few failures, so it's cheap to test.
+
+- **Split by role, not at line 60.** Keep the branching in the parent and
+  move loops and computation into leaf helpers (rule 16: control flow up,
+  data flow down). The parent then reads as the decision, and each leaf
+  does one job with no branches of its own.
+- **Name each piece for what it does.** If a helper can only be called
+  `step_two`, the split is in the wrong place.
+- **Don't split below the natural size.** A one-use helper that saves three
+  lines is one more jump for the reader to follow (rule 18).
+
+## 25. Turn every warning into an error
+
+The compiler and the static analyzer can catch a bug before the code ever
+runs, which makes them the earliest crash you have. Let them fail the build.
+
+- **Use the strictest settings from the first commit:**
+  `-Wall -Wextra -Werror -pedantic`, TypeScript `strict`, `mypy --strict`,
+  Clippy with `-D warnings`. Turning strictness on later means working
+  through a backlog first. Turning it on at the start costs nothing.
+- **Keep the count at zero.** A warning that stays becomes noise, and noise
+  hides the next real warning. Fix it, or suppress it on that one line with
+  a comment saying why.
+- **Simplify code the tool can't follow.** When the analyzer can't prove the
+  code safe, rewrite the code until it can instead of silencing the tool.
+  If a tool can't reason about the code, a reviewer probably can't either.
+- **Gate the merge on it.** Run the compiler and analyzers in CI's fast tier
+  (ship skill, CI.md rules 2 and 7).
