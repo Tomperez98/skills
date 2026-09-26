@@ -58,5 +58,6 @@ verified.**
   what you meant to ship.
 
 The `code` skill's rule applies to pipelines too. A broken precondition
-(the version already exists, the tests didn't run) is a bug: stop loudly.
+(the version already holds different bytes, the tests didn't run) is a
+bug: stop loudly.
 A network or registry failure is expected: retry it or report it.
