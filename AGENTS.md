@@ -1,12 +1,14 @@
 # AGENTS.md
 
 This repo is a collection of skills for AI coding assistants, installable
-with `npx skills add Tomperez98/skills`. Two skills live here, `code` and
-`docs`. Everything in this repo — new skills, edits, examples — follows
-their one rules:
+with `npx skills add Tomperez98/skills`. Three skills live here, `code`,
+`docs`, and `ship`. Everything in this repo — new skills, edits, examples —
+follows their one rules:
 
 - **code** — bugs panic, expected failures return values.
 - **docs** — lead with the reader's task, win the 10-second skim, never mislead.
+- **ship** — keep main releasable; make every release boring — scripted,
+  re-runnable, verified.
 
 ## The full rules live in the branch guides
 
@@ -15,6 +17,7 @@ does not restate them.
 
 - `skills/coding/code/WRITE.md` · `REFACTOR.md` · `TEST.md`
 - `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING, DOCS_MARKETING
+- `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH
 
 ## Skill format
 
