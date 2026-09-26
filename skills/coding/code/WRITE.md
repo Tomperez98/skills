@@ -50,6 +50,28 @@ fn read_config(path: str) -> Result<Config, IOError> {
 Unsure which camp a failure belongs in? Ask: *"is this a bug, or an expected
 outcome?"* Bugs panic; expected outcomes return.
 
+**Never drop a returned failure.** If the caller ignores a returned error,
+the error disappears and the program carries on as if the call worked.
+That is worse than a panic. Every returned failure is handled, propagated,
+or discarded where a reader can see it:
+
+```
+// Wrong — the Result is dropped; a failed write looks like a saved file
+write(file, buf)
+
+// Right — handled, or discarded on purpose
+match write(file, buf) {
+    Err(e) -> return Err(SaveFailed(e))
+    Ok(_)  -> {}
+}
+_ = log.flush()   // best-effort: dropping the error is deliberate
+```
+
+Make the compiler enforce it with `#[must_use]`, `[[nodiscard]]`,
+`errcheck`, or `no-floating-promises`. The other half of the check lives
+with the function being called: it asserts its own parameters as
+preconditions (rule 24).
+
 ## 3. Parse at the edge
 
 Parse raw input once, at the boundary, and pass meaningful domain values
@@ -220,6 +242,19 @@ reads, don't hydrate the whole entity graph or pull every table. A narrow
 state surface means a narrow failure space, and a test that builds one small
 value instead of standing up the whole app.
 
+Reach one hop, not four. A chain like `order.customer.account.address.city`
+depends on four objects that the signature never mentions. Each hop can be
+null, and each is something a test has to build. Pass in the value the
+function needs, or ask the nearest object for it (the Law of Demeter).
+
+```
+// Reaches through the object graph
+fn shipping_zone(order: Order) -> Zone { zone_of(order.customer.account.address.city) }
+
+// Takes what it uses
+fn shipping_zone(city: City) -> Zone { zone_of(city) }
+```
+
 ## 11. Boundaries and seams, judiciously
 
 - Test only the exported/public API unless a function is extremely complex;
@@ -335,14 +370,48 @@ agree: the control plane can afford to be paranoid.
 Everything has a limit; write it down. Bound loops, queues, buffers,
 concurrency, and recursion. A bound is a fail-fast device — when the code
 hits a limit that "can't happen," it panics at that line instead of
-hanging, ballooning, or looping forever.
+hanging, ballooning, or looping forever. When hitting the limit *can*
+happen, it's an expected failure, so return it.
 
-- Bound loops and queues to detect the infinite loop and the latency spike.
-- Avoid recursion, or give it an explicit depth limit.
+```
+MAX_REDIRECTS = 10          // a server can send a redirect loop: expected
+
+fn fetch_following(url: Url) -> Result<Response, FetchError> {
+    for _ in 0..MAX_REDIRECTS {
+        response = fetch(url)
+        if !response.is_redirect { return Ok(response) }
+        url = response.location
+    }
+    return Err(TooManyRedirects(url))
+}
+
+MAX_DEPTH = 64              // our own tree deeper than this is a bug
+
+fn root_of(node: Node) -> Node {
+    for _ in 0..MAX_DEPTH {
+        if node.is_root { return node }
+        node = node.parent
+    }
+    panic("tree deeper than MAX_DEPTH")
+}
+```
+
+- **Every loop has a named upper bound**: a constant, or the length of the
+  collection it walks. A `while true` that waits for a condition gets a
+  counter or a deadline (CRASHONLY.md: timeout every interaction).
+- **Avoid recursion, or give it an explicit depth limit.** A loop over an
+  explicit stack is usually better, because the stack's size is a number
+  you can bound and check.
+- **Keep control flow local.** No `goto`, no `setjmp`/`longjmp`, and no
+  exceptions thrown to steer normal logic. A reader should see every way
+  out of a function inside it: a return or a panic.
 - Use fixed-width types (`u32`, `i64`) over architecture-specific ones
   (`usize`, `int`) — the bound is visible in the type.
-- Prefer allocating at startup over allocating in the hot path; a fixed
-  allocation is a bound you can see and reason about.
+- **Allocate at startup, not after.** Size pools, buffers, and caches once
+  at init, from config, and reuse them. Running out of preallocated space
+  is hitting a bound: return the failure or panic, following the one rule.
+  Don't grow the buffer. In a garbage-collected language the rule becomes:
+  every collection that grows has a cap.
 
 ## 18. Minimize branches at the call site
 
@@ -357,8 +426,21 @@ fn find_user(id) -> Option<User> { ... }   // caller: one match
 fn classify(x) -> enum { A, B, C }         // caller: three matches — is that the point?
 ```
 
-Define variables near where they're used, closing the gap between where a
-value is born and where it's read.
+**Declare every variable in the smallest scope that works.** Put it inside
+the loop or branch that uses it, not at the top of the function or on a
+shared object. The shorter the gap between where a value is set and where
+it's read, the fewer lines can change it and the fewer states a test has
+to cover.
+
+```
+// Wide — `total` is visible and mutable for the whole function
+let total = 0
+// ... 30 lines ...
+for item in cart { total += item.price }
+
+// Narrow — born where it's used
+let total = sum(item.price for item in cart)
+```
 
 ## 19. Minimize the interface surface; name the fault model
 
@@ -632,3 +714,37 @@ CREATE TABLE users (
 *Rules 24–26 cover the topics of Logic for Programmers chs. 5, 7, and 8
 (contracts and subtyping, database theory, decision tables), using standard
 Design by Contract, Liskov substitution, and decision-table practice.*
+
+## 27. Keep functions short
+
+A function should fit on one screen, with a hard limit of about 60–70
+lines. A reviewer who can see the whole function can check its contract;
+one who has to scroll only checks it in pieces. A short function also has a
+small contract, with few inputs and few failures, so it's cheap to test.
+
+- **Split by role, not at line 60.** Keep the branching in the parent and
+  move loops and computation into leaf helpers (rule 19: control flow up,
+  data flow down). The parent then reads as the decision, and each leaf
+  does one job with no branches of its own.
+- **Name each piece for what it does.** If a helper can only be called
+  `step_two`, the split is in the wrong place.
+- **Don't split below the natural size.** A one-use helper that saves three
+  lines is one more jump for the reader to follow (rule 21).
+
+## 28. Turn every warning into an error
+
+The compiler and the static analyzer can catch a bug before the code ever
+runs, which makes them the earliest crash you have. Let them fail the build.
+
+- **Use the strictest settings from the first commit:**
+  `-Wall -Wextra -Werror -pedantic`, TypeScript `strict`, `mypy --strict`,
+  Clippy with `-D warnings`. Turning strictness on later means working
+  through a backlog first. Turning it on at the start costs nothing.
+- **Keep the count at zero.** A warning that stays becomes noise, and noise
+  hides the next real warning. Fix it, or suppress it on that one line with
+  a comment saying why.
+- **Simplify code the tool can't follow.** When the analyzer can't prove the
+  code safe, rewrite the code until it can instead of silencing the tool.
+  If a tool can't reason about the code, a reviewer probably can't either.
+- **Gate the merge on it.** Run the compiler and analyzers in CI's fast tier
+  (ship skill, CI.md rules 2 and 7).

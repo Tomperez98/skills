@@ -74,6 +74,11 @@ formatting, lint rules, banned APIs (with the replacement in the error
 message), leftover debug code, and generated files that weren't
 regenerated (COMPAT.md rule 2). Reviewers should be spending their time on design.
 
+Run the compiler, type checker, and static analyzers at their strictest
+settings and treat every warning as an error, so the warning count stays at
+zero (code skill, WRITE.md rule 28). If CI allows one warning, the rest
+follow, and a real problem ends up buried among them.
+
 ## 8. Exercise the release path on every merge
 
 Run the release build in dry-run mode in CI: build every artifact and
