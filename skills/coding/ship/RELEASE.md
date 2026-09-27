@@ -30,11 +30,20 @@ release is days away, skipping one costs nobody much.
 
 ## 3. Keep the version in one place
 
-Store the version in one place, such as a git tag, one manifest field, or
-the top changelog entry, and have everything else read it from there. When
-the same version string is written in several files, they drift apart.
-Change it in a reviewed pull request like any other change, so a second
-person checks the number before it ships.
+Store the version in one place and have everything else read it from
+there. The strongest form is to store no real version in source at all:
+make the top changelog entry the only source of truth, pin a placeholder
+(`0.0.0`, `0.0.0-dev`) in every manifest, and have the release build stamp
+the real version into a temporary copy of each file. A dev build then never
+carries a version that could be mistaken for a release, and nobody
+hand-edits the same number in seven places. When the same version string is
+written in several files, they drift apart; a placeholder that a script
+rewrites can't.
+
+Change the version in a reviewed pull request like any other change, so a
+second person checks the number before it ships. Derive the next version
+number from the last changelog entry (patch + 1) rather than typing it;
+the human's job is to verify it, not produce it.
 
 Versions only go up. A number that was published, or burned by a failed
 attempt, is never used again. Pick a scheme users can understand, such as

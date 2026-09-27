@@ -43,6 +43,11 @@ artifact and assert it reports what you meant to build. A debug build
 published as a release, or a stale version string, fails here instead of
 on a user's machine.
 
+When you stamp the version into a manifest at build time, write into a
+temporary copy and assert that the placeholder was actually found, then
+restore the file. If someone renames the placeholder field, the release
+build fails loudly instead of shipping `0.0.0` (code skill: bugs panic).
+
 ## 3. Check preconditions before any side effect
 
 Before uploading anything, assert that the state is what you expect (code

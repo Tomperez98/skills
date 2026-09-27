@@ -75,7 +75,18 @@ window with an error naming both versions. Guessing at compatibility just
 turns a version mismatch into a bug nobody can explain later (code skill:
 bugs panic).
 
-## 6. Switch changed behavior on the caller's version
+## 6. Give each release two identities: tag and compatibility
+
+Keep the public version — the git tag and the package version users
+install — separate from the compatibility version: the protocol, ABI, or
+data-format release that decides what can talk to what. They usually
+match, and CI asserts that they do. But a fix-forward release can pin the
+compatibility version to the broken release's, so clients and replicas
+treat it as the same release while the public tag moves on. Without the
+split, the only way to fix a release whose upgrade path is broken is to
+also break compatibility.
+
+## 7. Switch changed behavior on the caller's version
 
 When behavior has to change incompatibly, switch it on the version the
 caller reports. Old callers keep the old behavior, new callers get the new
@@ -83,7 +94,7 @@ one, and the old path is deleted once it falls outside the window (rule 5).
 Document each breaking change for each client, with before-and-after code,
 on a migration page that the release notes link to.
 
-## 7. Test upgrades against the releases users actually have
+## 8. Test upgrades against the releases users actually have
 
 In CI, download the previous published releases rather than rebuilding
 them from old tags. Test the combinations users will hit: an old client
@@ -92,7 +103,7 @@ in-place upgrade from the previous release to this commit while it's
 serving traffic. An upgrade test that only uses versions you built today
 tests code nobody is running.
 
-## 8. Leave nothing orphaned
+## 9. Leave nothing orphaned
 
 Fail CI on source files that nothing references, on file types outside an
 allowlist, and on large files anywhere in the git history. Build the docs

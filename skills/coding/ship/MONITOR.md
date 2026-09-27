@@ -9,7 +9,7 @@ things that take longer. Apply the rules in order.
 
 Some tests are too slow for every pull request: long fuzzing or
 property-test runs, soak tests, full end-to-end suites, the whole platform
-matrix, upgrades from past releases (COMPAT.md rule 7). Run them on main, continuously or on a schedule, and report results
+matrix, upgrades from past releases (COMPAT.md rule 8). Run them on main, continuously or on a schedule, and report results
 per commit so you can tell which change broke things. Before releasing a
 commit, check that these runs are green for it.
 
