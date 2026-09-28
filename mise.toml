@@ -1,0 +1,20 @@
+# Tasks only — mise runs the checks; it does not manage the toolchain.
+#
+#   mise run check  # fast tier: frontmatter + README sync
+#   mise run links  # full tier: link resolution + orphaned pages
+#   mise run ci     # the gate: every tier, in order
+
+[tasks.check]
+description = "Fast tier: validate skill frontmatter and README sync"
+run = "node scripts/validate-skills.mjs check"
+
+[tasks.links]
+description = "Full tier: resolve internal links and find orphaned pages"
+run = "node scripts/validate-skills.mjs links"
+
+[tasks.ci]
+description = "Run every tier in order — the gate a merge must pass"
+run = [
+  "mise run check",
+  "mise run links",
+]

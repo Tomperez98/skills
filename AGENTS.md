@@ -44,3 +44,17 @@ does not restate them.
 - To add a skill, copy the shape of an existing one (README → "Adding a
   skill").
 - Keep the README's skill table (name, one rule, branches) in sync.
+- Run `mise run ci` before you push.
+
+## Checks
+
+CI and a laptop run the same tasks; the workflow only provides `mise` and
+calls `mise run ci`. Node comes from the environment — the checks use no
+dependencies.
+
+- `mise run check` — fast tier: every `SKILL.md` has valid frontmatter
+  (`name` matches its folder, `description` within the 1024-char limit),
+  and the README links every skill and branch guide.
+- `mise run links` — full tier: every internal link resolves and no page
+  under `skills/` is orphaned.
+- `mise run ci` — both tiers in order. This is the gate a merge must pass.
