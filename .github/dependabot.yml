@@ -1,0 +1,21 @@
+# Keep the SHA-pinned GitHub Actions current. Dependabot rewrites the pinned
+# commit SHA and the `# vX.Y.Z` comment together, so the pins stay immutable
+# between updates. PRs run the same `ci` gate as any other change.
+#
+# There is nothing else to watch: no package.json, lockfile, Dockerfile, or
+# mise-managed tool. If the repo gains one, add its ecosystem here.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+    groups:
+      github-actions:
+        patterns:
+          - "*"
