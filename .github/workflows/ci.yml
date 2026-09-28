@@ -1,0 +1,29 @@
+# The gate before merge. It only sets up the environment and calls the same
+# command a developer runs locally; all check logic lives in `mise run ci`.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # Supersede stale PR runs; every commit on main keeps its own result.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
+        with:
+          install: false # provide `mise` only; no toolchain management
+      - run: mise run ci
