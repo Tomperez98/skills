@@ -72,7 +72,7 @@ flaking.
 If reviewers keep catching the same kind of problem, make it a check:
 formatting, lint rules, banned APIs (with the replacement in the error
 message), leftover debug code, and generated files that weren't
-regenerated (COMPAT.md rule 2). Reviewers should be spending their time on design.
+regenerated. Reviewers should be spending their time on design.
 
 Run the compiler, type checker, and static analyzers at their strictest
 settings and treat every warning as an error, so the warning count stays at
@@ -84,6 +84,14 @@ follow, and a real problem ends up buried among them.
 Run the release build in dry-run mode in CI: build every artifact and
 publish nothing. A release script that only runs on release day breaks
 quietly in between, and you find out on release day.
+
+## 9. Leave nothing orphaned
+
+Fail CI on source files that nothing references, on file types outside an
+allowlist, and on stale generated files (regenerate and diff). Build the
+docs in CI and fail on broken internal links; when a page moves, add a
+redirect from its old address. Each of these is a part that no longer fits
+with the rest, and nothing else would catch it.
 
 ---
 

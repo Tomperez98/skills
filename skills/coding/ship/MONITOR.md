@@ -7,9 +7,9 @@ things that take longer. Apply the rules in order.
 
 ## 1. Keep testing after merge
 
-Some tests are too slow for every pull request: long fuzzing or
-property-test runs, soak tests, full end-to-end suites, the whole platform
-matrix, upgrades from past releases (COMPAT.md rule 8). Run them on main, continuously or on a schedule, and report results
+Some tests are too slow for every pull request: a version matrix across the
+runtimes you support, longer property or soak runs, or a full end-to-end
+suite. Run them on main, continuously or on a schedule, and report results
 per commit so you can tell which change broke things. Before releasing a
 commit, check that these runs are green for it.
 

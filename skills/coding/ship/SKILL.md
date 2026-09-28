@@ -3,10 +3,10 @@ name: ship
 description: >
   Run CI and releases that stay boring. One rule: keep main releasable, and
   make every release scripted, re-runnable, and verified. Use when the user
-  sets up, fixes, or speeds up CI, watches main for regressions, plans a
-  release process or versioning scheme, publishes packages, recovers from
-  a failed release, or keeps clients, bindings, or services compatible
-  across versions — even if they never say "DevOps" or "pipeline".
+  sets up, fixes, or speeds up CI, publishes a package or library, plans a
+  release process or versioning scheme, recovers from a failed release, or
+  watches main for regressions — even if they never say "DevOps", "pipeline",
+  or "release".
 ---
 
 # Ship
@@ -17,6 +17,12 @@ rule:
 
 > **Keep main releasable; make every release boring — scripted,
 > re-runnable, verified.**
+
+The rules assume one package: one language, one artifact, nothing deployed
+and no clients to keep in sync. A project made of several independently
+versioned parts (a server and its clients, bindings in several languages, a
+shared data format) applies the same rules to each part, and to the
+contract between them.
 
 ## Pick a branch
 
@@ -35,17 +41,12 @@ asking if the user is around:
 - **"Write / fix the release script, publish packages, handle secrets"** →
   [PUBLISH.md](PUBLISH.md). The machine side: build, publish safely, then
   check what actually shipped.
-- **"Keep clients / bindings / services in sync, compatibility, upgrades"**
-  → [COMPAT.md](COMPAT.md). Many parts, one contract: generate the copies,
-  test them together, and test against the versions already deployed.
 
 CI and MONITOR keep main releasable; RELEASE and PUBLISH make the release
-boring; COMPAT keeps the parts releasable together. If the situation is
-ambiguous and the user isn't reachable, pick by the file in front of you (a
-PR workflow → CI; a scheduled job or dashboard → MONITOR; a changelog or
-release checklist → RELEASE; a publish script → PUBLISH; a code generator,
-bindings, or a version check → COMPAT) and state the assumption at the top
-of your work.
+boring. If the situation is ambiguous and the user isn't reachable, pick by
+the file in front of you (a PR workflow → CI; a scheduled job or dashboard
+→ MONITOR; a changelog or release checklist → RELEASE; a publish script →
+PUBLISH) and state the assumption at the top of your work.
 
 ## The one rule
 
