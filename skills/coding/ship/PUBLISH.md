@@ -18,30 +18,18 @@ Because the build needs no credentials, CI can run it on every merge
 (CI.md rule 8) and validation can run it again later (rule 6).
 
 Generate the mechanical parts of the release notes too: the install
-command for each package manager, and the compatibility facts (the oldest
-version users can upgrade from, which versions work together; COMPAT.md
-rule 5). Take them
-from the build, not from memory. People write only the story of what
-changed (RELEASE.md rule 4).
+command for each package manager. Take it from the build, not from memory.
+People write only the story of what changed (RELEASE.md rule 4).
 
 ## 2. Ship the bytes you tested
 
 Build an artifact once, test it, and publish that same file. Rebuilding it
-in the publish step gives you something you haven't tested. Aim for
-reproducible builds, with pinned toolchains and timestamps and paths that
-don't vary, so anyone can rebuild a tag and get the same checksum. If some
-outputs can't be reproduced, such as debug builds, list them, and compare
-checksums for everything else.
+in the publish step gives you something you haven't tested.
 
-Build and publish with the oldest toolchain you support, not the newest. A
-package built with the newest compiler or lockfile format can fail for
-users on older tools, and you won't see it, because your own tools are new.
-
-Make every artifact identify itself: embed the version, commit, and build
-mode, and expose them (`app version --verbose`). After building, run the
-artifact and assert it reports what you meant to build. A debug build
-published as a release, or a stale version string, fails here instead of
-on a user's machine.
+Make the artifact identify itself: embed the version, and the commit where
+you can, so a user can read them back. After building, assert the artifact
+reports what you meant to build, so a stale version string fails here
+instead of on a user's machine.
 
 When you stamp the version into a manifest at build time, write into a
 temporary copy and assert that the placeholder was actually found, then
@@ -57,7 +45,6 @@ skill: bugs panic):
 published = registry.files(version)            // empty if the version is new
 assert(published ⊆ built, same checksums)      // never publish over other bytes
 assert(published or version > registry.latest())  // versions only go up
-assert(registry.has(previous_version))         // what this release builds on exists
 assert(ci_passed(commit))                      // the commit is the tested one
 assert(built == expected_artifacts)            // nothing missing, nothing extra
 ```
@@ -107,10 +94,10 @@ idempotent).
 
 ## 5. Protect the credentials
 
-- Publishing secrets are available only to the release job, in a
-  protected environment that needs a second person's approval and can only
-  be used from the release branch or tags. The job checks out that ref
-  explicitly, whatever ref it was started from.
+- Publishing secrets are available only to the release job, in a protected
+  environment that requires an approval step (the deliberate "go") and can
+  only be used from release tags. The job checks out that ref explicitly,
+  whatever ref it was started from.
 - The job that can obtain the credential runs nothing but the upload.
   Building and testing install third-party tools (test runners, linters,
   build plugins), so run them in a job without the credential and hand the

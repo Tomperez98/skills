@@ -2,21 +2,18 @@
 
 You're deciding what ships, what it's called, and what happens when it's
 wrong. Whatever the cadence, the process should be dull enough that anyone
-on the team can run it. Apply the rules in order.
+can run it. Apply the rules in order.
 
-## 1. Write the checklist down, and rotate who runs it
+## 1. Write the checklist down
 
 Keep the release checklist in the repo: numbered steps with the exact
 commands, and the reasoning after the steps. Script every step you can
-(PUBLISH.md). If only one person knows how to release, the project can
-only release when that person is available.
-
-Rotate the release manager so everyone on the team has run a release. When
-the process has two halves, such as freezing a candidate and publishing it
-later, give them to different people, so each checks the other's work. The
-checklist also covers recovery: for each way a release can fail (a publish
-that stopped partway, a bug in the validation, a bad release), write down
-what to do and how to run it again.
+(PUBLISH.md). If only one person knows how to release, the project can only
+release when that person is available — so the checklist is what lets the
+next person (or future you) run a release without asking. It also covers
+recovery: for each way a release can fail (a publish that stopped partway,
+a bug in the validation, a bad release), write down what to do and how to
+run it again.
 
 ## 2. Never rush a change into a release
 
@@ -40,10 +37,10 @@ hand-edits the same number in seven places. When the same version string is
 written in several files, they drift apart; a placeholder that a script
 rewrites can't.
 
-Change the version in a reviewed pull request like any other change, so a
-second person checks the number before it ships. Derive the next version
-number from the last changelog entry (patch + 1) rather than typing it;
-the human's job is to verify it, not produce it.
+Change the version in a reviewed pull request like any other change, so the
+number is checked before it ships. Derive the next version number from the
+last changelog entry (patch + 1) rather than typing it; the human's job is
+to verify it, not produce it.
 
 Versions only go up. A number that was published, or burned by a failed
 attempt, is never used again. Pick a scheme users can understand, such as
@@ -70,22 +67,13 @@ script that resolves the remote main to a SHA and tags that, never your
 working copy: a local checkout can hold commits, including ones your tools
 made, that main never had.
 
-If you use a release branch, it only ever points at a commit on main:
-move it forward (`git push origin <sha>:release`), and never cherry-pick
-or commit to it directly. A release branch with its own commits ships code
-that main never tested. The release job builds that branch whatever ref it
-was started from.
+## 6. Confirm green before you publish
 
-## 6. Let the candidate soak, then approve
-
-Run the long tests (fuzzing, soak tests, the full platform matrix) against
-the frozen candidate for a set time, such as over a weekend, before you
-publish it. Right before publishing, check that those runs are still green,
+If you have long tests (soak runs, property tests, a full matrix), run
+them against the frozen commit before publishing. Right before publishing,
+confirm that CI and the post-merge checks are still green for that commit,
 that open failures are triaged, and that metric changes are explained. If
 not, skip this release (rule 2).
-
-Have a second person approve the publish step. It costs one click and
-catches the mistakes the person running the release can't see.
 
 ## 7. Published versions are immutable; fix forward
 
