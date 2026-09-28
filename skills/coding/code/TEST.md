@@ -293,3 +293,49 @@ for combo in product([true, false], [true, false], [Domestic, Intl]) {
 
 A gap or an overlap fails at the input that causes it, before a customer
 finds it.
+
+## 16. Prove the test can fail (kill the mutant)
+
+A green suite proves nothing until you have watched it go red. A test is
+valuable only if it fails when the code is wrong, so inject a bug on
+purpose and confirm the suite catches it. If the suite still passes, it is
+blind — the mutation *survived*.
+
+```
+// The suite is green. Now make it prove it can fail.
+mutant = patch(recovery -> restore_oldest_snapshot)   // a realistic defect
+result = run_suite(mutant)
+
+assert(result == Caught, "suite survived the mutant — the test is blind")
+```
+
+Choose the mutation to match the level of the test:
+
+- **Unit tests: a mechanical mutation is enough.** Flip a comparison, swap
+  a signed operator, force a branch, delete a statement. Tooling
+  (`cargo-mutants`, `mutmut`, Stryker, PIT) enumerates these for you.
+- **System, property, and end-to-end tests: mechanical mutations are
+  useless.** They panic or short-circuit and never reach the deep path the
+  test exists to exercise. Inject a *semantic* bug instead — one that keeps
+  the common case working and breaks only a rare interleaving (restore an
+  older snapshot, skip a dedup key on retry, drop a write during failover).
+  It does not have to be hidden; it has to be *reached*.
+
+Read the result as one of three outcomes, and only the first one is a pass:
+
+- **Caught** — the suite failed at the broken assertion. The test is real.
+- **The bug never ran** — the suite failed elsewhere, or not at all, because
+  the mutant was never exercised. Inconclusive, not a pass: broaden the
+  inputs, or inject the fault (network partition, crash, disk error) that
+  the path needs.
+- **The bug ran and nothing noticed** — a true survivor. Either the test
+  does not reach that path or does not assert the property: strengthen the
+  workload, the assertion, or the fault configuration, and retry. If it
+  still survives, the property itself may be unfalsifiable — take it to
+  someone who can say whether it is a theorem or a typo.
+
+This is rule 14's properties, turned on the suite: a passing property test
+means nothing until you have seen it fail. Cap the budget — a handful of
+mutants and runs, not an afternoon — and stop when new survivors stop
+teaching you anything. Mutants are ephemeral: never merge one. They are
+calibration; the test is the artifact.
