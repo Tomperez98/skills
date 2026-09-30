@@ -1,8 +1,8 @@
 # skills
 
 One rule per skill, branch guides that turn the rule into procedure, and a
-description that triggers at exactly the right moment. Four skills today,
-twenty-one branch guides, 168 numbered rules.
+description that triggers at exactly the right moment. Five skills today,
+twenty-five branch guides, 188 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
@@ -10,6 +10,7 @@ twenty-one branch guides, 168 numbered rules.
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
+| [`craft`](skills/product/craft/SKILL.md) | Never ship zombie UI — every detail shows the maker's care and intent | POINT_OF_VIEW · STANDARDS · EDIT · CREATE |
 
 ## What it is
 
@@ -38,7 +39,7 @@ Already have the repo? Copy the folders directly — Claude and Codex read
 the same layout (`~/.claude/skills`, `~/.codex/skills`):
 
 ```bash
-cp -r skills/coding/code skills/coding/docs skills/coding/ship skills/product/mvp ~/.pi/agent/skills/
+cp -r skills/coding/code skills/coding/docs skills/coding/ship skills/product/mvp skills/product/craft ~/.pi/agent/skills/
 ```
 
 ## How it works
@@ -82,6 +83,10 @@ follows its rules in order:
 | "Is this premise actually real / research the trend" | [`mvp/RESEARCH.md`](skills/product/mvp/RESEARCH.md) | Evidence for the trend, the incumbents, and the gap — de-risk the premise, never the value |
 | "What's the core use case / cut the feature list" | [`mvp/AHA.md`](skills/product/mvp/AHA.md) | One core use case, cut the feature list, map the five-minute journey to the aha |
 | "Is this any good / will people use it" | [`mvp/VALIDATE.md`](skills/product/mvp/VALIDATE.md) | Put it in front of a real person, time it to the aha, act on the verdict |
+| "What's our point of view / who are we to the user" | [`craft/POINT_OF_VIEW.md`](skills/product/craft/POINT_OF_VIEW.md) | Define the brand and what you care about before you build, or AI hands you a generic one |
+| "Make agents build consistently / encode our standards" | [`craft/STANDARDS.md`](skills/product/craft/STANDARDS.md) | Encode standards into the means of production so the system scales intent, not just consistency |
+| "Is this actually good / edit or polish this" | [`craft/EDIT.md`](skills/product/craft/EDIT.md) | Be the editor: experience it like a user, account for every detail, refuse done = good |
+| "Differentiate / make it feel alive / invent a new interface" | [`craft/CREATE.md`](skills/product/craft/CREATE.md) | Better inputs, stressed outputs, new interfaces — raise the ceiling, not just the floor |
 
 ## Why one rule
 
