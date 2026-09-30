@@ -4,6 +4,12 @@ The code is hard to test. Don't reach for mocks — that fights the symptom.
 Diagnose which structural principle the code violates, fix that first, then
 the tests write themselves.
 
+Hard-to-test code is usually complex code. Simplicity is what keeps progress
+possible — a small, simple program is easy to change and easy to test, and
+every structure you add has to be paid for from then on. The refactor's real
+job is often deletion: name the structure doing the least work and remove
+it. The diagnosis below names which one that is.
+
 ## 1. Diagnose
 
 Run down this checklist and name the violation:

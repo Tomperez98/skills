@@ -5,6 +5,12 @@ says bugs panic; this branch makes the panic cheap. A crash-only component
 has exactly one way to stop — crash — and exactly one way to start —
 recover. Before you write any stop path, name which way you're stopping.
 
+A panic message you can read is a panic you can fix fast, so write it for
+the person staring at the log after the crash: name the invariant and the
+value that broke it ([WRITE.md](WRITE.md), rule 1). A cryptic panic is a
+recovery that starts with a debugging session; a specific one starts with
+the fix.
+
 ## Ways to stop
 
 A component stops in more ways than the one rule names. Conflating them is a
