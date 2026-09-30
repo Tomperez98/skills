@@ -55,6 +55,16 @@ fn read_config(path: str) -> Result<Config, IOError> {
 Unsure which camp a failure belongs in? Ask: *"is this a bug, or an expected
 outcome?"* Bugs panic; expected outcomes return.
 
+**Returned means visible in the contract.** A caller must be able to see the
+failure from the signature — a `Result`/`Either`, a tagged union, a nullable,
+or a checked exception — and be made to handle it. A language that checks
+exceptions makes a declared `throws` a returned value; a language that does
+not makes a raised error returned only when its type and the fact that it can
+be raised are part of the documented contract and callers handle it. An error
+that surfaces only at runtime, invisible in every signature between its source
+and the caller, is the implicit-exception violation REFACTOR.md diagnoses —
+not a returned value.
+
 **Never drop a returned failure.** If the caller ignores a returned error,
 the error disappears and the program carries on as if the call worked.
 That is worse than a panic. Every returned failure is handled, propagated,

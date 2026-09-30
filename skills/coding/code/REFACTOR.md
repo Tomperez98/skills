@@ -116,6 +116,14 @@ rewrite against the original (TEST.md, "Test a refactor against the
 original"). Then write the tests the new structure makes possible — see
 TEST.md.
 
+**Match the effort to the task.** A refactor is done when the violation you
+named is gone and the external behavior is preserved — not when the
+subsystem is perfect. Prefer the smallest change that removes the dominant
+violation, prove it against the original, and stop. Golden recordings,
+contract suites, and mutation checks earn their cost when the risk and the
+request justify them; building a test framework around a function nobody
+asked you to harden does not.
+
 ## 3. Treat pain as a signal
 
 If a test is still painful to write after the refactor, that's not a mocking
