@@ -1,14 +1,15 @@
 # skills
 
 One rule per skill, branch guides that turn the rule into procedure, and a
-description that triggers at exactly the right moment. Three skills today,
-sixteen branch guides, 141 numbered rules.
+description that triggers at exactly the right moment. Four skills today,
+twenty-one branch guides, 168 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
 | [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · PERFORMANCE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH |
+| [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
 
 ## What it is
 
@@ -37,7 +38,7 @@ Already have the repo? Copy the folders directly — Claude and Codex read
 the same layout (`~/.claude/skills`, `~/.codex/skills`):
 
 ```bash
-cp -r skills/coding/code skills/coding/docs skills/coding/ship ~/.pi/agent/skills/
+cp -r skills/coding/code skills/coding/docs skills/coding/ship skills/product/mvp ~/.pi/agent/skills/
 ```
 
 ## How it works
@@ -76,6 +77,11 @@ follows its rules in order:
 | "Catch regressions after merge" | [`ship/MONITOR.md`](skills/coding/ship/MONITOR.md) | Slow tests and key metrics on main, re-check the outside world, every failure reaches a person |
 | "Plan the release process" | [`ship/RELEASE.md`](skills/coding/ship/RELEASE.md) | Written checklist, never rush, one source for the version, freeze a tested commit, fix forward |
 | "Write / fix the release script" | [`ship/PUBLISH.md`](skills/coding/ship/PUBLISH.md) | Build once and ship those bytes, check first, idempotent steps, verify from the outside |
+| "I need an idea / what should I build" | [`mvp/PICK.md`](skills/product/mvp/PICK.md) | Start from a trend, name the idea in one sentence, prefer the shortest path to value |
+| "I have an idea — shape it / spec it" | [`mvp/SPEC.md`](skills/product/mvp/SPEC.md) | One specific paragraph: imagine the interface, bullet the details, react to the first implementation |
+| "Is this premise actually real / research the trend" | [`mvp/RESEARCH.md`](skills/product/mvp/RESEARCH.md) | Evidence for the trend, the incumbents, and the gap — de-risk the premise, never the value |
+| "What's the core use case / cut the feature list" | [`mvp/AHA.md`](skills/product/mvp/AHA.md) | One core use case, cut the feature list, map the five-minute journey to the aha |
+| "Is this any good / will people use it" | [`mvp/VALIDATE.md`](skills/product/mvp/VALIDATE.md) | Put it in front of a real person, time it to the aha, act on the verdict |
 
 ## Why one rule
 
