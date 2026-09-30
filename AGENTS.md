@@ -53,8 +53,9 @@ calls `mise run ci`. Node comes from the environment — the checks use no
 dependencies.
 
 - `mise run check` — fast tier: every `SKILL.md` has valid frontmatter
-  (`name` matches its folder, `description` within the 1024-char limit),
-  and the README links every skill and branch guide.
+  (`name` matches its folder, no duplicate fields, `description` within the
+  1024-char limit and warned above the ~450 budget), the README links every
+  skill and branch guide, and its `Skill` table names each skill and guide.
 - `mise run links` — full tier: every internal link resolves and no page
   under `skills/` is orphaned.
 - `mise run ci` — both tiers in order. This is the gate a merge must pass.
