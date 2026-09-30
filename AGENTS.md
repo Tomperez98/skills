@@ -1,8 +1,8 @@
 # AGENTS.md
 
 This repo is a collection of skills for AI coding assistants, installable
-with `npx skills add Tomperez98/skills`. Five skills live here, `code`,
-`docs`, `ship`, `mvp`, and `craft`. Everything in this repo — new skills,
+with `npx skills add Tomperez98/skills`. Four skills live here, `code`,
+`docs`, `ship`, and `mvp`. Everything in this repo — new skills,
 edits, examples — follows their one rules:
 
 - **code** — bugs panic, expected failures return values.
@@ -10,7 +10,6 @@ edits, examples — follows their one rules:
 - **ship** — keep main releasable; make every release boring — scripted,
   re-runnable, verified.
 - **mvp** — get a real person to their "aha" in five minutes.
-- **craft** — never ship zombie UI; every detail shows the maker's care and intent.
 
 ## The full rules live in the branch guides
 
@@ -21,7 +20,6 @@ does not restate them.
 - `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING, DOCS_MARKETING
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
-- `skills/product/craft/` — POINT_OF_VIEW, STANDARDS, EDIT, CREATE
 
 ## Skill format
 
