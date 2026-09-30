@@ -58,8 +58,7 @@ Give the exact command(s), no ceremony. One block, runnable as written.
 
 The example must run as pasted — imports, setup, expected output. It is the
 strongest thing on the page; don't truncate it with `...` in the interesting
-part. To keep it that way, cut it from a file CI runs (ship skill,
-COMPAT.md rule 4).
+part. To keep it that way, cut it from a file CI runs (ship skill, CI.md).
 
 ```
 // complete, self-contained, with the output shown
@@ -67,6 +66,13 @@ COMPAT.md rule 4).
 
 A reader who pastes it and sees output is now evaluating you on merit, not
 on prose. A reader who hits an import error closes the tab.
+
+**If you can't run it, don't claim it runs.** The example is the page's
+proof, and inventing an API you have not seen breaks the second half of the
+rule — never mislead. When you don't have the source, either build the
+example from a file you can actually execute, or make it explicitly
+illustrative and mark the parts a reader must fill in. Never present an
+invented signature and output as something that works as pasted.
 
 ## 6. Show numbers, not just words
 
