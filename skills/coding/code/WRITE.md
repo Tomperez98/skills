@@ -26,6 +26,11 @@ running the moment it stops holding — assertions turn "that can't happen"
 into "that won't happen." Rule 24 says whose bug each assertion catches:
 the caller's (precondition) or yours (postcondition).
 
+Write the panic message for the person who reads it: name the invariant and
+the value that broke it — `"quantity must be positive, got {q}"`, not
+`"assertion failed"`. A specific panic tells the reader which bug it is; a
+cryptic one becomes a support ticket.
+
 ```
 let adult = generate_adult()
 assert(adult.age >= 18)
@@ -71,6 +76,13 @@ Make the compiler enforce it with `#[must_use]`, `[[nodiscard]]`,
 `errcheck`, or `no-floating-promises`. The other half of the check lives
 with the function being called: it asserts its own parameters as
 preconditions (rule 21).
+
+**Write the error for the person who has to act on it.** A returned error is
+a message to a caller — or to you, three months later, at 2 a.m. Say what
+failed, which value did it, and what to do next: `"host 'api.example.com'
+unreachable: retry, or check --region"`, not `"EIO"`. A cryptic error moves
+the debugging cost onto every caller; a helpful one pays for itself on the
+first incident.
 
 ## 3. Parse at the edge
 
@@ -468,6 +480,11 @@ handlers[mode](event)
 Every layer you don't add is one fewer place for a contract to hide. The
 functions that do the work stay in plain view, where their failures are
 easy to see and easy to test.
+
+Simplicity is what keeps progress possible. A small, simple program is easy
+to change and easy to test; every structure you add has to be understood,
+maintained, and tested from then on, and that tax compounds as the program
+grows. When in doubt, delete.
 
 ## 19. Write conditions as logic
 
