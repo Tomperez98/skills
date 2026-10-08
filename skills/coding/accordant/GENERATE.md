@@ -31,6 +31,35 @@ TRequest request)` instead and fetch their client with
 existing integration tests use (`WebApplicationFactory`, a container,
 an in-process instance).
 
+The target type is yours, and so is the transport. A binding is any
+function from request to response, so it can call anything .NET can reach.
+Only the binding changes between transports; the spec stays the same:
+
+```csharp
+spec.ExecuteWith<Orders.OrdersClient>()                  // gRPC
+    .BindAsync<PlaceOrder, OrderReply>("PlaceOrder",
+        async (c, req) => await c.PlaceAsync(req));
+
+spec.ExecuteWith<QueueHarness>()                         // message queue
+    .BindAsync<PlaceOrder, OrderReply>("PlaceOrder",
+        (q, req) => q.PublishAndAwaitReplyAsync("orders.place", req));
+
+spec.ExecuteWith<CliRunner>()                            // CLI process
+    .BindAsync<PlaceOrder, OrderReply>("PlaceOrder",
+        (cli, req) => cli.RunAsync("orders", "place", req.Sku));
+
+spec.ExecuteWith<OrderService>()                         // in-process library
+    .Bind<PlaceOrder, OrderReply>("PlaceOrder",
+        (svc, req) => svc.Place(req));
+```
+
+Map whatever the transport returns (a status code, an exit code and stdout,
+a reply message, a thrown exception) into the response type the spec
+expects. A binding can also throw, and the spec declares that with
+`Expect.Throws<T>`. For systems that emit events instead of answering
+requests, see ORACLE.md rule 6. For systems .NET can't call at all, see
+ORACLE.md rules 3 and 5.
+
 ## 2. Register the target in a testing context
 
 The runner resolves bound targets from a `TestingContext`:
