@@ -1,8 +1,8 @@
 # AGENTS.md
 
 This repo is a collection of skills for AI coding assistants, installable
-with `npx skills add Tomperez98/skills`. Four skills live here, `code`,
-`docs`, `ship`, and `mvp`. Everything in this repo — new skills,
+with `npx skills add Tomperez98/skills`. Five skills live here, `code`,
+`docs`, `ship`, `accordant`, and `mvp`. Everything in this repo — new skills,
 edits, examples — follows their one rules:
 
 - **code** — bugs panic, expected failures return values.
@@ -19,6 +19,7 @@ does not restate them.
 - `skills/coding/code/WRITE.md` · `REFACTOR.md` · `TEST.md`
 - `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING, DOCS_MARKETING
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH
+- `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC, FAULTS, DEBUG
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
 
 ## Skill format
