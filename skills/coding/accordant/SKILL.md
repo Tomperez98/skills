@@ -1,12 +1,13 @@
 ---
 name: accordant
 description: >
-  Test stateful .NET systems with Microsoft Accordant specs. One rule: write
-  the contract once, in the spec, and let it judge every response. Use when
-  the user writes a spec, models state or operations, generates or runs
-  tests, validates traces from another language, hunts race conditions,
-  models async jobs, polling, timeouts, or retries, or debugs a failing
-  spec — even if they never say "model-based testing" or "oracle".
+  Test any stateful system — any language, any transport — with Accordant
+  specs. One rule: write the contract once, in the spec, and let it judge
+  every response. Use when the user writes a spec, models state or
+  operations, generates or runs tests, validates traces from another
+  language, hunts race conditions, models async jobs, polling, timeouts, or
+  retries, or debugs a failing spec — even if they never say "model-based
+  testing" or "oracle".
 ---
 
 # Accordant
@@ -16,7 +17,18 @@ Microsoft.Accordant`) is a model-based testing framework for .NET. You write
 a *spec* — a minimal state plus one `Apply` per operation that says, for any
 state and request, which responses are correct and how the state moves. The
 spec then simulates the system, generates sequences, and validates every
-real response. Everything in this skill follows from one rule:
+real response.
+
+The spec is written in C#, but the system under test can be anything. The
+spec never talks to the system; it only judges (request, response) pairs.
+How a call reaches the system is whatever the binding does: HTTP, gRPC, a
+message queue, a database, a CLI process, a native library through
+P/Invoke, or a plain in-process method call. If .NET can't reach the
+system at all, the system records a trace in its own language and the spec
+validates it afterwards (ORACLE.md). Never tell a user Accordant is only for
+.NET code or only for HTTP APIs.
+
+Everything in this skill follows from one rule:
 
 > **Write the contract once, in the spec — and let it judge every response.**
 

@@ -9,8 +9,8 @@ twenty-eight branch guides, 222 numbered rules.
 | [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · PERFORMANCE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH |
-| [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · DEBUG |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
+| [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · DEBUG |
 
 ## What it is
 
@@ -78,18 +78,18 @@ follows its rules in order:
 | "Catch regressions after merge" | [`ship/MONITOR.md`](skills/coding/ship/MONITOR.md) | Slow tests and key metrics on main, re-check the outside world, every failure reaches a person |
 | "Plan the release process" | [`ship/RELEASE.md`](skills/coding/ship/RELEASE.md) | Written checklist, never rush, one source for the version, freeze a tested commit, fix forward |
 | "Write / fix the release script" | [`ship/PUBLISH.md`](skills/coding/ship/PUBLISH.md) | Build once and ship those bytes, check first, idempotent steps, verify from the outside |
-| "Model this system / write a spec / add an operation" | [`accordant/SPEC.md`](skills/coding/accordant/SPEC.md) | Minimal state, guards in implementation order, strong predicates, one outcome per branch |
-| "Generate tests / bind the client / run them" | [`accordant/GENERATE.md`](skills/coding/accordant/GENERATE.md) | Bind with exact types, reset, pick inputs, bound the graph, run every response through the spec |
-| "Validate existing tests / traces / a non-.NET system" | [`accordant/ORACLE.md`](skills/coding/accordant/ORACLE.md) | The spec as a pure judge: `Allows`, traces, exported test plans, a trace database for the spec itself |
-| "Find race conditions / double booking / lost updates" | [`accordant/CONCURRENCY.md`](skills/coding/accordant/CONCURRENCY.md) | Sequential green first, then linearizability over small concurrent groups |
-| "Background jobs / polling / eventual completion" | [`accordant/ASYNC.md`](skills/coding/accordant/ASYNC.md) | Step functions in the model, polling and derivations at test time, liveness as a bound |
-| "Timeouts / 500s / retries / fault injection" | [`accordant/FAULTS.md`](skills/coding/accordant/FAULTS.md) | Every explanation of an ambiguous response is an outcome; the state profile carries all of them |
-| "The spec crashes / tests fail / generation explodes" | [`accordant/DEBUG.md`](skills/coding/accordant/DEBUG.md) | Decide whether the spec or the system is wrong before touching either |
 | "I need an idea / what should I build" | [`mvp/PICK.md`](skills/product/mvp/PICK.md) | Start from a trend, name the idea in one sentence, prefer the shortest path to value |
 | "I have an idea — shape it / spec it" | [`mvp/SPEC.md`](skills/product/mvp/SPEC.md) | One specific paragraph: imagine the interface, bullet the details, react to the first implementation |
 | "Is this premise actually real / research the trend" | [`mvp/RESEARCH.md`](skills/product/mvp/RESEARCH.md) | Evidence for the trend, the incumbents, and the gap — de-risk the premise, never the value |
 | "What's the core use case / cut the feature list" | [`mvp/AHA.md`](skills/product/mvp/AHA.md) | One core use case, cut the feature list, map the five-minute journey to the aha |
 | "Is this any good / will people use it" | [`mvp/VALIDATE.md`](skills/product/mvp/VALIDATE.md) | Put it in front of a real person, time it to the aha, act on the verdict |
+| "Model this system / write an Accordant spec" | [`accordant/SPEC.md`](skills/coding/accordant/SPEC.md) | Minimal state, guards in implementation order, payload-checking predicates, capture what you can't predict |
+| "Generate tests / run them against my API" | [`accordant/GENERATE.md`](skills/coding/accordant/GENERATE.md) | Bind exact types, reset to the initial state, few branch-aimed inputs, bound and look at the graph, then run |
+| "Validate my tests / traces / a non-.NET system" | [`accordant/ORACLE.md`](skills/coding/accordant/ORACLE.md) | One `spec.Allows` call threaded through a state profile; traces, exported plans, a trace database for the spec |
+| "Find race conditions" | [`accordant/CONCURRENCY.md`](skills/coding/accordant/CONCURRENCY.md) | Sequential green first, colliding inputs, linearizability does the asserting, one green run is not proof |
+| "Background jobs / polling" | [`accordant/ASYNC.md`](skills/coding/accordant/ASYNC.md) | Step functions in the model, polling and derivations in the runner, `MaxRetryCount` as the liveness bound |
+| "Timeouts / 500s / fault injection" | [`accordant/FAULTS.md`](skills/coding/accordant/FAULTS.md) | Every explanation of an ambiguous response is an outcome; explore without faults, execute with them |
+| "My spec crashes / tests fail" | [`accordant/DEBUG.md`](skills/coding/accordant/DEBUG.md) | Name the failure first: spec crash, spec rejection, or setup — then fix the right one |
 
 ## Why one rule
 

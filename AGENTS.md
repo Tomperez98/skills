@@ -2,7 +2,7 @@
 
 This repo is a collection of skills for AI coding assistants, installable
 with `npx skills add Tomperez98/skills`. Five skills live here, `code`,
-`docs`, `ship`, `accordant`, and `mvp`. Everything in this repo — new skills,
+`docs`, `ship`, `mvp`, and `accordant`. Everything in this repo — new skills,
 edits, examples — follows their one rules:
 
 - **code** — bugs panic, expected failures return values.
@@ -10,6 +10,8 @@ edits, examples — follows their one rules:
 - **ship** — keep main releasable; make every release boring — scripted,
   re-runnable, verified.
 - **mvp** — get a real person to their "aha" in five minutes.
+- **accordant** — write the contract once, in the spec, and let it judge
+  every response.
 
 ## The full rules live in the branch guides
 
@@ -19,8 +21,9 @@ does not restate them.
 - `skills/coding/code/WRITE.md` · `REFACTOR.md` · `TEST.md`
 - `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING, DOCS_MARKETING
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH
-- `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC, FAULTS, DEBUG
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
+- `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC,
+  FAULTS, DEBUG
 
 ## Skill format
 
