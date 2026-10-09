@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Validate the skill collection: frontmatter, description budget, README sync,
-// link resolution, and orphaned pages.
+// link resolution, rule references, and orphaned pages.
 //
 // Run the whole suite, or one tier:
 //   node scripts/validate-skills.mjs        # everything
 //   node scripts/validate-skills.mjs check  # fast: frontmatter + README sync
-//   node scripts/validate-skills.mjs links  # links + orphaned pages
+//   node scripts/validate-skills.mjs links  # links + rule references + orphaned pages
 //
 // Exits 0 when clean, 1 when any check fails, 2 on a usage error. Every
 // message names the file and what to change. Warnings are advisory and do not
@@ -26,7 +26,7 @@ const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv"]);
 const TIER_LABELS = {
   all: "frontmatter, README sync, links, orphans",
   check: "frontmatter, README sync",
-  links: "links, orphans",
+  links: "links, rule references, orphans",
 };
 
 /**
@@ -380,6 +380,74 @@ function runLinks(markdownFiles) {
   }
 }
 
+const RULE_HEADING = /^## (\d+)\. /gm;
+// "COMPAT.md rule 6", "ship skill, COMPAT.md rules 8–12", "(code skill, WRITE.md rule 28)"
+const QUALIFIED_RULE_REF = /(?:\b([a-z]+) skill,\s+)?\b([A-Z][A-Z_]*\.md)\s+rules?\s+(\d+)(?:\s*[–-]\s*(\d+))?/gi;
+// "rule 6", "rules 13–14": a rule in the same page
+const LOCAL_RULE_REF = /\brules?\s+(\d+)(?:\s*[–-]\s*(\d+))?/gi;
+
+/** Numbered rules (`## N. …`) of every page, keyed by absolute path. */
+function ruleNumbers(markdownFiles) {
+  const rules = new Map();
+  for (const file of markdownFiles) {
+    const numbers = [...readFileSync(file, "utf8").matchAll(RULE_HEADING)].map((m) => Number(m[1]));
+    rules.set(file, new Set(numbers));
+  }
+  return rules;
+}
+
+/**
+ * The page a `FILE.md rule N` reference means: the named skill's page, else a
+ * sibling of the citing page, else the only page with that name. Returns
+ * `{ error }` when the name is missing or ambiguous.
+ */
+function resolveRulePage(name, skill, citing, markdownFiles) {
+  const pages = markdownFiles.filter((file) => isUnderSkills(file) && basename(file) === name);
+  if (skill) {
+    const page = pages.find((file) => basename(dirname(file)) === skill);
+    return page ? { page } : { error: `${skill} skill has no ${name}` };
+  }
+  const sibling = join(dirname(citing), name);
+  if (pages.includes(sibling)) return { page: sibling };
+  if (pages.length === 1) return { page: pages[0] };
+  if (pages.length === 0) return { error: `no page named ${name}` };
+  const skills = pages.map((file) => basename(dirname(file))).join(", ");
+  return { error: `${name} is ambiguous (${skills}); write "<skill> skill, ${name}"` };
+}
+
+/**
+ * Guides cite each other by rule number ("CI.md rule 7"), so renumbering a
+ * guide silently breaks every citation of it. Every cited rule must exist.
+ */
+function checkRuleReferences(markdownFiles) {
+  const rules = ruleNumbers(markdownFiles);
+  for (const file of markdownFiles) {
+    let prose = stripNonProse(readFileSync(file, "utf8")).replace(RULE_HEADING, "");
+    for (const m of prose.matchAll(QUALIFIED_RULE_REF)) {
+      const [ref, skill, name, from, to] = m;
+      const { page, error } = resolveRulePage(name, skill?.toLowerCase(), file, markdownFiles);
+      if (error) {
+        fail(file, `"${ref.replace(/\s+/g, " ")}": ${error}`);
+        continue;
+      }
+      for (const n of to ? [from, to] : [from]) {
+        if (!rules.get(page).has(Number(n))) {
+          fail(file, `"${ref.replace(/\s+/g, " ")}": ${relative(REPO_ROOT, page)} has no rule ${n}`);
+        }
+      }
+    }
+    prose = prose.replace(QUALIFIED_RULE_REF, "");
+    for (const m of prose.matchAll(LOCAL_RULE_REF)) {
+      const [ref, from, to] = m;
+      for (const n of to ? [from, to] : [from]) {
+        if (!rules.get(file).has(Number(n))) {
+          fail(file, `"${ref.replace(/\s+/g, " ")}": this page has no rule ${n}; name the guide ("CI.md rule ${n}") or fix the number`);
+        }
+      }
+    }
+  }
+}
+
 function report(markdownFiles, skillCount, tier) {
   const uniqueErrors = [...new Set(errors)].sort();
   const uniqueWarnings = [...new Set(warnings)].sort();
@@ -413,7 +481,10 @@ const readmeText = readFileSync(README, "utf8");
 if (tier === "all" || tier === "check") {
   runCheck(markdownFiles, README, readmeText, extractLinks(readmeText, README));
 }
-if (tier === "all" || tier === "links") runLinks(markdownFiles);
+if (tier === "all" || tier === "links") {
+  runLinks(markdownFiles);
+  checkRuleReferences(markdownFiles);
+}
 
 const skillCount = markdownFiles.filter((file) => file.endsWith("SKILL.md")).length;
 report(markdownFiles, skillCount, tier);
