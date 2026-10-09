@@ -7,7 +7,7 @@ thirty branch guides, 245 numbered rules.
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
 | [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · PERFORMANCE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
-| [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
+| [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · GROWTH |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
 | [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · COMPAT · DEBUG |
@@ -73,7 +73,7 @@ follows its rules in order:
 | "Write / fix a tutorial" | [`docs/TUTORIAL.md`](skills/coding/docs/TUTORIAL.md) | One scoped outcome, copy-paste steps, observable output |
 | "Write / fix a changelog" | [`docs/CHANGELOG.md`](skills/coding/docs/CHANGELOG.md) | Impact first, breaking changes loudest, Keep a Changelog + SemVer |
 | "Write landing copy" | [`docs/LANDING.md`](skills/coding/docs/LANDING.md) | Position before you write, hero leads with the job, proof over adjectives |
-| "Make docs acquire / convert" | [`docs/DOCS_MARKETING.md`](skills/coding/docs/DOCS_MARKETING.md) | One page, one search intent, the example is the ad, convert at the moment of success |
+| "Make docs acquire / convert" | [`docs/GROWTH.md`](skills/coding/docs/GROWTH.md) | One page, one search intent, the example is the ad, convert at the moment of success |
 | "Set up / fix / speed up CI" | [`ship/CI.md`](skills/coding/ship/CI.md) | Runnable locally, fast checks first, test the merged result, reproducible and actionable failures, review routed by contract change |
 | "Catch regressions after merge" | [`ship/MONITOR.md`](skills/coding/ship/MONITOR.md) | Slow tests and key metrics on main, re-check the outside world, every failure reaches a person |
 | "Plan the release process" | [`ship/RELEASE.md`](skills/coding/ship/RELEASE.md) | Written checklist, never rush, one source for the version, freeze a tested commit, fix forward |

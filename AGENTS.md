@@ -19,7 +19,7 @@ Read the matching guide before you write or edit anything here; this file
 does not restate them.
 
 - `skills/coding/code/WRITE.md` · `REFACTOR.md` · `TEST.md`
-- `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING, DOCS_MARKETING
+- `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING, GROWTH
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH, COMPAT
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
 - `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC,

@@ -41,7 +41,7 @@ surrounding context, or by asking if the user is around:
 - **"Write / fix landing-page or positioning copy"** → [LANDING.md](LANDING.md).
   Value proposition, who it's for, why not the alternative, proof, runnable
   hero.
-- **"Make docs acquire / convert / rank"** → [DOCS_MARKETING.md](DOCS_MARKETING.md).
+- **"Make docs acquire / convert / rank"** → [GROWTH.md](GROWTH.md).
   Docs-as-marketing: findability, shareability, and examples that sell.
 
 Getting the branch wrong wastes the work — a changelog written like a landing
