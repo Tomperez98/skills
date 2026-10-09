@@ -79,7 +79,7 @@ the first upload, because the registry can change while it waits.
 
 It's much cheaper to fail here than halfway through publishing.
 
-## 4. Make every step idempotent; publish visibly last
+## 4. Make every step safe to re-run; make the release visible last
 
 Each step first checks whether it has already been done, and skips if so:
 
