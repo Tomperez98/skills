@@ -10,13 +10,15 @@
 // install: skill names, guide files, each skill's one rule, every numbered
 // rule's heading, and each description (the trigger). The change gets one
 // label — unchanged, additive, changed, breaking — and a list of the promises
-// added and removed, printed and, on CI, written to the job summary.
+// added and removed, printed, written to .contract-report/ (label, summary.md)
+// and, on CI, to the job summary. contract-label.yml puts the label on the
+// pull request.
 //
 // It reports and never blocks: a reviewer decides whether a changed promise
 // is right (CI.md rule 10, labels as information first). Exits 1 only when it
 // can't run at all, such as a missing baseline.
 
-import { appendFileSync, existsSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { baselineCommit, REPO_ROOT, tryGit } from "./baseline.mjs";
@@ -100,6 +102,10 @@ if (added.length || removed.length) {
 const summary = lines.join("\n") + "\n";
 console.log(summary);
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+const report = join(REPO_ROOT, ".contract-report");
+mkdirSync(report, { recursive: true });
+writeFileSync(join(report, "label"), `${label}\n`);
+writeFileSync(join(report, "summary.md"), summary);
 
 const level = { breaking: "warning", changed: "notice" }[label];
 if (level && process.env.GITHUB_ACTIONS === "true") {
