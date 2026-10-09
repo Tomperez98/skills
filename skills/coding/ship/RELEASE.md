@@ -25,7 +25,14 @@ one ships the bug that a bit more testing would have caught.
 A regular cadence, such as weekly, is what makes this cheap: when the next
 release is days away, skipping one costs nobody much.
 
-## 3. Keep the version in one place
+## 3. Give every release one owner
+
+One person runs each release: works the checklist, makes the "go" call,
+and owns the follow-up if it goes wrong. Rotate the role so more than one
+person knows the process; the checklist (rule 1) is what makes the next
+owner able to run it alone.
+
+## 4. Keep the version in one place
 
 Store the version in one place and have everything else read it from
 there. The strongest form is to store no real version in source at all:
@@ -48,7 +55,7 @@ SemVer, and stick to it. Under SemVer, the compatibility checks pick the
 kind of bump, not a guess: a check that failed and was declared a break
 means major (COMPAT.md rule 6).
 
-## 4. Build the changelog from what merged
+## 5. Build the changelog from what merged
 
 Start from the list of changes merged since the last release, so nothing
 gets left out. Then edit it for readers: group related changes, drop the
@@ -60,7 +67,7 @@ A skipped release still gets its entry, marked as unreleased. The next
 release merges every unreleased entry into its own, so users upgrading from
 the last published version see everything that changed.
 
-## 5. Freeze a tested commit on main
+## 6. Freeze a tested commit on main
 
 Choose a specific commit on main that has passed CI and the post-merge
 checks (MONITOR.md), and release exactly that commit, never whatever a
@@ -69,7 +76,7 @@ script that resolves the remote main to a SHA and tags that, never your
 working copy: a local checkout can hold commits, including ones your tools
 made, that main never had.
 
-## 6. Confirm green before you publish
+## 7. Confirm green before you publish
 
 If you have long tests (soak runs, property tests, a full matrix), run
 them against the frozen commit before publishing. Right before publishing,
@@ -79,7 +86,7 @@ for that commit,
 that open failures are triaged, and that metric changes are explained. If
 not, skip this release (rule 2).
 
-## 7. Published versions are immutable; fix forward
+## 8. Published versions are immutable; fix forward
 
 Never overwrite, re-tag, or re-publish an existing version. Users and
 caches have already pulled it. If a release is bad, ship a new version with
