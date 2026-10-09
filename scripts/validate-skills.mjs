@@ -12,8 +12,10 @@
 // fail the run; the hard description limit stays a fatal error.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { baselineCommit, tryGit } from "./baseline.mjs";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SKILLS_DIR = join(REPO_ROOT, "skills");
@@ -24,7 +26,7 @@ const DESCRIPTION_BUDGET = 450; // AGENTS.md's "aim for under ~450"
 const MAX_SCAN_DEPTH = 16; // our own tree is bounded; deeper is a tool bug
 const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv"]);
 const TIER_LABELS = {
-  all: "frontmatter, README sync, links, orphans",
+  all: "frontmatter, README sync, links, rule references, orphans",
   check: "frontmatter, README sync",
   links: "links, rule references, orphans",
 };
@@ -380,20 +382,15 @@ function runLinks(markdownFiles) {
   }
 }
 
-const RULE_HEADING = /^## (\d+)\. /gm;
+const RULE_HEADING = /^## (\d+)\. (.+)$/gm;
 // "COMPAT.md rule 6", "ship skill, COMPAT.md rules 8–12", "(code skill, WRITE.md rule 28)"
 const QUALIFIED_RULE_REF = /(?:\b([a-z]+) skill,\s+)?\b([A-Z][A-Z_]*\.md)\s+rules?\s+(\d+)(?:\s*[–-]\s*(\d+))?/gi;
 // "rule 6", "rules 13–14": a rule in the same page
 const LOCAL_RULE_REF = /\brules?\s+(\d+)(?:\s*[–-]\s*(\d+))?/gi;
 
-/** Numbered rules (`## N. …`) of every page, keyed by absolute path. */
-function ruleNumbers(markdownFiles) {
-  const rules = new Map();
-  for (const file of markdownFiles) {
-    const numbers = [...readFileSync(file, "utf8").matchAll(RULE_HEADING)].map((m) => Number(m[1]));
-    rules.set(file, new Set(numbers));
-  }
-  return rules;
+/** A page's numbered rules (`## N. Heading`): number → heading. */
+function ruleHeadings(text) {
+  return new Map([...text.matchAll(RULE_HEADING)].map((m) => [Number(m[1]), m[2].trim()]));
 }
 
 /**
@@ -415,34 +412,92 @@ function resolveRulePage(name, skill, citing, markdownFiles) {
   return { error: `${name} is ambiguous (${skills}); write "<skill> skill, ${name}"` };
 }
 
+const tidy = (text) => text.replace(/\s+/g, " ");
+const posix = (file) => relative(REPO_ROOT, file).split(sep).join("/");
+
 /**
- * Guides cite each other by rule number ("CI.md rule 7"), so renumbering a
- * guide silently breaks every citation of it. Every cited rule must exist.
+ * Every rule citation in a page: the page it cites, the number, the
+ * citation as written, and the line it sits on (its identity across edits).
+ */
+function citations(text, file, markdownFiles) {
+  const found = [];
+  const lineAt = (prose, index) =>
+    prose.slice(prose.lastIndexOf("\n", index) + 1, (prose.indexOf("\n", index) + 1 || prose.length + 1) - 1);
+  let prose = stripNonProse(text).replace(RULE_HEADING, "");
+  for (const m of prose.matchAll(QUALIFIED_RULE_REF)) {
+    const [ref, skill, name, from, to] = m;
+    const { page, error } = resolveRulePage(name, skill?.toLowerCase(), file, markdownFiles);
+    for (const n of to ? [from, to] : [from]) {
+      found.push({ ref: tidy(ref), page, error, n: Number(n), line: lineAt(prose, m.index) });
+    }
+  }
+  prose = prose.replace(QUALIFIED_RULE_REF, "");
+  for (const m of prose.matchAll(LOCAL_RULE_REF)) {
+    const [ref, from, to] = m;
+    for (const n of to ? [from, to] : [from]) {
+      found.push({ ref: tidy(ref), page: file, local: true, n: Number(n), line: lineAt(prose, m.index) });
+    }
+  }
+  return found;
+}
+
+/**
+ * Guides cite each other by rule number ("CI.md rule 7"). Every cited rule
+ * must exist, and must still be the rule the citation meant.
  */
 function checkRuleReferences(markdownFiles) {
-  const rules = ruleNumbers(markdownFiles);
+  const headings = new Map(markdownFiles.map((file) => [file, ruleHeadings(readFileSync(file, "utf8"))]));
+  const cited = new Map();
   for (const file of markdownFiles) {
-    let prose = stripNonProse(readFileSync(file, "utf8")).replace(RULE_HEADING, "");
-    for (const m of prose.matchAll(QUALIFIED_RULE_REF)) {
-      const [ref, skill, name, from, to] = m;
-      const { page, error } = resolveRulePage(name, skill?.toLowerCase(), file, markdownFiles);
-      if (error) {
-        fail(file, `"${ref.replace(/\s+/g, " ")}": ${error}`);
-        continue;
-      }
-      for (const n of to ? [from, to] : [from]) {
-        if (!rules.get(page).has(Number(n))) {
-          fail(file, `"${ref.replace(/\s+/g, " ")}": ${relative(REPO_ROOT, page)} has no rule ${n}`);
-        }
+    const list = citations(readFileSync(file, "utf8"), file, markdownFiles);
+    cited.set(file, list);
+    for (const c of list) {
+      if (c.error) fail(file, `"${c.ref}": ${c.error}`);
+      else if (!headings.get(c.page).has(c.n)) {
+        fail(file, c.local
+          ? `"${c.ref}": this page has no rule ${c.n}; name the guide ("CI.md rule ${c.n}") or fix the number`
+          : `"${c.ref}": ${relative(REPO_ROOT, c.page)} has no rule ${c.n}`);
       }
     }
-    prose = prose.replace(QUALIFIED_RULE_REF, "");
-    for (const m of prose.matchAll(LOCAL_RULE_REF)) {
-      const [ref, from, to] = m;
-      for (const n of to ? [from, to] : [from]) {
-        if (!rules.get(file).has(Number(n))) {
-          fail(file, `"${ref.replace(/\s+/g, " ")}": this page has no rule ${n}; name the guide ("CI.md rule ${n}") or fix the number`);
-        }
+  }
+  checkCitationMeaning(markdownFiles, headings, cited);
+}
+
+/**
+ * A citation that resolves can still be wrong: insert a rule and every later
+ * number shifts, so "RELEASE.md rule 3" quietly points at a different rule.
+ * Compare with main: a citation on a line this change didn't touch, whose
+ * rule now sits under another number, has gone stale. A citation on an
+ * edited line is trusted: someone just wrote it.
+ */
+function checkCitationMeaning(markdownFiles, headings, cited) {
+  const base = baselineCommit();
+  if (!base) {
+    warn(README, "no origin/main to compare with, so citations weren't checked for shifted rule numbers; run `git fetch origin main`");
+    return;
+  }
+  const headingsOnMain = new Map();
+  const onMain = (page) => {
+    if (!headingsOnMain.has(page)) {
+      const text = tryGit("show", `${base}:${posix(page)}`);
+      headingsOnMain.set(page, text === null ? null : ruleHeadings(text));
+    }
+    return headingsOnMain.get(page);
+  };
+  for (const file of markdownFiles) {
+    const old = tryGit("show", `${base}:${posix(file)}`);
+    if (old === null) continue; // a new page: nothing to have shifted
+    const untouched = new Set(
+      citations(old, file, markdownFiles).filter((c) => !c.error).map((c) => `${c.page}\0${c.n}\0${c.line}`),
+    );
+    for (const c of cited.get(file)) {
+      if (c.error || !untouched.has(`${c.page}\0${c.n}\0${c.line}`)) continue;
+      const meant = onMain(c.page)?.get(c.n);
+      const now = headings.get(c.page).get(c.n);
+      if (!meant || meant === now) continue;
+      const moved = [...headings.get(c.page)].find(([, heading]) => heading === meant);
+      if (moved) {
+        fail(file, `"${c.ref}" meant "${meant}", which is now rule ${moved[0]}; rule ${c.n} is "${now}"`);
       }
     }
   }
