@@ -16,34 +16,23 @@
 // is right (CI.md rule 10, labels as information first). Exits 1 only when it
 // can't run at all, such as a missing baseline.
 
-import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+import { baselineCommit, REPO_ROOT, tryGit } from "./baseline.mjs";
+
 const SKILL_PAGE = /^skills\/[^/]+\/([^/]+)\/([^/]+\.md)$/;
 const RULE_HEADING = /^## (\d+)\. (.+)$/gm;
 const ONE_RULE = /^> \*\*([\s\S]+?)\*\*/m;
 
-/** @param {string[]} args */
+/** Git, where failing means the report can't run at all. @param {string[]} args */
 function git(...args) {
-  try {
-    return execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
-  } catch (error) {
-    console.error(`✗ git ${args.join(" ")} failed: ${error.stderr?.toString().trim() || error.message}`);
+  const out = tryGit(...args);
+  if (out === null) {
+    console.error(`✗ git ${args.join(" ")} failed`);
     process.exit(1);
   }
-}
-
-/**
- * The baseline: CONTRACT_BASE, else where this branch left main. On main
- * itself that's HEAD, so compare with the commit before it instead.
- */
-function baseline() {
-  if (process.env.CONTRACT_BASE) return process.env.CONTRACT_BASE;
-  const base = git("merge-base", "HEAD", "origin/main").trim();
-  return base === git("rev-parse", "HEAD").trim() ? git("rev-parse", "HEAD^1").trim() : base;
+  return out;
 }
 
 /**
@@ -82,7 +71,11 @@ function labelFor(added, removed) {
   return "unchanged";
 }
 
-const base = baseline();
+const base = baselineCommit();
+if (!base) {
+  console.error("✗ no origin/main to compare with; run `git fetch origin main`");
+  process.exit(1);
+}
 const basePaths = git("ls-tree", "-r", "--name-only", base, "skills").split("\n").filter(Boolean);
 // Tracked pages deleted from the working tree are still in the index: skip them.
 const headPaths = git("ls-files", "--cached", "--others", "--exclude-standard", "skills")
