@@ -24,7 +24,7 @@ const README = join(REPO_ROOT, "README.md");
 const MAX_DESCRIPTION = 1024; // pi's hard ceiling
 const DESCRIPTION_BUDGET = 450; // AGENTS.md's "aim for under ~450"
 const MAX_SCAN_DEPTH = 16; // our own tree is bounded; deeper is a tool bug
-const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv"]);
+const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv", ".contract-report"]);
 const TIER_LABELS = {
   all: "frontmatter, README sync, links, rule references, orphans",
   check: "frontmatter, README sync",

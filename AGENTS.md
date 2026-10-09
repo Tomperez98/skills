@@ -71,6 +71,8 @@ dependencies.
   the contract people install and cite (skill names, guides, one rules,
   numbered rule headings, descriptions), labeled unchanged / additive /
   changed / breaking, with the promises added and removed. On CI it's in the
-  job summary. Removing or renaming a skill or guide is breaking: say so in
-  the pull request.
-- `mise run ci` — every tier in order. This is the gate a merge must pass.
+  job summary, and `contract-label.yml` labels the pull request
+  (`contract: unchanged`, `additive`, `changed`, `breaking`). Removing or
+  renaming a skill or guide is breaking: say so in the pull request.
+- `mise run ci` — the contract report, then every tier in order. This is
+  the gate a merge must pass.

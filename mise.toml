@@ -19,8 +19,10 @@ run = "node scripts/contract.mjs"
 
 [tasks.ci]
 description = "Run every tier in order — the gate a merge must pass"
+# The contract report runs first: it never fails on a diff, so the pull
+# request gets its label even when a gate after it fails.
 run = [
+  "mise run contract",
   "mise run check",
   "mise run links",
-  "mise run contract",
 ]
