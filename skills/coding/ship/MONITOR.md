@@ -42,6 +42,15 @@ tracking issue, later failures comment on it, and the first green run
 closes it. A new alert on every run, or a red badge nobody owns, trains
 people to look away.
 
+## 5. Notice when a scheduled job stops running
+
+A schedule that stops firing reports nothing, and nothing looks exactly
+like green. Platforms switch schedules off on their own: GitHub disables
+scheduled workflows in a public repository after 60 days without activity.
+Check that the last run is recent, with a heartbeat the job writes or a
+check of the last run's date, and treat a missing run as a failure
+(rule 4).
+
 ---
 
 MONITOR picks up where CI.md stops: slower tests, trends, and the outside

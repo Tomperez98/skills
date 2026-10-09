@@ -2,7 +2,7 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Five skills today,
-thirty branch guides, 245 numbered rules.
+thirty branch guides, 246 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
