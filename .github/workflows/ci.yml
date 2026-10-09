@@ -45,4 +45,5 @@ jobs:
         with:
           name: contract-report
           path: .contract-report/
-          if-no-files-found: ignore
+          include-hidden-files: true # the folder starts with a dot; skipped by default
+          if-no-files-found: warn # the report runs first, so a missing one is a bug
