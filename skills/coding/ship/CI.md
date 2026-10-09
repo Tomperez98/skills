@@ -63,7 +63,7 @@ The same commit should give the same result today and next month.
 ## 5. Every failure can be reproduced
 
 A failure you can't reproduce is noise. When a test uses randomness, log
-the seed and print the command that replays it. Treat a flaky test as a
+the seed and print the exact command that replays the failure with it. Treat a flaky test as a
 bug: fix it or quarantine it with an owner. Don't retry it until it passes,
 because that hides real failures. A concurrency check that fails now and
 then is not flaky: it's the race it exists to find, so keep it red until
