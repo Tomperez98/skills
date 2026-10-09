@@ -172,6 +172,15 @@ For big graphs, pass `new VisualizationOptions { NodeLabelLambda = … }` or
 The delegate takes the root `StateGraphNode`, so a custom walk is a function
 you write.
 
+A system with no state (a parser, a pure function) gives a graph of one
+node with a self-loop per input, and the coverage algorithms return zero
+cases. Build one case per input instead:
+
+```csharp
+var tests = inputs.Select(input => TestCaseGenerator.CreateManualSequentialTestCase(
+    context, inputs, [input.Name])).ToList();
+```
+
 ## 8. Run, and fail with the spec's message
 
 ```csharp

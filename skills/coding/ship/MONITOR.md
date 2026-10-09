@@ -8,8 +8,9 @@ things that take longer. Apply the rules in order.
 ## 1. Keep testing after merge
 
 Some tests are too slow for every pull request: a version matrix across the
-runtimes you support, longer property or soak runs, or a full end-to-end
-suite. Run them on main, continuously or on a schedule, and report results
+runtimes you support, longer property or soak runs, concurrency and
+fault-injection suites judged by the released contract (COMPAT.md rule 7),
+or a full end-to-end suite. Run them on main, continuously or on a schedule, and report results
 per commit so you can tell which change broke things. Before releasing a
 commit, check that these runs are green for it.
 
@@ -35,6 +36,11 @@ A scheduled job that fails where nobody looks has taught no one anything.
 Send failures to a place people watch, with a link to the run. Triage has
 to be someone's job: every failure gets fixed, closed with a reason, or
 assigned to someone who can act on it.
+
+Keep it to one open record per failing job: the first failure opens a
+tracking issue, later failures comment on it, and the first green run
+closes it. A new alert on every run, or a red badge nobody owns, trains
+people to look away.
 
 ---
 

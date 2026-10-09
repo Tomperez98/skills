@@ -129,6 +129,7 @@ in `OnStepExecuted`, keep it in `AfterEach` when `info.Success`), commit them,
 and replay them through rule 3 in CI after every spec change. A trace that
 used to pass and now fails is a spec regression until proven otherwise;
 when the behavior changed on purpose, re-record and say so in the commit.
+Checking the system, not the spec, against the last release is COMPAT.md.
 
 ---
 

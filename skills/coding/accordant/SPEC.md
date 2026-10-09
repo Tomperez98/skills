@@ -139,6 +139,10 @@ references to their clones.
 `r => r.IsSuccess` passes when the wrong user comes back. Check every field
 the spec knows: IDs, names, counts, balances. Always pass the explanation
 string — it's the failure message in generated tests and trace validation.
+Write it as `"<situation> → <outcome>"` (`"Todo 'x' already exists → 409"`).
+Read in a row, the strings are the contract in words, so a diff of them
+between two versions of the spec is the review a contract change needs
+(COMPAT.md rule 10).
 When several fields can be wrong, return a `ValidationResult` so the
 message names the field and the actual value:
 
