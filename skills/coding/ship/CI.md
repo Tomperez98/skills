@@ -93,7 +93,7 @@ contract (rule 10).
 
 Run the compiler, type checker, and static analyzers at their strictest
 settings and treat every warning as an error, so the warning count stays at
-zero (code skill, WRITE.md rule 28). If CI allows one warning, the rest
+zero (code skill, WRITE.md rule 25). If CI allows one warning, the rest
 follow, and a real problem ends up buried among them.
 
 ## 8. Exercise the release path on every merge

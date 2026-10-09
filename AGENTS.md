@@ -62,6 +62,14 @@ dependencies.
   (`name` matches its folder, no duplicate fields, `description` within the
   1024-char limit and warned above the ~450 budget), the README links every
   skill and branch guide, and its `Skill` table names each skill and guide.
-- `mise run links` — full tier: every internal link resolves and no page
-  under `skills/` is orphaned.
-- `mise run ci` — both tiers in order. This is the gate a merge must pass.
+- `mise run links` — full tier: every internal link resolves, every cited
+  rule exists ("CI.md rule 7", "code skill, WRITE.md rule 25"), and no page
+  under `skills/` is orphaned. Renumber a guide and this names every
+  citation you broke.
+- `mise run contract` — a report, never a failure: what the change does to
+  the contract people install and cite (skill names, guides, one rules,
+  numbered rule headings, descriptions), labeled unchanged / additive /
+  changed / breaking, with the promises added and removed. On CI it's in the
+  job summary. Removing or renaming a skill or guide is breaking: say so in
+  the pull request.
+- `mise run ci` — every tier in order. This is the gate a merge must pass.
