@@ -125,8 +125,10 @@ that point.
 
 When a spec change turns tests red, either the system broke or the spec
 did. Record traces from passing runs (start a trace in `BeforeEach`, append
-in `OnStepExecuted`, keep it in `AfterEach` when `info.Success`), commit them,
-and replay them through rule 3 in CI after every spec change. A trace that
+in `OnStepExecuted`, keep it in `AfterEach` when `info.Success`), commit them
+while they're small (past that, store them with the release and commit a
+manifest of their checksums), and replay them through rule 3 in CI after
+every spec change. A trace that
 used to pass and now fails is a spec regression until proven otherwise;
 when the behavior changed on purpose, re-record and say so in the commit.
 Checking the system, not the spec, against the last release is COMPAT.md.

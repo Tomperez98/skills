@@ -125,6 +125,10 @@ assert(parse_config(args = [], env = {}) == Err(Missing("DATABASE_URL")))
 Capture a correct run, eyeball it, commit it as the golden file, and compare
 future output against it. Don't hand-write brittle per-line assertions for
 complex structures (config rendering, serialization, formatted text).
+Golden files fit output whose exact bytes are the contract. When output
+carries values that change every run (IDs, timestamps, ordering), normalize
+them before comparing, or judge the output against rules instead: a golden
+that fails on correct runs gets re-recorded by reflex and stops testing.
 
 ## 9. Pin the important unions at compile time
 
