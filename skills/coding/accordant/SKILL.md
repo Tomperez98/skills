@@ -3,11 +3,11 @@ name: accordant
 description: >
   Test any stateful system — any language, any transport — with Accordant
   specs. One rule: write the contract once, in the spec, and let it judge
-  every response. Use when the user writes a spec, models state or
-  operations, generates or runs tests, validates traces from another
-  language, hunts race conditions, models async jobs, polling, timeouts, or
-  retries, or debugs a failing spec — even if they never say "model-based
-  testing" or "oracle".
+  every response. Use when the user models a system, generates or runs
+  tests, validates traces from another language, hunts race conditions,
+  models async jobs, polling, timeouts, or retries, checks backward
+  compatibility, or debugs a failing spec — even if they never say
+  "model-based testing" or "oracle".
 ---
 
 # Accordant
@@ -55,6 +55,9 @@ front of you, or by asking if the user is around:
 - **"Timeouts / 500s / retries / fault injection / did it happen or not"** →
   [FAULTS.md](FAULTS.md). Every explanation of an ambiguous response is an
   outcome; the state profile carries all of them.
+- **"Is the new version backward compatible / check against the last release"**
+  → [COMPAT.md](COMPAT.md). The released spec, unchanged, judges the new
+  build; traces from the release replay under main's spec.
 - **"The spec crashes / tests fail / generation explodes / it won't compile"**
   → [DEBUG.md](DEBUG.md). Decide whether the spec or the system is wrong
   before touching either.
@@ -65,8 +68,9 @@ reachable, default by what's in front of you (no spec yet or an `Apply`
 being edited → SPEC; a test fixture or `InputSet` → GENERATE; a log, trace
 file, or non-.NET service → ORACLE; a lock, transaction, or "sometimes
 both succeed" → CONCURRENCY; a `Pending` status or a job table → ASYNC; a
-retry loop or fault proxy → FAULTS; a red test or a stack trace → DEBUG)
-and state the assumption at the top of your work.
+retry loop or fault proxy → FAULTS; a release tag or baseline suite →
+COMPAT; a red test or a stack trace → DEBUG) and state the assumption at
+the top of your work.
 
 ## The one rule
 
@@ -86,6 +90,14 @@ and state the assumption at the top of your work.
   more than one world is consistent with what was observed, the spec lists
   every one (`Expect.OneOf`, step functions) and lets later observations
   eliminate the impossible ones — it never guesses.
+
+Accordant earns its keep on state: sequences where an earlier call changes
+what a later one must return, races, background work, ambiguous failures.
+A system without state (a parser, a pure function) gets nothing from
+exploration: the graph is one node, and what's left is the spec as a
+frozen oracle (ORACLE.md, COMPAT.md). That still works, but in a repo
+without .NET, weigh adding the SDK against a frozen table of cases in the
+repo's own language, and say which you'd pick.
 
 Start partial: two to four related operations, the happy path and one error
 each, then strengthen. The `code` skill's rule holds inside the spec too: a
