@@ -80,8 +80,11 @@ if (job.Status == JobStatus.Completed)
 
 ## 5. Polling is configuration for the runner, not part of the model
 
-To have `spec.RunTests` wait for the work, attach a `PollingSetup` to the
-triggering operation — override `Polling` on a class-based operation, or
+`spec.RunTests` must wait for the work: when a call starts background work
+that hasn't finished and its input isn't `.WithoutPolling()` (rule 8), the
+runner looks for a `PollingSetup` and fails the test with
+`PollingException: No polling setup found…` if there is none. Attach one to
+the triggering operation — override `Polling` on a class-based operation, or
 call `spec.ConfigurePolling(name, …)` for an inline one:
 
 ```csharp

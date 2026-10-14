@@ -113,7 +113,10 @@ var inputs = new InputSet
 };
 ```
 
-A `Unit`-request operation takes just a label: `pop.With("Pop")`. Five or
+A `Unit`-request operation takes just a label: `pop.With("Pop")`. That
+overload is `With(string label)`, so on a `string`-request operation
+always pass both — `getUser.With("alice")` builds a `Unit` request and
+fails at execution. Five or
 six inputs routinely yield dozens of sequences; add inputs only when a
 branch isn't covered.
 
@@ -179,15 +182,17 @@ For big graphs, pass `new VisualizationOptions { NodeLabelLambda = … }` or
   maxWalkLength: 8, seed: 42)` — sampling for graphs too large to cover;
   always pass a seed so failures reproduce.
 
-The delegate takes the root `StateGraphNode`, so a custom walk is a function
-you write.
+The delegate is `(TestingContext context, StateGraphNode root) =>
+IList<SequentialTestCase>`, so a custom walk is a function you write.
 
 A system with no state (a parser, a pure function) gives a graph of one
 node with a self-loop per input; `StateCoverage` turns each self-loop
 into a one-call case, so every input runs exactly once and exploration
 adds nothing more.
 
-To run a sequence you chose yourself, name its input labels in order:
+To run a sequence you chose yourself, name its input labels in order. A
+label can appear only once per case — the runner rejects a repeat — so a
+second read of the same thing gets its own input (`"Get alice again"`):
 
 ```csharp
 var test = TestCaseGenerator.CreateManualSequentialTestCase(
@@ -207,7 +212,9 @@ Assert.That(failures, Is.Empty,
 ```
 
 `StopOnFirstFailure` defaults to `true`; set it to `false` to see every
-failing sequence. Each result has a `LogFilePath` with the full step log.
+failing sequence. Results come back in the order of the cases, so
+`tests[i].Description` names a failing `results[i]`; the step log is in
+`LogFilePath`, the run's log folder (DEBUG.md rule 8).
 
 ## 9. Derive requests that need a prior response
 
@@ -232,8 +239,11 @@ inputs, and variants multiply them; when generation grows, narrow it with
 
 A derivation has exactly one source call. `Derive.From("CreateUser",
 "CreateGroup")` compiles, but neither generation nor execution passes it
-more than the first source — it fails with `KeyNotFoundException` from
-`DerivationSources`. When a request needs two server-generated IDs (add a
+more than the first source. Generation fails with a
+`TestCaseGenerationException` wrapping a `KeyNotFoundException` from
+`DerivationSources` (or, when the target is also in the `InputSet`, an
+`OperationValidationException` saying only single-source derivations are
+supported). When a request needs two server-generated IDs (add a
 user to a group), keep logical names in the request and resolve them in
 the binding: the create bindings record name → ID in a registry you
 register in the context, the `AddMember` binding looks both up, and

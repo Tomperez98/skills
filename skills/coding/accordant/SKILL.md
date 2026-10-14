@@ -5,9 +5,9 @@ description: >
   specs. One rule: write the contract once, in the spec, and let it judge
   every response. Use when the user models a system, generates or runs
   tests, validates traces from another language, hunts race conditions,
-  models async jobs, polling, timeouts, or retries, checks backward
-  compatibility, or debugs a failing spec — even if they never say
-  "model-based testing" or "oracle".
+  models async jobs, polling, timeouts, retries, checks backward
+  compatibility, or changes or debugs a spec — even if they
+  never say "model-based testing" or "oracle".
 ---
 
 # Accordant
@@ -44,8 +44,8 @@ front of you, or by asking if the user is around:
   [GENERATE.md](GENERATE.md). Bind, reset, pick inputs, bound the graph,
   look at it, run.
 - **"Validate my existing tests / traces / a system that isn't .NET"** →
-  [ORACLE.md](ORACLE.md). The spec as a pure judge: `spec.Allows`, traces,
-  exported test plans, a trace database for the spec itself.
+  [ORACLE.md](ORACLE.md). The spec as a pure judge: `spec.Allows`, traces
+  from any language, concurrent segments, exported test plans, events.
 - **"Find race conditions / double booking / lost updates"** →
   [CONCURRENCY.md](CONCURRENCY.md). Sequential green first, then
   linearizability over small concurrent groups; pin each race as a case.
@@ -61,6 +61,11 @@ front of you, or by asking if the user is around:
   judge the new build through a client as strict as the promise; the
   upgrade runs over data the old build wrote; traces from the release
   replay under main's spec.
+- **"I changed the spec — is it still right? / review this spec change /
+  would the spec catch a wrong answer?"** → [TRACES.md](TRACES.md). A trace
+  database replayed on every spec change, mutated traces the spec must
+  reject, every outcome exercised, the spec diff posted as a contract
+  change.
 - **"The spec crashes / tests fail / generation explodes / it won't compile"**
   → [DEBUG.md](DEBUG.md). Decide whether the spec or the system is wrong
   before touching either.
@@ -72,7 +77,8 @@ being edited → SPEC; a test fixture or `InputSet` → GENERATE; a log, trace
 file, or non-.NET service → ORACLE; a lock, transaction, or "sometimes
 both succeed" → CONCURRENCY; a `Pending` status or a job table → ASYNC; a
 retry loop or fault proxy → FAULTS; a release tag or baseline suite →
-COMPAT; a red test or a stack trace → DEBUG) and state the assumption at
+COMPAT; a spec diff under review or a trace database → TRACES; a red
+test or a stack trace → DEBUG) and state the assumption at
 the top of your work.
 
 ## The one rule

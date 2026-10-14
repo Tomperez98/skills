@@ -11,11 +11,11 @@ them. Apply the rules in order.
   (it prints the path from the root and the state where `Apply` threw; the
   original exception is its `InnerException`), or a
   stack trace through your `Apply` during execution. A bug in the spec.
-- **The spec rejected a response.** `Allows` returned `false` with the
-  explanation string of the outcome that didn't match. Either the system
+- **The spec rejected a response.** `Allows` returned `IsValid: false`, its
+  `Message` the explanation string of the outcome that didn't match. Either the system
   or the rule is wrong — rule 4 decides which.
 - **The setup is wrong.** A compile error, a missing binding, an
-  unreset system, a graph of zero or a million states. Rules 6–8.
+  unreset system, a graph of zero or a million states. Rules 5–8.
 
 ## 2. Turn the failing case into a hand-written sequence
 
@@ -35,11 +35,13 @@ The usual causes, in order of frequency:
   (ASYNC.md rule 1).
 - `StateFrozenException` — `Apply` mutated the `state` argument instead of
   the clone inside `ThenState` (SPEC.md rule 6).
-- `ArgumentNullException` for `mock` — a response-aware `ThenState` without
-  a mock response (SPEC.md rule 8).
+- `ArgumentNullException` for `mock` — a response-aware `ThenState` passed
+  `mock: null`; give it a plausible response (SPEC.md rule 8). Leaving
+  `mock` out entirely doesn't compile (`CS1593`).
 
 A generation-only test (`spec.GenerateTests(…)` asserting a non-empty
-result) finds every crash reachable from your inputs without a server.
+result) finds every crash reachable from your inputs within the
+generation bounds (`MaxDepth`, default 5), without a server.
 
 ## 4. A rejection means the spec and the system disagree — find out who's right
 
@@ -68,13 +70,15 @@ Verify the reset once by reading back an empty system.
 | Symptom | Cause |
 |---------|-------|
 | `CS0411: The type arguments for method 'Expect.That<TResponse>(…)' cannot be inferred` | Short-form `Expect.That(r => …)` in an inline `spec.Operation` lambda — use `Expect.That<TResp>` and `.ThenState<TState>` (SPEC.md rule 4) |
-| `[State]` generator diagnostics | Class not `partial`, nested inside another type, a record/struct, or a `HashSet` / interface-typed property |
+| `[State]` generator diagnostics (`STATE0xx`) | Class not `partial`, nested, abstract, a record/struct; or a property that's a `HashSet`, interface-typed, a field, `init`/getter-only, `required`, or a multidimensional array (SPEC.md rule 2) |
 | Nested state compares or clones wrong | A nested class without its own `[State]` |
-| `Execute not implemented for operation 'X'` | No binding for `X`, or a name that differs from the operation's |
-| `InvalidCastException` at execution | The binding's `<TRequest, TResponse>` differs from the operation's |
+| `Execute not implemented for operation 'X'` | `X` has no binding |
+| `SpecException: No operation with name X has been registered` | A binding or `GetOperation` names an operation that doesn't exist — usually a typo |
+| `InvalidCastException` from `Bind` / `GetOperation` | The `<TRequest, TResponse>` you passed differs from the operation's |
+| `InvalidCastException` from `Unit` to `String` at execution | `op.With("alice")` on a `string`-request operation picked the label-only overload — pass a label too: `op.With("alice", "Get alice")` |
 | `InvalidOperationException` from `ConfigureDerivations` / `ConfigurePolling` | Called on a class-based operation — override `DerivedFrom` / `Polling` |
-| `KeyNotFoundException` from `DerivationSources.ResponseOf` | A multi-source `Derive.From(a, b)` — only the first source is ever passed; resolve the second in the binding (GENERATE.md rule 9) |
-| A 429 isn't retried | The spec rejected it before `ShouldRetry` ran — declare it as an outcome (FAULTS.md rule 7) |
+| `TestCaseGenerationException` wrapping `KeyNotFoundException` from `DerivationSources`, or `OperationValidationException: …only single-source derivations…` | A multi-source `Derive.From(a, b)` — only the first source is ever passed; resolve the second in the binding (GENERATE.md rule 9) |
+| A 429 isn't retried | The spec rejected it before `ShouldRetry` ran — declare it as an outcome (FAULTS.md rule 8) |
 | `spec.Validate` doesn't exist | It never did; the docs mean `spec.Allows` |
 
 ## 7. Zero tests or too many is a graph problem
@@ -89,8 +93,10 @@ input multiplies the states.
 
 ## 8. Get the evidence into the test output
 
-Every result has a `LogFilePath` with the full step log. `spec.WithJsonPrinters()`
-makes requests and responses readable there. Send logs to the test runner
+Every result's `LogFilePath` is the run's log folder (`Logger.OutputDirectory`,
+shared by every test), holding `test-runner.txt` with every step;
+`spec.WithJsonPrinters()` makes requests and responses readable there.
+Once you replace `Logger.LogLambda`, lines go to your lambda instead. Send logs to the test runner
 with `Logger.LogLambda = line => TestContext.WriteLine(line)` (or xUnit's
 `ITestOutputHelper`), keep runs apart with
 `Logger.AsyncLocalOutputDirectory.Value = path`, and add your own lines from
@@ -98,8 +104,6 @@ inside `Apply` with `Logger.Log(…)` when you need to see which branch ran.
 
 ---
 
-A fix in the spec is a change to the contract: rerun the trace database
-(ORACLE.md rule 7) to make sure previously valid behavior is still
-accepted. A stored trace that no longer deserializes is a changed request
-or response type, not a rejection — a shape break to declare, not a rule
-to loosen.
+A fix in the spec is a change to the contract: replay the trace database
+(TRACES.md rule 5) to make sure previously valid behavior is still
+accepted, and post the change for review (TRACES.md rule 9).

@@ -144,9 +144,12 @@ through rule 3. When `DerivedFromOperationCalls` names an earlier call,
 `SerializedRequest` is what the derivation produced from the spec's *mock*
 response at generation time — a placeholder ID like `"mock-1"` for a
 server-generated value. Rebuild the request from that call's real response
-(`DerivationVariant` says which variant). When
-`Polling` is set and `SkipPolling` isn't, poll the named operation until
-done. Need the raw graph instead? `TestCaseGenerator.ExploreStateSpace(…)`
+(`DerivationVariant` says which variant). Polling isn't fully in the
+file: `Polling` holds only a per-input override (`WithPolling`), never the
+setup configured on the operation, and the built-in runner polls only when
+a call leaves unfinished background work. Unless `SkipPolling` is set,
+poll after every call that starts background work, using the input's
+`Polling` or, when it's `null`, the operation's own setup. Need the raw graph instead? `TestCaseGenerator.ExploreStateSpace(…)`
 returns the root `StateGraphNode` to walk however you like.
 
 ## 6. Events are requests with an empty response
@@ -156,72 +159,10 @@ each event as an operation whose request is the event and whose response is
 `Unit`. The spec then checks that each event was allowed in the state at
 that point.
 
-## 7. Keep a trace database to catch regressions in the spec itself
-
-When a spec change turns tests red, either the system broke or the spec
-did. Record traces from passing runs (start a trace in `BeforeEach`, append
-in `OnStepExecuted`, keep it in `AfterEach` when `info.Success`), and replay
-them through rule 3 in CI after every spec change. A trace that used to
-pass and now fails is a spec regression until proven otherwise.
-
-Never commit the traces: they grow with every run, and git keeps every
-version forever. Store them outside the repo — attached to the release with
-the rest of the contract (ship skill, COMPAT.md rule 4), or in an artifact
-store keyed by release — and commit only a manifest: one line per trace
-with its location, checksum, header (rule 3), and coverage tags. CI fetches
-what the manifest names, checks every checksum, and replays; a trace that's
-missing or doesn't match its checksum fails the build instead of being
-skipped. Keep the set small rather than the storage cheap: a prefix of an
-accepted trace is still accepted, so cut each trace after the last step
-that adds coverage, and drop a trace whose tags another one already covers.
-
-A non-deterministic system doesn't make the database flaky: replay never
-calls the system, so the same trace always gets the same verdict. It does
-make every trace a sample — a run that saw `Completed` says nothing about
-the spec's `Failed` branch. So:
-
-- **Keep by coverage, not volume.** Keep at least one trace per operation
-  and outcome, including passing runs from the scheduled fault and
-  concurrent suites (COMPAT.md rule 8). `Allows` doesn't report which
-  outcome matched, so tag each trace with the generated case it came from
-  (`info.TestCase` in `BeforeEach`; each case is a path through the spec's
-  graph) or, for a trace from another language, with each step's operation
-  and kind of response (status, error type). Report coverage that drops
-  after a change.
-- **Never overwrite a rare branch.** When the behavior changed on purpose,
-  re-record only the traces the spec now rejects, move the old ones to a
-  rejected set the spec must keep rejecting, and say so in the commit.
-  Re-recording everything trades the lost response you saw once for a run
-  that didn't hit it.
-- **Bound the ambiguity.** Record in the manifest how many candidate
-  states the trace ended with — `info.FinalState.StatesAndStepFunctions.Count`
-  in `AfterEach` when you record it, or the replayed profile's count on its
-  first replay. Fail a later replay
-  that ends with more: a read that stopped narrowing (ASYNC.md rule 3) is a
-  regression too.
-
-Checking the system, not the spec, against the last release is COMPAT.md.
-
-## 8. Mutate traces to prove the spec rejects wrong answers
-
-The trace database only catches a spec that got stricter; a spec that
-accepts everything passes it too. Take recorded traces, change one response
-field per copy — a status code, an amount, an ID, a `Pending` that should
-be `Completed` — and assert the spec rejects every copy. Mutate into a
-wrong answer, not into another explanation the spec declares: a success
-turned into a timeout is rightly accepted while failure outcomes are on
-(FAULTS.md rule 2), and a change to a field the contract never promised is
-rightly ignored (SPEC.md rule 9). A mutant that passes otherwise is a
-predicate that doesn't check what it should (SPEC.md rule 7); strengthen
-it, or note why that field is not part of the contract.
-
 ---
 
-Two corpora, two jobs. Traces (rules 3, 7, 8) hold what the system did and
-are judged by the spec alone; they catch a spec that changed. Test plans
-(rule 5) hold only what to call and run again against the system; they
-catch a system that changed. A failing generated sequence belongs with the
-test plans, not in the trace database.
-
-Concurrent groups are the subject of CONCURRENCY.md; traces whose responses
-are ambiguous (timeouts, 500s) need the outcomes in FAULTS.md.
+Traces judged this way are also the evidence for testing the spec itself:
+recording them, replaying them on every spec change, and mutating them is
+TRACES.md. Concurrent groups are the subject of CONCURRENCY.md; traces
+whose responses are ambiguous (timeouts, 500s) need the outcomes in
+FAULTS.md.

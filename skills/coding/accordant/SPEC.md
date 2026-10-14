@@ -35,19 +35,24 @@ public partial class UserState
 ```
 
 `[State]` source-generates clone, equality, hashing, and freezing. The
-generator only accepts: a `partial class` at namespace level (not nested,
-not a record or struct) with a parameterless constructor, whose properties
-are primitives, enums, `DateTime`/`TimeSpan`/`Guid`/`DateOnly`/`TimeOnly`,
-other `[State]` classes, `List<T>`, arrays, tuples, or `Dictionary<K,V>`
-with a primitive, string, or enum key. No `HashSet` (use `List`), no
-interface-typed properties (`IList`, `IDictionary`). Every nested class
-needs its own `[State]`.
+generator accepts a non-abstract `partial class` at namespace level (not
+nested, not a record or struct) with a parameterless constructor, whose
+public `{ get; set; }` properties are primitives, strings, enums,
+`DateTime`/`DateTimeOffset`/`TimeSpan`/`Guid`/`DateOnly`/`TimeOnly`,
+nullables of those, other `[State]` classes, `List<T>`, one-dimensional
+arrays, tuples, or `Dictionary<K,V>` keyed by one of those value types or a
+string. It rejects, with a `STATE0xx` diagnostic: `HashSet` (use `List`),
+interface-typed properties (`IList`, `IDictionary`), fields, `init` and
+getter-only properties, `required` members, and multidimensional arrays.
+Every nested class needs its own `[State]`.
 
 Every transition deep-clones the state. A large value that never changes
 once set (file contents, an image) goes in a `[SharedState(Fingerprint =
 nameof(ContentFingerprint))]` property instead: it's copied by reference,
-and the fingerprint method (one parameter of the property's type,
-returning a deterministic `string`) stands in for it in equality. Never
+and the fingerprint — a method taking the property's value, or a string
+property, returning a deterministic `string` — stands in for it in
+equality. A `[State]`-typed shared property can omit it; its own string
+form is used. Never
 mutate a shared value — every clone sees the change.
 
 ## 3. One guard per refusal, in the implementation's order
@@ -150,7 +155,7 @@ string — it's the failure message in generated tests and trace validation.
 Write it as `"<situation> → <outcome>"` (`"Todo 'x' already exists → 409"`).
 Read in a row, the strings are the contract in words, so a diff of them
 between two versions of the spec is the review a contract change needs
-(COMPAT.md rule 12).
+(TRACES.md rule 9).
 When several fields can be wrong, return a `ValidationResult` so the
 message names the field and the actual value:
 

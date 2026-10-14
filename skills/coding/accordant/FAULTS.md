@@ -83,7 +83,8 @@ placeholder ID; no real response will ever match it.
 Every indefinite outcome doubles the branches, so generating with failure
 outcomes enabled explodes the graph with worlds no fault-free path needs.
 Generate with them off and run with them on, using a flag you own (the
-sample's `IndefiniteFailureSemantics`, an `AsyncLocal<bool>` read by the
+sample's `IndefiniteFailureSemantics`, an `AsyncLocal<bool?>` that reads as
+on unless set, read by the
 base class):
 
 ```csharp
@@ -100,6 +101,8 @@ Ambiguity needs a cause. Wrap the client to fail before sending (request
 lost) or after receiving (response lost), put a proxy in the path that drops
 or delays, or make the data layer fail before or after the save. Inject on
 both sides, or one of the two worlds in rule 2 is never exercised.
+
+## 8. Retry what's safe to repeat, after the spec accepts it
 
 A response that is safe to repeat (429, a 503 the server promises did
 nothing) can be retried by the runner instead of carried through the rest

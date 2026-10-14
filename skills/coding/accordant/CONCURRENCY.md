@@ -48,23 +48,43 @@ var results = await spec.RunTests(context, initial, tests, options);
 ```
 
 Same context, same reset, same failure assertion as sequential runs. Each
-case is a sequential prefix followed by a group that runs concurrently.
-`MaxConcurrencyLevel` (default 3) caps the group size; raising it grows the
-check factorially, so raise it only with a reason.
+case is a sequential prefix followed by a group that runs concurrently;
+every input also races a copy of itself (`Alice books 9am (2)`). Groups
+hold up to three calls. To change that, set the algorithm — the
+`MaxConcurrencyLevel` property is never read:
 
-## 5. Read "no linearization" as a list of broken promises
+```csharp
+new TestGenerationOptions
+{
+    MaxDepth = 4,
+    ConcurrentTestCaseAlgorithm =
+        ConcurrentTestCaseAlgorithms.CreateDefaultConcurrentTestCaseGenerator(maxConcurrencyLevel: 2),
+};
+```
 
-A failure lists each ordering the checker tried and what the spec expected
-under it ("if Alice first, Bob should get 409"). That list is the bug
-report. The fix belongs in the implementation — a serializable transaction,
+Each extra call in a group grows the check factorially, so raise the cap
+only with a reason.
+
+## 5. Read "no linearization" as a bug report
+
+The failure says only which calls ran together: "The spec cannot explain
+the behavior of concurrently invoking the following operations: [u] Alice
+books 9am, [u] Bob books 9am". Every order of those calls was tried and
+none explains the responses. The responses themselves are in the run's
+log (DEBUG.md rule 8); replay each order in your head against the spec (Alice
+first → Bob gets 409) to see which promise broke. The fix belongs in the
+implementation — a serializable transaction,
 a lock around the critical section, optimistic concurrency with a row
 version — then rerun the same concurrent cases.
 
 ## 6. Pin the race as its own case
 
-The failure names the case: a sequential prefix, then the group that ran
-together. Rebuild exactly that case by its input labels, so it fails in
-seconds while you fix the code and stays as a regression test after:
+Results come back in the order of the cases you passed, so the failing
+case's `Description` gives the sequential prefix and the group. Its call
+names carry markers that aren't labels — strip the bracketed `[u] ` prefix, and a
+`(2)` suffix means the same input twice. Rebuild exactly that case by its
+input labels, so it fails in seconds while you fix the code and stays as
+a regression test after:
 
 ```csharp
 var race = TestCaseGenerator.CreateManualConcurrentTestCase(context, inputs,
