@@ -215,13 +215,11 @@ For big graphs, pass `new VisualizationOptions { NodeLabelLambda = … }` or
   explored graph lands in some case. The count grows exponentially with
   the graph's width.
 - `SequentialTestCaseAlgorithms.CreateTransitionCoverage(maxSequenceLength: 4)`
-  — every ordering of distinct calls up to the length (default 3). It
-  never repeats a call within a case, so a path that needs the same call
-  twice (a second withdrawal that overdraws) is never generated: this is
-  not edge coverage.
+  — every path up to the length (default 3) that never takes the same
+  edge twice; far more cases than `StateCoverage`.
 - `SequentialTestCaseAlgorithms.CreateRandomWalk(numberOfWalks: 200,
 maxWalkLength: 8, seed: 42)` — sampling for graphs too large to cover;
-  also never repeats a call within a walk. Always pass a seed so failures
+  also never takes an edge twice. Always pass a seed so failures
   reproduce.
 
 The delegate is `(TestingContext context, StateGraphNode root) =>
