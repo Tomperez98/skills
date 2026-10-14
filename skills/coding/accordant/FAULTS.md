@@ -111,7 +111,8 @@ the spec has accepted the response, so declare it first — a definite
 failure, `.SameState()` — then retry it with a cap:
 
 ```csharp
-ShouldRetry = (op, request, response, executions) => response is ApiResult { StatusCode: 429 }
+// Match your concrete response type; a generic ApiResult<T> needs its T.
+ShouldRetry = (op, request, response, executions) => response is ApiResult<Account> { StatusCode: 429 }
     ? new RetryBehavior
       {
           ShouldRetry = executions < 5,
@@ -122,6 +123,8 @@ ShouldRetry = (op, request, response, executions) => response is ApiResult { Sta
 ```
 
 A response the spec rejects fails the test before `ShouldRetry` runs.
+Poll calls never consult `ShouldRetry`: a 429 on the poll spends one of
+the `PollingSetup.MaxRetryCount` attempts (ASYNC.md rule 5).
 
 ---
 

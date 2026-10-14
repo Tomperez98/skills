@@ -40,10 +40,13 @@ nested, not a record or struct) with a parameterless constructor, whose
 public `{ get; set; }` properties are primitives, strings, enums,
 `DateTime`/`DateTimeOffset`/`TimeSpan`/`Guid`/`DateOnly`/`TimeOnly`,
 nullables of those, other `[State]` classes, `List<T>`, one-dimensional
-arrays, tuples, or `Dictionary<K,V>` keyed by one of those value types or a
-string. It rejects, with a `STATE0xx` diagnostic: `HashSet` (use `List`),
-interface-typed properties (`IList`, `IDictionary`), fields, `init` and
-getter-only properties, `required` members, and multidimensional arrays.
+arrays, tuples, or `Dictionary<K,V>` keyed by a primitive, string, enum, or
+one of those date/time/ID types (not a tuple or a nullable). It rejects,
+with a `STATE0xx` diagnostic: `HashSet` (use `List`), interface-typed
+properties (`IList`, `IDictionary`), fields, `init` properties, getter-only
+properties of a mutable type, `required` members, and multidimensional
+arrays. A getter-only property of an immutable type (a computed `string`)
+is allowed and left out of clone, equality, and hashing.
 Every nested class needs its own `[State]`.
 
 Every transition deep-clones the state. A large value that never changes
@@ -116,8 +119,9 @@ public class AppSpec : Spec<AppState>
 }
 ```
 
-Start inline. Move to classes when an operation needs `Polling` or
-`DerivedFrom` overrides, an `ExecuteAsync` next to its `Apply`, or a shared
+Start inline; inline operations get polling and derivations through
+`spec.ConfigurePolling` and `spec.ConfigureDerivations`. Move to classes
+when an operation needs an `ExecuteAsync` next to its `Apply`, or a shared
 base class (FAULTS.md rule 4).
 
 ## 5. Refusals and reads keep the state
@@ -127,7 +131,10 @@ throws is declared with `Expect.Throws<TException>(explanation)` (or the
 overload with a predicate on the exception) — it's an outcome, not a test
 failure. A `void`/`Task` operation responds with `Unit`: declare
 `spec.Operation<TReq, Unit>`, expect `Expect.Unit(explanation)`, and return
-`Unit.Value` from the binding.
+`Unit.Value` from the binding. Every outcome needs its state step:
+`Expect.Unit(…)` or `Expect.Throws<T>(…)` alone compiles, then throws
+`InvalidOperationException` when the outcome is built — end it in
+`.SameState()` or, for a write that succeeds, `.ThenState(…)`.
 
 ## 6. Change state only inside `ThenState`
 

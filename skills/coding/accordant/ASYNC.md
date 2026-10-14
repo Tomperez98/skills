@@ -83,7 +83,10 @@ if (job.Status == JobStatus.Completed)
 `spec.RunTests` must wait for the work: when a call starts background work
 that hasn't finished and its input isn't `.WithoutPolling()` (rule 8), the
 runner looks for a `PollingSetup` and fails the test with
-`PollingException: No polling setup found…` if there is none. Attach one to
+`PollingException: No polling setup found…` if there is none. A call in a
+concurrent group with no setup is skipped instead: the log says "No polling
+operations configured for concurrent segment" and the test goes on with the
+job still pending. Attach one to
 the triggering operation — override `Polling` on a class-based operation, or
 call `spec.ConfigurePolling(name, …)` for an inline one:
 
@@ -97,7 +100,10 @@ public override PollingSetup Polling => new PollingSetup
 ```
 
 The runner calls the poll operation until every surviving candidate state
-satisfies `isTerminal`. If you drive the system yourself (ORACLE.md), you
+satisfies `isTerminal`. It ignores the spec's verdict on each poll: a poll
+response the spec rejects surfaces as a `NullReferenceException` from the
+runner, not as a mismatch, so read that as "the spec and the poll
+disagree" (DEBUG.md). If you drive the system yourself (ORACLE.md), you
 write that loop instead and keep the step functions unchanged.
 
 ## 6. The poll operation derives its request from the trigger
@@ -153,8 +159,14 @@ Subclass `TerminatingStepFunction` (override `IsTerminalState` and
 functions. Subclass `BaseStepFunction` and return itself in each
 `StepResult.StepFunctions` for work that never ends — a garbage collector,
 a reconciler. During generation, terminating step functions are unwound to
-completion by default (`TestGenerationOptions.ShouldUnwindStepFunction`) so
-generated cases describe whole scenarios.
+completion by default (`TestGenerationOptions.ShouldUnwindStepFunction`),
+and the pending state stays in the graph too, so cases cover both the
+finished scenario and calls made mid-job. Never-ending step functions
+take no part in generation; they only widen what the spec accepts at run
+time. The runner judges a job finished by the step functions still in the
+profile, so a custom multi-step `TerminatingStepFunction` (Pending →
+Running → Done) returns itself in each `StepResult.StepFunctions` until
+terminal, or polling stops at Running.
 
 ---
 

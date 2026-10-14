@@ -50,8 +50,11 @@ baseline suite.
 Export the release's exact sequences at release time and ship the file
 with the release. The rerun then replays what was tested, not whatever
 today's generator produces from the old inputs, and a runner in another
-language can execute it too (ORACLE.md rule 5). Put the header in the file
-(ORACLE.md rule 3):
+language can execute it too (ORACLE.md rule 5). The file serializes each
+request with default `System.Text.Json` options, which skip fields: a tuple
+request like `(string, int)` is saved as `{}` and loads back as `(null, 0)`,
+with no error. Give every operation a record or class request before you
+export. Put the header in the file (ORACLE.md rule 3):
 
 ```csharp
 public class ContractHeader : ITestingMetadata
@@ -114,10 +117,11 @@ predicate checks that field, the break passes.
 - Make the baseline's deserializer reject what the promise rules out:
   mark every promised field `[JsonRequired]` (a dropped field throws), set
   `RespectNullableAnnotations = true` (a non-nullable field sent as `null`
-  throws), and add `new JsonStringEnumConverter(allowIntegerValues:
-  false)` (an enum value outside the old set throws, as a name or a
-  number — the default converter still accepts any number). The binding
-  then reports the break instead of hiding it.
+  throws). For enums sent as names, add `new
+  JsonStringEnumConverter(allowIntegerValues: false)` — an unknown name
+  or any number throws. For enums sent as numbers that converter rejects
+  every value, valid ones too; check `Enum.IsDefined` in the binding
+  instead. The binding then reports the break instead of hiding it.
 - Map the transport faithfully: the binding returns the real status code
   and body, not a wrapper that turns every 2xx into success.
 - A promise the spec leaves out (SPEC.md rule 9) is a promise nobody

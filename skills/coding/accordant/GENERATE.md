@@ -70,7 +70,9 @@ context.Register(new TodoApiClient(factory.CreateClient()));
 ```
 
 Call `spec.WithJsonPrinters()` when you build the spec so requests and
-responses print as JSON in failure logs.
+responses print as JSON in failure logs — unless an operation declares
+`Expect.Throws`: the printer can't serialize the exception, and the throw
+fails a test that passed.
 
 ## 3. Reset the system to the spec's initial state before every test
 
@@ -126,8 +128,12 @@ Exploration applies every input in every reachable state, so the graph can
 grow exponentially. `TestGenerationOptions` bounds it:
 
 - `MaxDepth` (default 5) — the longest sequence explored; `-1` is unbounded
-  and never terminates on an unbounded state (a counter).
-- `StateConstraint` — stop exploring past states you don't care about.
+  and never terminates on an unbounded state (a counter). It is not a
+  guarantee: see below.
+- `StateConstraint` — drop states you don't care about. The edge into a
+  failing state is dropped too, so the call that would cross the bound
+  (a third Create under `Users.Count <= 2`) is never tested; set the
+  bound one past the case you need.
 - `ShouldApply` — skip an input in states where it makes no sense.
 - `MaxOperationApplicationCount` — reuse each input at most N times per path.
 - `ShouldIncludeTransition` — drop one kind of edge, `(from, call, to) =>
@@ -150,6 +156,19 @@ var gen = new TestGenerationOptions
 `(OperationInput input, IState state)`, and `ShouldIncludeTransition`
 receives `(IState from, OperationCall call, IState to)`; cast the state to
 your type. Compare states with `GetStateHash()`.
+
+**Bound by state, not by depth, when you need every state.** Exploration
+is depth-first and keeps a state's depth from the first path that reaches
+it, so a state first reached the long way gets its children cut early.
+States reachable within `MaxDepth` go missing, with no warning. From
+counter 1 with `+1` and `×2` inputs, `MaxDepth = 5` finds 10 of the 12
+states four calls can reach (Accordant 0b2c0d4). A finite state space
+explored to the end has no such gap: cap the state with `StateConstraint`
+(at most two users, balances up to 500) and set `MaxDepth = -1`. Most bugs
+show up in small instances, so a small, finite space covered completely
+beats a large one cut by depth. If you must keep `MaxDepth`, compare its
+state count with a `MaxDepth = -1` run under the same constraint; any
+difference is states your tests never reach.
 
 ## 6. Look at the graph, and prove the spec runs, before touching the system
 
@@ -174,16 +193,28 @@ For big graphs, pass `new VisualizationOptions { NodeLabelLambda = … }` or
 
 `SequentialTestCaseAlgorithm` decides which paths become tests:
 
-- `SequentialTestCaseAlgorithms.StateCoverage` (default) — every state at
-  least once.
+- `SequentialTestCaseAlgorithms.StateCoverage` (default) — every path
+  that doesn't revisit a state, so every state and every edge of the
+  explored graph lands in some case. The count grows exponentially with
+  the graph's width.
 - `SequentialTestCaseAlgorithms.CreateTransitionCoverage(maxSequenceLength: 4)`
-  — every edge; many more tests.
+  — every ordering of distinct calls up to the length (default 3). It
+  never repeats a call within a case, so a path that needs the same call
+  twice (a second withdrawal that overdraws) is never generated: this is
+  not edge coverage.
 - `SequentialTestCaseAlgorithms.CreateRandomWalk(numberOfWalks: 200,
 maxWalkLength: 8, seed: 42)` — sampling for graphs too large to cover;
-  always pass a seed so failures reproduce.
+  also never repeats a call within a walk. Always pass a seed so failures
+  reproduce.
 
 The delegate is `(TestingContext context, StateGraphNode root) =>
 IList<SequentialTestCase>`, so a custom walk is a function you write.
+
+None of these is coverage-guided: they walk the spec's graph before
+anything runs. Use code coverage to audit the inputs instead. Run
+generation under a coverage tool and a branch of `Apply` that never runs
+is an input you're missing (rule 4). A branch of the system that never
+runs is a missing input, or a rule the spec doesn't know.
 
 A system with no state (a parser, a pure function) gives a graph of one
 node with a self-loop per input; `StateCoverage` turns each self-loop
