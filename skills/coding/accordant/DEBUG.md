@@ -95,4 +95,6 @@ inside `Apply` with `Logger.Log(…)` when you need to see which branch ran.
 
 A fix in the spec is a change to the contract: rerun the trace database
 (ORACLE.md rule 7) to make sure previously valid behavior is still
-accepted.
+accepted. A stored trace that no longer deserializes is a changed request
+or response type, not a rejection — a shape break to declare, not a rule
+to loosen.

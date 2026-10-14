@@ -108,7 +108,9 @@ Concurrent cases (CONCURRENCY.md) and fault-injected runs (FAULTS.md) cost
 too much for every pull request. Run them on main on a schedule, repeatedly,
 with both main's spec and the baseline's, and once more against the commit
 you're about to release. A concurrent case that fails once in ten runs is a
-race; keep it red until it's fixed.
+race; keep it red until it's fixed. Keep the traces of passing runs in the
+trace database (ORACLE.md rule 7): these suites hit the rare branches —
+lost responses, interleavings — that no per-PR run ever records.
 
 ## 7. Several services: every spec, both directions
 
