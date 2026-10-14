@@ -54,12 +54,20 @@ happened. Have the system emit one entry per call (operation name, request
 JSON, response JSON), then walk it:
 
 ```csharp
+// Default options match names case-sensitively and skip unknown fields, so
+// a camelCase trace would deserialize into nulls and the spec would judge
+// garbage. Match the system's casing and fail on anything unmapped.
+var json = new JsonSerializerOptions
+{
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+};
 var profile = new StateProfile(new BankState());
 foreach (var (entry, i) in trace.Select((e, i) => (e, i)))
 {
     var op = spec.GetOperation(entry.Operation);
-    var req = JsonSerializer.Deserialize(entry.Request.GetRawText(), op.RequestType);
-    var resp = JsonSerializer.Deserialize(entry.Response.GetRawText(), op.ResponseType);
+    var req = JsonSerializer.Deserialize(entry.Request.GetRawText(), op.RequestType, json);
+    var resp = JsonSerializer.Deserialize(entry.Response.GetRawText(), op.ResponseType, json);
 
     var (ok, msg, next) = spec.Allows(op, req, resp, profile);
     if (!ok) throw new Exception($"Violation at step {i} ({entry.Operation}): {msg}");
@@ -140,7 +148,8 @@ plan carries the same header as a trace (rule 3). The overload without it
 writes just the cases.
 
 Each case lists `OperationCalls` with `Input.OperationName` and
-`Input.SerializedRequest`; concurrent cases use `Segments`. Your runner resets
+`Input.SerializedRequest` (PascalCase, default `System.Text.Json` options);
+concurrent cases use `Segments`. Your runner resets
 the system, executes each call, records the trace, and feeds it back through
 rule 3. When `DerivedFromOperationCalls` names an earlier call,
 `SerializedRequest` is what the derivation produced from the spec's _mock_

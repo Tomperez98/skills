@@ -29,16 +29,29 @@ the test passed:
 var traces = new List<Trace>();
 Trace current = null;
 
+var json = new JsonSerializerOptions { IncludeFields = true }; // tuple requests
+string Record(object value) => value is Exception e
+    ? JsonSerializer.Serialize(new { Exception = e.GetType().Name, e.Message })
+    : JsonSerializer.Serialize(value, json);
+
 var options = new TestExecutionOptions
 {
     BeforeEach = info => current = new Trace(Header: header, Case: info.TestCase.Description),
     OnStepExecuted = step => current.Segments.Add(step.Operations
-        .Select(o => new TraceStep(o.Operation.Name,
-            JsonSerializer.Serialize(o.Request), JsonSerializer.Serialize(o.Response)))
+        .Select(o => new TraceStep(o.Operation.Name, Record(o.Request), Record(o.Response)))
         .ToList()),
     AfterEach = info => { if (info.Success) traces.Add(current); },
 };
 ```
+
+Each sync hook runs only when its async twin is unset. If the options
+already reset in `BeforeEachAsync` (GENERATE.md rule 3), `BeforeEach`
+never runs, `current` stays null, and every test fails — start the trace
+inside `BeforeEachAsync` instead, and likewise use `OnStepExecutedAsync`
+if it's set. Two serialization traps the `Record` helper covers: default
+options skip fields, so a tuple request records as `{}`; and an
+`Expect.Throws` response is the exception itself, which `System.Text.Json`
+can't serialize — the throw fails a passing test.
 
 `Trace` and `TraceStep` are your own records. Each `OnStepExecuted` call
 is one segment: a single call, a polling call, or a concurrent batch that
@@ -52,7 +65,9 @@ Two gaps in what the hook sees:
   misses them and replays to a different profile. Don't keep traces from
   concurrent cases whose group starts background work.
 - **Retries** (FAULTS.md rule 8) fire the hook once per attempt, but the
-  runner judges each attempt from the profile before the first. Replay
+  runner judges each attempt from the profile before the first (in a
+  concurrent batch, only the retried calls rerun, from the profile after
+  the batch). Replay
   steps through every attempt instead; with retried responses declared
   `.SameState()` the verdict matches, but keep such traces out of the
   ambiguity bound (rule 6).
@@ -123,8 +138,12 @@ it, or note why that field is not part of the contract.
 
 ## 8. Every outcome in the source must run
 
-Record the explanation from each branch of `Apply` as it runs, and fail when an
-outcome in the source never ran. `Apply` also runs during generation and when
+Record each outcome as it matches, and fail when an outcome in the source
+never matched. Recording where `Apply` builds an outcome over-counts:
+`Expect.OneOf` builds every outcome it lists, so both timeout worlds would
+count as run. Record inside `ThenState` instead, which runs only for a
+matched outcome, and give a `.SameState()` outcome you need to count a
+`ThenState` that changes nothing. `Apply` also runs during generation and when
 the runner explains a rejection, so gate the recording with a flag you set only
 around `RunTests` (the `AsyncLocal` pattern of FAULTS.md rule 6) and measure on
 green runs. Check in `AfterAll`, and count only the cases that ran —

@@ -13,6 +13,13 @@ and ask about the rules you can't see: does deleting a user cascade to their
 todos? Does a second Create conflict or overwrite? Don't assume HTTP; an
 in-process library is just as testable.
 
+Take the rules from the contract — API docs, the ticket, whoever owns the
+behavior — not from the implementation. A spec transcribed from the code
+agrees with it, bugs included, and every test passes. Read the code for
+names, types, and the order of refusals (rule 3); when the code and the
+contract disagree, that's a finding to raise (DEBUG.md rule 4), not a
+rule to copy.
+
 ## 2. State is what the spec remembers, not what the system stores
 
 Model only what you need to decide whether a response is correct. A bank
@@ -40,10 +47,13 @@ nested, not a record or struct) with a parameterless constructor, whose
 public `{ get; set; }` properties are primitives, strings, enums,
 `DateTime`/`DateTimeOffset`/`TimeSpan`/`Guid`/`DateOnly`/`TimeOnly`,
 nullables of those, other `[State]` classes, `List<T>`, one-dimensional
-arrays, tuples, or `Dictionary<K,V>` keyed by one of those value types or a
-string. It rejects, with a `STATE0xx` diagnostic: `HashSet` (use `List`),
-interface-typed properties (`IList`, `IDictionary`), fields, `init` and
-getter-only properties, `required` members, and multidimensional arrays.
+arrays, tuples, or `Dictionary<K,V>` keyed by a primitive, string, enum, or
+one of those date/time/ID types (not a tuple or a nullable). It rejects,
+with a `STATE0xx` diagnostic: `HashSet` (use `List`), interface-typed
+properties (`IList`, `IDictionary`), fields, `init` properties, getter-only
+properties of a mutable type, `required` members, and multidimensional
+arrays. A getter-only property of an immutable type (a computed `string`)
+is allowed and left out of clone, equality, and hashing.
 Every nested class needs its own `[State]`.
 
 Every transition deep-clones the state. A large value that never changes
@@ -57,8 +67,9 @@ mutate a shared value — every clone sees the change.
 
 ## 3. One guard per refusal, in the implementation's order
 
-Each refusal is an early `return` with its own outcome. Check them in the
-order the implementation does: if the real code checks "user exists" before
+Each refusal is an early `return` with its own outcome. Order is the one
+thing to take from the code (rule 1). Check them in the order the
+implementation does: if the real code checks "user exists" before
 "todo exists", so does the spec, or a request that fails both checks gets a
 different answer from each. Use `TryGetValue`; never index a dictionary you
 haven't checked.
@@ -116,8 +127,9 @@ public class AppSpec : Spec<AppState>
 }
 ```
 
-Start inline. Move to classes when an operation needs `Polling` or
-`DerivedFrom` overrides, an `ExecuteAsync` next to its `Apply`, or a shared
+Start inline; inline operations get polling and derivations through
+`spec.ConfigurePolling` and `spec.ConfigureDerivations`. Move to classes
+when an operation needs an `ExecuteAsync` next to its `Apply`, or a shared
 base class (FAULTS.md rule 4).
 
 ## 5. Refusals and reads keep the state
@@ -127,7 +139,10 @@ throws is declared with `Expect.Throws<TException>(explanation)` (or the
 overload with a predicate on the exception) — it's an outcome, not a test
 failure. A `void`/`Task` operation responds with `Unit`: declare
 `spec.Operation<TReq, Unit>`, expect `Expect.Unit(explanation)`, and return
-`Unit.Value` from the binding.
+`Unit.Value` from the binding. Every outcome needs its state step:
+`Expect.Unit(…)` or `Expect.Throws<T>(…)` alone compiles, then throws
+`InvalidOperationException` when the outcome is built — end it in
+`.SameState()` or, for a write that succeeds, `.ThenState(…)`.
 
 ## 6. Change state only inside `ThenState`
 
@@ -146,6 +161,22 @@ return Expect.That<WithdrawResponse>(r => r.IsSuccess && r.Balance == newBalance
 If the state is a graph whose objects reference each other, use
 `ThenStateWithMap<TState>((next, map) => …)` to translate original
 references to their clones.
+
+State the properties no transition may break at the end of `ThenState`,
+with `Invariant.Assert` (it ships in the package):
+
+```csharp
+.ThenState<BankState>(next =>
+{
+    next.Accounts[request.AccountId] = newBalance;
+    Invariant.Assert(next.Accounts.Values.All(b => b >= 0), "No balance goes negative");
+});
+```
+
+Generation runs every `ThenState` in every reachable state, so a spec
+rule that breaks a property fails a generation-only test (GENERATE.md
+rule 6) with the path that broke it, before the spec judges the system
+by a wrong rule.
 
 ## 7. Predicates check the payload, and explain themselves
 
@@ -196,6 +227,44 @@ about, operations you aren't testing, and edge cases you'll add later. An
 unmodeled detail should be absent from the predicate, not guessed at — a
 guessed rule fails on correct behavior and teaches the user to distrust
 the spec.
+
+## 10. Time is an input
+
+Expiry, leases, token lifetimes, and rate-limit windows depend on a clock
+the generator doesn't control, so with a real clock they go untested. Put
+the clock in the spec: keep "now" in the state, make advancing it an
+operation, and have the system read an injected `TimeProvider`, with
+`FakeTimeProvider` (`Microsoft.Extensions.TimeProvider.Testing`) in
+tests:
+
+```csharp
+spec.Operation<int, Unit>("Advance", (seconds, state) =>
+    Expect.Unit($"Clock +{seconds}s")
+          .ThenState<AppState>(next => next.Now = state.Now + seconds));
+
+spec.Operation<string, ApiResult<Session>>("GetSession", (token, state) =>
+{
+    if (!state.Sessions.TryGetValue(token, out var expiresAt) || state.Now >= expiresAt)
+        return Expect.That<ApiResult<Session>>(r => r.IsUnauthorized,
+                   $"Session '{token}' missing or expired at {state.Now} → 401")
+               .SameState();
+    // …
+});
+
+spec.ExecuteWith<FakeTimeProvider>()
+    .Bind<int, Unit>("Advance", (clock, seconds) =>
+    {
+        clock.Advance(TimeSpan.FromSeconds(seconds));
+        return Unit.Value;
+    });
+```
+
+Pick advances that land on the boundary — with a 60-second TTL, `59` and
+`1` reach just before, at, and just after it — and cap `Now` in the
+`StateConstraint`, or the clock alone makes the space infinite. Whether
+the session dies at 60 or after it is a contract question (rule 1). A
+system you can't host in the test needs a test-only endpoint that moves
+its clock.
 
 ---
 
