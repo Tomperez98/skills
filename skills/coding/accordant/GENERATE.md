@@ -136,7 +136,8 @@ var gen = new TestGenerationOptions
 };
 ```
 
-The lambdas receive `IState`; cast to your state type.
+`StateConstraint` receives an `IState` and `ShouldApply` receives
+`(OperationInput input, IState state)`; cast the state to your type.
 
 ## 6. Look at the graph, and prove the spec runs, before touching the system
 
@@ -173,12 +174,15 @@ The delegate takes the root `StateGraphNode`, so a custom walk is a function
 you write.
 
 A system with no state (a parser, a pure function) gives a graph of one
-node with a self-loop per input, and the coverage algorithms return zero
-cases. Build one case per input instead:
+node with a self-loop per input; `StateCoverage` turns each self-loop
+into a one-call case, so every input runs exactly once and exploration
+adds nothing more.
+
+To run a sequence you chose yourself, name its input labels in order:
 
 ```csharp
-var tests = inputs.Select(input => TestCaseGenerator.CreateManualSequentialTestCase(
-    context, inputs, [input.Name])).ToList();
+var test = TestCaseGenerator.CreateManualSequentialTestCase(
+    context, inputs, "Create alice", "Get alice", "Get ghost");
 ```
 
 ## 8. Run, and fail with the spec's message
