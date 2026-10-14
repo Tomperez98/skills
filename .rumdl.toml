@@ -1,0 +1,15 @@
+# Markdown lint and format rules for `mise run lint` / `mise run fmt`.
+# Prose wraps at 80 columns; code is left alone.
+
+[global]
+exclude = [".contract-report"]
+# The guides' examples are language-agnostic pseudocode on purpose, so a
+# fence names a language only when the example is real code.
+disable = ["MD040"]
+
+[MD013]
+line-length = 80
+code-blocks = false
+tables = false
+# `mise run fmt` rewraps a paragraph that `lint` finds too long.
+reflow = true

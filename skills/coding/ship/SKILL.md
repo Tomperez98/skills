@@ -45,11 +45,12 @@ asking if the user is around:
   [COMPAT.md](COMPAT.md). Ship the contract with each release and let it
   judge every new build; a break is declared, never discovered.
 
-CI and MONITOR keep main releasable; COMPAT keeps it releasable for the
-people already using it; RELEASE and PUBLISH make the release boring. If the situation is ambiguous and the user isn't reachable, pick by
-the file in front of you (a PR workflow → CI; a scheduled job or dashboard
-→ MONITOR; a changelog or release checklist → RELEASE; a publish script →
-PUBLISH; a schema, API diff, or compat baseline → COMPAT) and state the assumption at the top of your work.
+CI and MONITOR keep main releasable; COMPAT keeps it releasable for the people
+already using it; RELEASE and PUBLISH make the release boring. If the situation
+is ambiguous and the user isn't reachable, pick by the file in front of you (a
+PR workflow → CI; a scheduled job or dashboard → MONITOR; a changelog or release
+checklist → RELEASE; a publish script → PUBLISH; a schema, API diff, or compat
+baseline → COMPAT) and state the assumption at the top of your work.
 
 ## The one rule
 
