@@ -122,6 +122,11 @@ fails at execution. Five or
 six inputs routinely yield dozens of sequences; add inputs only when a
 branch isn't covered.
 
+When a request has several independent fields or flags, pick values so
+every pair of them appears in some input (a pairwise tool such as PICT
+lists them). Most interaction bugs involve two parameters, and the
+system can branch on a pair the spec never mentions.
+
 Two more kinds of input catch what branch-aimed inputs miss:
 
 - **A second entity.** A Delete or Update that also touches a record it
@@ -221,6 +226,58 @@ For big graphs, pass `new VisualizationOptions { NodeLabelLambda = … }` or
 maxWalkLength: 8, seed: 42)` — sampling for graphs too large to cover;
   also never takes an edge twice. Always pass a seed so failures
   reproduce.
+
+All three use an input many times in one case (deposit, deposit,
+deposit), but none goes around a cycle: once a case is back in a state it
+has seen, it can't leave by the same edge again. Create → Delete → Create
+is never generated, and re-creating after a delete is where stale
+tombstones, leftover indexes, and reused IDs break. A custom walk that may
+retake edges covers it. The runner rejects a repeated call name, so clone
+each call and make its name unique, and turn off name simplification,
+which would strip the suffix:
+
+```csharp
+SequentialTestCaseAlgorithm CyclingWalk(int walks, int length, int seed) => (ctx, root) =>
+{
+    var rng = new Random(seed);
+    var cases = new List<SequentialTestCase>();
+    for (var w = 0; w < walks; w++)
+    {
+        var calls = new List<OperationCall>();
+        for (var (node, i) = (root, 0); i < length && node.Edges.Count > 0; i++)
+        {
+            var edge = node.Edges[rng.Next(node.Edges.Count)];
+            var call = ((OperationCall)edge.Metadata).Clone();
+            call.Name = $"{call.Name} #{i}";
+            calls.Add(call);
+            node = edge.Target;
+        }
+        cases.Add(new SequentialTestCase
+        {
+            Description = TestCaseGenerator.ConstructDescriptionForSequentialTestCase(calls),
+            OperationCalls = calls,
+        });
+    }
+    return cases;
+};
+
+var gen = new TestGenerationOptions
+{
+    MaxDepth = -1,
+    StateConstraint = s => ((AppState)s).Users.Count <= 2,
+    SimplifyOperationCallNames = false,
+    SequentialTestCaseAlgorithm = CyclingWalk(walks: 200, length: 12, seed: 42),
+};
+```
+
+The runner links a derived call to its source by name, so a walk over
+derived requests (rule 9) needs checking against a real run first.
+
+To reach deep states, run it as a swarm: several generations, each with
+a random subset of inputs switched off through `ShouldApply` (`(input,
+state) => enabled.Contains(input.Name)`). Delete keeps a queue from ever
+filling and Cancel keeps a quota from running out; a run without them gets
+there.
 
 The delegate is `(TestingContext context, StateGraphNode root) =>
 IList<SequentialTestCase>`, so a custom walk is a function you write.

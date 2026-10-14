@@ -228,6 +228,44 @@ unmodeled detail should be absent from the predicate, not guessed at — a
 guessed rule fails on correct behavior and teaches the user to distrust
 the spec.
 
+## 10. Time is an input
+
+Expiry, leases, token lifetimes, and rate-limit windows depend on a clock
+the generator doesn't control, so with a real clock they go untested. Put
+the clock in the spec: keep "now" in the state, make advancing it an
+operation, and have the system read an injected `TimeProvider`, with
+`FakeTimeProvider` (`Microsoft.Extensions.TimeProvider.Testing`) in
+tests:
+
+```csharp
+spec.Operation<int, Unit>("Advance", (seconds, state) =>
+    Expect.Unit($"Clock +{seconds}s")
+          .ThenState<AppState>(next => next.Now = state.Now + seconds));
+
+spec.Operation<string, ApiResult<Session>>("GetSession", (token, state) =>
+{
+    if (!state.Sessions.TryGetValue(token, out var expiresAt) || state.Now >= expiresAt)
+        return Expect.That<ApiResult<Session>>(r => r.IsUnauthorized,
+                   $"Session '{token}' missing or expired at {state.Now} → 401")
+               .SameState();
+    // …
+});
+
+spec.ExecuteWith<FakeTimeProvider>()
+    .Bind<int, Unit>("Advance", (clock, seconds) =>
+    {
+        clock.Advance(TimeSpan.FromSeconds(seconds));
+        return Unit.Value;
+    });
+```
+
+Pick advances that land on the boundary — with a 60-second TTL, `59` and
+`1` reach just before, at, and just after it — and cap `Now` in the
+`StateConstraint`, or the clock alone makes the space infinite. Whether
+the session dies at 60 or after it is a contract question (rule 1). A
+system you can't host in the test needs a test-only endpoint that moves
+its clock.
+
 ---
 
 GENERATE.md runs this spec against the system. When an operation can

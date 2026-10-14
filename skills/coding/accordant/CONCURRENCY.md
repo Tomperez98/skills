@@ -19,6 +19,17 @@ Bob 409 is valid (Alice went first), Bob 200 / Alice 409 is valid (Bob went
 first), both 200 is a bug — no order explains it. You don't write
 concurrent assertions; the sequential spec judges every candidate order.
 
+The runner starts a group's calls together, so any order is allowed. For
+recorded traces, `AllowsConcurrent` checks only "some order explains it"
+unless you pass `happensBefore` for calls that didn't overlap; with those
+edges it's linearizability (ORACLE.md rule 4). A transaction modeled as
+one operation gets a serializability check. If the contract promises
+less — read committed, snapshot isolation, eventual consistency — this
+check rejects correct behavior. Model the stale reads the contract allows
+as extra outcomes (FAULTS.md rule 2), or check long histories and
+isolation anomalies with Elle over exported traces. Don't loosen
+predicates until the check passes.
+
 ## 3. Choose inputs that collide
 
 Races only show up when calls contend for the same thing. Give the
@@ -111,6 +122,39 @@ COMPAT.md rule 8 adds the last release's spec as a second judge).
 A concurrent case that fails intermittently is most likely the race you're
 hunting, not a flaky test — rule out an incomplete reset first, then treat
 it as a bug.
+
+Repetition samples the interleavings the OS happens to produce. To reach
+rare ones and replay them from a seed, run the system under a controlled
+scheduler: Microsoft Coyote for in-process .NET, deterministic simulation
+(Antithesis, or a FoundationDB-style simulator) for anything else, with
+the spec still judging the responses. Accordant has no integration with
+either, so it's a project, not a setting — worth it once repeated runs
+stop finding races that production still sees.
+
+## 8. Read the state after every group
+
+The default generator ends each case on its concurrent group. A lost
+update where every racer gets a plain 200 — two deposits succeed, the
+balance shows one — passes, because no response shows the balance. Wrap
+the generator so every case ends with a read of the whole state:
+
+```csharp
+var concurrent = ConcurrentTestCaseAlgorithms.CreateDefaultConcurrentTestCaseGenerator(
+    maxConcurrencyLevel: 3);
+var gen = new TestGenerationOptions
+{
+    ConcurrentTestCaseAlgorithm = (ctx, root) => concurrent(ctx, root).Select(tc =>
+    {
+        tc.Segments.Add(new TestCaseSegment(new OperationCall("List all (after)", inputs["List all"])));
+        tc.Description = TestCaseGenerator.ConstructDescriptionForConcurrentTestCase(tc.Segments);
+        return tc;
+    }).ToList(),
+};
+```
+
+On an in-process counter whose deposit reads, waits, and writes, the
+plain cases all pass and the wrapped ones fail on the read (Accordant
+0b2c0d4). Name the read uniquely; the runner rejects a repeated call name.
 
 ---
 

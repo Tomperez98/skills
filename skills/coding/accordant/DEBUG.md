@@ -29,6 +29,31 @@ fails in seconds, the debugger stops in your `Apply`, and it stays as a
 regression test once fixed. A failing concurrent case is rebuilt the same
 way with `CreateManualConcurrentTestCase` (CONCURRENCY.md rule 6).
 
+Shrink a long case before you read it; Accordant doesn't. Drop one call
+at a time and keep any shorter case that still fails. Dropping a call is
+safe: the spec judges the shorter case on its own terms, so a Create
+that's gone turns a later Get into a 404 it expects.
+
+```csharp
+async Task<bool> Fails(List<OperationCall> calls) =>
+    !(await spec.RunTests(context, initial, [new SequentialTestCase
+    {
+        Description = TestCaseGenerator.ConstructDescriptionForSequentialTestCase(calls),
+        OperationCalls = calls,
+    }], options))[0].Success;
+
+var calls = tests[i].OperationCalls.ToList();
+for (var j = calls.Count - 1; j >= 0; j--)
+{
+    var shorter = calls.Where((_, k) => k != j).ToList();
+    if (await Fails(shorter)) calls = shorter;
+}
+```
+
+Keep the source of a derived call (GENERATE.md rule 9), and check that the
+shorter case still fails with the same message — a different failure is a
+different bug.
+
 ## 3. A spec crash is a missing guard
 
 The usual causes, in order of frequency:

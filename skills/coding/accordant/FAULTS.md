@@ -126,6 +126,33 @@ A response the spec rejects fails the test before `ShouldRetry` runs.
 Poll calls never consult `ShouldRetry`: a 429 on the poll spends one of
 the `PollingSetup.MaxRetryCount` attempts (ASYNC.md rule 5).
 
+## 9. Make restart an operation
+
+A system that loses acknowledged work on restart answers every call
+correctly until it reboots. Add `Restart` to the spec. Its `Apply` keeps
+what the system promises is durable and drops what it doesn't — sessions,
+caches, unflushed or in-flight work — so the explorer puts a restart
+between every pair of calls:
+
+```csharp
+spec.Operation<Unit, Unit>("Restart", (_, state) =>
+    Expect.Unit("Restart keeps every acknowledged write, drops sessions")
+          .ThenState<AppState>(next => next.Sessions.Clear()));
+
+spec.ExecuteWith<AppHost>()
+    .BindAsync<Unit, Unit>("Restart", async (host, _) =>
+    {
+        await host.RestartAsync(); // dispose and rebuild over the same storage
+        return Unit.Value;
+    });
+```
+
+Kill the process rather than shutting it down gracefully when the promise
+is crash safety, and rebuild the clients the other bindings use. Combined
+with rule 2, a restart while a call is in flight is an indefinite failure.
+Background jobs (ASYNC.md) that must survive a restart keep their step
+functions across it.
+
 ---
 
 The same profile mechanics drive ASYNC.md: a pending job is uncertainty
