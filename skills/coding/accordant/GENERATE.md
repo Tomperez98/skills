@@ -122,6 +122,17 @@ fails at execution. Five or
 six inputs routinely yield dozens of sequences; add inputs only when a
 branch isn't covered.
 
+Two more kinds of input catch what branch-aimed inputs miss:
+
+- **A second entity.** A Delete or Update that also touches a record it
+  shouldn't — the wrong row, a shared parent, a cascade too far — shows
+  only when another record exists to be hit. Create bob next to alice, and
+  read bob after acting on alice.
+- **A read for every write.** The spec judges responses, so a change no
+  later response shows is never checked. Give each state change a read
+  that observes it, and add a read of everything (`List users`) so a
+  record that leaks, or should be gone, has a response to fail.
+
 ## 5. Bound the graph before it bounds you
 
 Exploration applies every input in every reachable state, so the graph can
@@ -169,6 +180,12 @@ show up in small instances, so a small, finite space covered completely
 beats a large one cut by depth. If you must keep `MaxDepth`, compare its
 state count with a `MaxDepth = -1` run under the same constraint; any
 difference is states your tests never reach.
+
+**Shrink the system's limits to fit the space.** A small space never
+reaches a quota of 100 or a page of 50, so the bugs at those edges stay
+untested. Make each limit configurable in the system, set it to 2 or 3 in
+the test setup, and use the same constant in the spec; the boundary is
+then a few calls deep, where exploration covers it.
 
 ## 6. Look at the graph, and prove the spec runs, before touching the system
 
@@ -282,6 +299,19 @@ register in the context, the `AddMember` binding looks both up, and
 
 Derivations serve the built-in runner only — if you drive the system
 yourself (ORACLE.md), you thread the values through your own code.
+
+## 10. Measure the suite by the bugs it catches
+
+Green says the system agreed with the spec on the sequences you ran, not
+that those sequences would catch a bug. Mutation testing measures that
+directly: run the suite against the system with small bugs planted in it
+— Stryker.NET for .NET, or the mutation tool of the system's language —
+and read each surviving mutant. It is one of three gaps: an input that
+never reaches the code (rule 4), a change no read observes (rule 4), or a
+predicate that doesn't check the field (SPEC.md rule 7). TRACES.md rule 7
+does the same for the spec. Run it on the cluster you just specified, not
+the whole system, and on a schedule rather than every push — it reruns
+the suite once per mutant.
 
 ---
 

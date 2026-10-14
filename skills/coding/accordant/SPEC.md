@@ -13,6 +13,13 @@ and ask about the rules you can't see: does deleting a user cascade to their
 todos? Does a second Create conflict or overwrite? Don't assume HTTP; an
 in-process library is just as testable.
 
+Take the rules from the contract — API docs, the ticket, whoever owns the
+behavior — not from the implementation. A spec transcribed from the code
+agrees with it, bugs included, and every test passes. Read the code for
+names, types, and the order of refusals (rule 3); when the code and the
+contract disagree, that's a finding to raise (DEBUG.md rule 4), not a
+rule to copy.
+
 ## 2. State is what the spec remembers, not what the system stores
 
 Model only what you need to decide whether a response is correct. A bank
@@ -60,8 +67,9 @@ mutate a shared value — every clone sees the change.
 
 ## 3. One guard per refusal, in the implementation's order
 
-Each refusal is an early `return` with its own outcome. Check them in the
-order the implementation does: if the real code checks "user exists" before
+Each refusal is an early `return` with its own outcome. Order is the one
+thing to take from the code (rule 1). Check them in the order the
+implementation does: if the real code checks "user exists" before
 "todo exists", so does the spec, or a request that fails both checks gets a
 different answer from each. Use `TryGetValue`; never index a dictionary you
 haven't checked.
@@ -153,6 +161,22 @@ return Expect.That<WithdrawResponse>(r => r.IsSuccess && r.Balance == newBalance
 If the state is a graph whose objects reference each other, use
 `ThenStateWithMap<TState>((next, map) => …)` to translate original
 references to their clones.
+
+State the properties no transition may break at the end of `ThenState`,
+with `Invariant.Assert` (it ships in the package):
+
+```csharp
+.ThenState<BankState>(next =>
+{
+    next.Accounts[request.AccountId] = newBalance;
+    Invariant.Assert(next.Accounts.Values.All(b => b >= 0), "No balance goes negative");
+});
+```
+
+Generation runs every `ThenState` in every reachable state, so a spec
+rule that breaks a property fails a generation-only test (GENERATE.md
+rule 6) with the path that broke it, before the spec judges the system
+by a wrong rule.
 
 ## 7. Predicates check the payload, and explain themselves
 
