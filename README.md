@@ -10,7 +10,7 @@ thirty branch guides, 245 numbered rules.
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
-| [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · COMPAT · DEBUG |
+| [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · COMPAT · TRACES · DEBUG |
 
 ## What it is
 
@@ -86,11 +86,12 @@ follows its rules in order:
 | "Is this any good / will people use it" | [`mvp/VALIDATE.md`](skills/product/mvp/VALIDATE.md) | Put it in front of a real person, time it to the aha, act on the verdict |
 | "Model this system / write an Accordant spec" | [`accordant/SPEC.md`](skills/coding/accordant/SPEC.md) | Minimal state, guards in implementation order, payload-checking predicates, capture what you can't predict |
 | "Generate tests / run them against my API" | [`accordant/GENERATE.md`](skills/coding/accordant/GENERATE.md) | Bind exact types, reset to the initial state, few branch-aimed inputs, bound and look at the graph, then run |
-| "Validate my tests / traces / a non-.NET system" | [`accordant/ORACLE.md`](skills/coding/accordant/ORACLE.md) | One `spec.Allows` call threaded through a state profile; traces, exported plans, a trace database for the spec |
-| "Find race conditions" | [`accordant/CONCURRENCY.md`](skills/coding/accordant/CONCURRENCY.md) | Sequential green first, colliding inputs, linearizability does the asserting, one green run is not proof |
-| "Background jobs / polling" | [`accordant/ASYNC.md`](skills/coding/accordant/ASYNC.md) | Step functions in the model, polling and derivations in the runner, `MaxRetryCount` as the liveness bound |
+| "Validate my tests / traces / a non-.NET system" | [`accordant/ORACLE.md`](skills/coding/accordant/ORACLE.md) | One `spec.Allows` call threaded through a state profile; traces from any language, concurrent segments, exported plans, events |
+| "Find race conditions" | [`accordant/CONCURRENCY.md`](skills/coding/accordant/CONCURRENCY.md) | Sequential green first, colliding inputs, linearizability does the asserting, pin each race as a case, one green run is not proof |
+| "Background jobs / polling" | [`accordant/ASYNC.md`](skills/coding/accordant/ASYNC.md) | Step functions in the model, polling and derivations in the runner, `MaxRetryCount` as the liveness bound, polling off to act mid-job |
 | "Timeouts / 500s / fault injection" | [`accordant/FAULTS.md`](skills/coding/accordant/FAULTS.md) | Every explanation of an ambiguous response is an outcome; explore without faults, execute with them |
-| "Is the new version backward compatible" | [`accordant/COMPAT.md`](skills/coding/accordant/COMPAT.md) | The release's suite, unchanged, runs against the new build; every service's spec judges both directions and the rollout; spec runs become review material |
+| "Is the new version backward compatible" | [`accordant/COMPAT.md`](skills/coding/accordant/COMPAT.md) | The release's suite and sequences, unchanged, run against the new build through a strict client; closed sets don't grow silently; the upgrade runs over existing data; every service's spec judges both directions and the rollout |
+| "I changed the spec — is it still right" | [`accordant/TRACES.md`](skills/coding/accordant/TRACES.md) | Replay a trace database on every spec change, mutate traces the spec must reject, exercise every outcome, post the spec diff as a contract change |
 | "My spec crashes / tests fail" | [`accordant/DEBUG.md`](skills/coding/accordant/DEBUG.md) | Name the failure first: spec crash, spec rejection, or setup — then fix the right one |
 
 ## Why one rule

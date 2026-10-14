@@ -80,8 +80,11 @@ if (job.Status == JobStatus.Completed)
 
 ## 5. Polling is configuration for the runner, not part of the model
 
-To have `spec.RunTests` wait for the work, attach a `PollingSetup` to the
-triggering operation — override `Polling` on a class-based operation, or
+`spec.RunTests` must wait for the work: when a call starts background work
+that hasn't finished and its input isn't `.WithoutPolling()` (rule 8), the
+runner looks for a `PollingSetup` and fails the test with
+`PollingException: No polling setup found…` if there is none. Attach one to
+the triggering operation — override `Polling` on a class-based operation, or
 call `spec.ConfigurePolling(name, …)` for an inline one:
 
 ```csharp
@@ -118,7 +121,32 @@ bug. When polling runs out while a candidate is still non-terminal, the
 test fails. Set `WaitTimeInMs × MaxRetryCount` to the longest the system is
 *allowed* to take, not the longest you're willing to wait.
 
-## 8. Go below `AsyncOperation.Create` only when it can't express the work
+## 8. Turn polling off where the test must act while the work runs
+
+With polling on, the runner waits for every job to finish before the next
+call, so no generated test ever cancels a `Pending` job, deletes a
+resource its job is still working on, or reads a half-done result — the
+calls where background-work bugs live. Keep one polled input for the
+end-to-end path and add the same trigger without polling:
+
+```csharp
+var inputs = new InputSet
+{
+    createJob.With("j1", "Create j1"),                       // waits for completion
+    createJob.With("j2", "Create j2, don't wait").WithoutPolling(),
+    cancelJob.With("j2", "Cancel j2"),
+    getJob.With("j2", "Get j2"),
+};
+```
+
+After an unpolled trigger the profile holds `Pending` and every ending at
+once, so the next call is judged against all of them: a `Cancel` that
+answers 200 narrows to the world where the job was still pending, and a
+409 to the world where it had finished. Both are correct; a 200 followed
+by a read that shows `Completed` is the bug. `.WithPolling(setup)` swaps in
+a different `PollingSetup` for one input.
+
+## 9. Go below `AsyncOperation.Create` only when it can't express the work
 
 Subclass `TerminatingStepFunction` (override `IsTerminalState` and
 `GetStepResults`) when an outcome needs custom logic or spawns further step
