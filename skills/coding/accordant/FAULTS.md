@@ -99,10 +99,26 @@ var results = await spec.RunTests(context, initial, tests, options);
 Ambiguity needs a cause. Wrap the client to fail before sending (request
 lost) or after receiving (response lost), put a proxy in the path that drops
 or delays, or make the data layer fail before or after the save. Inject on
-both sides, or one of the two worlds in rule 2 is never exercised. For
-throttling responses that are safe to repeat (429), let the runner retry
-with `TestExecutionOptions.ShouldRetry` returning a `RetryBehavior` instead of
-modeling each attempt.
+both sides, or one of the two worlds in rule 2 is never exercised.
+
+A response that is safe to repeat (429, a 503 the server promises did
+nothing) can be retried by the runner instead of carried through the rest
+of the test. The runner asks `TestExecutionOptions.ShouldRetry` only after
+the spec has accepted the response, so declare it first — a definite
+failure, `.SameState()` — then retry it with a cap:
+
+```csharp
+ShouldRetry = (op, request, response, executions) => response is ApiResult { StatusCode: 429 }
+    ? new RetryBehavior
+      {
+          ShouldRetry = executions < 5,
+          WaitTimeInMilliseconds = 200,     // default 1000
+          ShouldFailTest = executions >= 5, // without it, the 5th 429 passes the step
+      }
+    : new RetryBehavior(),                  // no retry
+```
+
+A response the spec rejects fails the test before `ShouldRetry` runs.
 
 ---
 

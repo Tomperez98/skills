@@ -127,17 +127,26 @@ grow exponentially. `TestGenerationOptions` bounds it:
 - `StateConstraint` — stop exploring past states you don't care about.
 - `ShouldApply` — skip an input in states where it makes no sense.
 - `MaxOperationApplicationCount` — reuse each input at most N times per path.
+- `ShouldIncludeTransition` — drop one kind of edge, `(from, call, to) =>
+  bool`. Prune narrowly (a refused Cancel in a state you've already
+  covered); dropping every self-loop removes the reads, and the reads are
+  what check the state.
+- `DerivationSelectors` — keep only the derived requests you name (rule 9);
+  an empty list turns derivations off.
 
 ```csharp
 var gen = new TestGenerationOptions
 {
     MaxDepth = 4,
     StateConstraint = s => ((AppState)s).Users.Count <= 2,
+    DerivationSelectors = [DerivationSelector.For("ApproveOrder").From("CreateOrder")],
 };
 ```
 
-`StateConstraint` receives an `IState` and `ShouldApply` receives
-`(OperationInput input, IState state)`; cast the state to your type.
+`StateConstraint` receives an `IState`, `ShouldApply` receives
+`(OperationInput input, IState state)`, and `ShouldIncludeTransition`
+receives `(IState from, OperationCall call, IState to)`; cast the state to
+your type. Compare states with `GetStateHash()`.
 
 ## 6. Look at the graph, and prove the spec runs, before touching the system
 
@@ -217,9 +226,21 @@ spec.ConfigureDerivations("GetTodo",
 operation overrides `DerivedFrom` instead. `.AsVariants(…)` returns a
 labeled dictionary of requests (Approve / Reject / Cancel from one order);
 the three-argument `.As((req, resp, template) => …)` mixes in test data from
-`TestGenerationOptions.RequestTemplates`. Derivations serve the built-in
-runner only — if you drive the system yourself (ORACLE.md), you thread the
-values through your own code.
+`TestGenerationOptions.RequestTemplates`. Every derivation spawns new
+inputs, and variants multiply them; when generation grows, narrow it with
+`DerivationSelectors` (`.For(target).From(source).Variant(label)`, rule 5).
+
+A derivation has exactly one source call. `Derive.From("CreateUser",
+"CreateGroup")` compiles, but neither generation nor execution passes it
+more than the first source — it fails with `KeyNotFoundException` from
+`DerivationSources`. When a request needs two server-generated IDs (add a
+user to a group), keep logical names in the request and resolve them in
+the binding: the create bindings record name → ID in a registry you
+register in the context, the `AddMember` binding looks both up, and
+`BeforeEachAsync` clears it with the system.
+
+Derivations serve the built-in runner only — if you drive the system
+yourself (ORACLE.md), you thread the values through your own code.
 
 ---
 

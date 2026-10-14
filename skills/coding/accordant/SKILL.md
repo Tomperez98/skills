@@ -48,16 +48,19 @@ front of you, or by asking if the user is around:
   exported test plans, a trace database for the spec itself.
 - **"Find race conditions / double booking / lost updates"** →
   [CONCURRENCY.md](CONCURRENCY.md). Sequential green first, then
-  linearizability over small concurrent groups.
+  linearizability over small concurrent groups; pin each race as a case.
 - **"Background jobs / polling / eventual completion / server-generated IDs"**
   → [ASYNC.md](ASYNC.md). Step functions in the model, polling and
-  derivations at test time, liveness as a bound.
+  derivations at test time, liveness as a bound, polling off to act
+  mid-job.
 - **"Timeouts / 500s / retries / fault injection / did it happen or not"** →
   [FAULTS.md](FAULTS.md). Every explanation of an ambiguous response is an
   outcome; the state profile carries all of them.
 - **"Is the new version backward compatible / check against the last release"**
-  → [COMPAT.md](COMPAT.md). The released spec, unchanged, judges the new
-  build; traces from the release replay under main's spec.
+  → [COMPAT.md](COMPAT.md). The released spec and sequences, unchanged,
+  judge the new build through a client as strict as the promise; the
+  upgrade runs over data the old build wrote; traces from the release
+  replay under main's spec.
 - **"The spec crashes / tests fail / generation explodes / it won't compile"**
   → [DEBUG.md](DEBUG.md). Decide whether the spec or the system is wrong
   before touching either.

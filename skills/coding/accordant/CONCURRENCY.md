@@ -60,11 +60,27 @@ report. The fix belongs in the implementation — a serializable transaction,
 a lock around the critical section, optimistic concurrency with a row
 version — then rerun the same concurrent cases.
 
-## 6. One green run is not proof
+## 6. Pin the race as its own case
+
+The failure names the case: a sequential prefix, then the group that ran
+together. Rebuild exactly that case by its input labels, so it fails in
+seconds while you fix the code and stays as a regression test after:
+
+```csharp
+var race = TestCaseGenerator.CreateManualConcurrentTestCase(context, inputs,
+    sequentialPrefixOperationNames: ["Create 9am"],
+    concurrentOperationNames: ["Alice books 9am", "Bob books 9am"]);
+var results = await spec.RunTests(context, initial, [race], options);
+```
+
+Run it in a loop (rule 7) — one manual case is still one interleaving per
+run.
+
+## 7. One green run is not proof
 
 Interleavings depend on timing, so a race can hide for a run or ten. Run
 concurrent suites repeatedly (a loop in the test, or a scheduled CI job;
-COMPAT.md rule 6 adds the last release's spec as a second judge).
+COMPAT.md rule 8 adds the last release's spec as a second judge).
 A concurrent case that fails intermittently is most likely the race you're
 hunting, not a flaky test — rule out an incomplete reset first, then treat
 it as a bug.

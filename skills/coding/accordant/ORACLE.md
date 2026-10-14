@@ -129,14 +129,22 @@ The spec can still choose the sequences even when .NET doesn't run them:
 ```csharp
 var context = spec.CreateTestingContext();
 var tests = spec.GenerateTests(new BankState(), inputs, gen);
-TestCaseGenerator.SaveSequentialTestCases(context, "test-cases.json", tests);
+TestCaseGenerator.SaveSequentialTestCases(context, header, "test-cases.json", tests);
 ```
+
+`header` is any class implementing the empty `ITestingMetadata` interface;
+it's written as the file's `Metadata` object, next to `TestCases`, so the
+plan carries the same header as a trace (rule 3). The overload without it
+writes just the cases.
 
 Each case lists `OperationCalls` with `Input.OperationName` and
 `Input.SerializedRequest`; concurrent cases use `Segments`. Your runner
 resets the system, executes each call, records the trace, and feeds it back
-through rule 3. When `DerivedFromOperationCalls` is set, `SerializedRequest`
-is `null` — build the request from the named earlier response. When
+through rule 3. When `DerivedFromOperationCalls` names an earlier call,
+`SerializedRequest` is what the derivation produced from the spec's *mock*
+response at generation time — a placeholder ID like `"mock-1"` for a
+server-generated value. Rebuild the request from that call's real response
+(`DerivationVariant` says which variant). When
 `Polling` is set and `SkipPolling` isn't, poll the named operation until
 done. Need the raw graph instead? `TestCaseGenerator.ExploreStateSpace(…)`
 returns the root `StateGraphNode` to walk however you like.
@@ -174,7 +182,7 @@ the spec's `Failed` branch. So:
 
 - **Keep by coverage, not volume.** Keep at least one trace per operation
   and outcome, including passing runs from the scheduled fault and
-  concurrent suites (COMPAT.md rule 6). `Allows` doesn't report which
+  concurrent suites (COMPAT.md rule 8). `Allows` doesn't report which
   outcome matched, so tag each trace with the generated case it came from
   (`info.TestCase` in `BeforeEach`; each case is a path through the spec's
   graph) or, for a trace from another language, with each step's operation

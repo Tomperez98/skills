@@ -22,7 +22,8 @@ them. Apply the rules in order.
 The failure names the sequence (the input labels, in order). Replay exactly
 those calls with the `Check` helper (ORACLE.md rule 2) in a focused test. It
 fails in seconds, the debugger stops in your `Apply`, and it stays as a
-regression test once fixed.
+regression test once fixed. A failing concurrent case is rebuilt the same
+way with `CreateManualConcurrentTestCase` (CONCURRENCY.md rule 6).
 
 ## 3. A spec crash is a missing guard
 
@@ -72,6 +73,8 @@ Verify the reset once by reading back an empty system.
 | `Execute not implemented for operation 'X'` | No binding for `X`, or a name that differs from the operation's |
 | `InvalidCastException` at execution | The binding's `<TRequest, TResponse>` differs from the operation's |
 | `InvalidOperationException` from `ConfigureDerivations` / `ConfigurePolling` | Called on a class-based operation — override `DerivedFrom` / `Polling` |
+| `KeyNotFoundException` from `DerivationSources.ResponseOf` | A multi-source `Derive.From(a, b)` — only the first source is ever passed; resolve the second in the binding (GENERATE.md rule 9) |
+| A 429 isn't retried | The spec rejected it before `ShouldRetry` ran — declare it as an outcome (FAULTS.md rule 7) |
 | `spec.Validate` doesn't exist | It never did; the docs mean `spec.Allows` |
 
 ## 7. Zero tests or too many is a graph problem
@@ -79,7 +82,8 @@ Verify the reset once by reading back an empty system.
 Zero test cases: the `InputSet` is empty, or `StateConstraint` rejects the
 initial state. Too many, or generation never finishes: lower `MaxDepth`,
 tighten `StateConstraint`, cap reuse with `MaxOperationApplicationCount`,
-switch to a seeded `CreateRandomWalk`, and generate with fault outcomes off
+narrow derived requests with `DerivationSelectors`, switch to a seeded
+`CreateRandomWalk`, and generate with fault outcomes off
 (FAULTS.md rule 6). Visualize the graph (GENERATE.md rule 6) to see which
 input multiplies the states.
 
