@@ -81,7 +81,7 @@ version — then rerun the same concurrent cases.
 
 Results come back in the order of the cases you passed, so the failing
 case's `Description` gives the sequential prefix and the group. Its call
-names carry markers that aren't labels — strip the bracketed `[u] ` prefix, and a
+names carry markers that aren't labels — strip the bracketed `[u]` prefix, and a
 `(2)` suffix means the same input twice. Rebuild exactly that case by its
 input labels, so it fails in seconds while you fix the code and stays as
 a regression test after:

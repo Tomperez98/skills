@@ -248,9 +248,9 @@ the provider's CI runs them and a failure names who would break.
 
 ---
 
-The checks reuse everything the other branches built: SPEC.md for the
-contract, GENERATE.md for running it, ORACLE.md for traces and exported
-plans, TRACES.md for the trace database and for reviewing the spec diff
-that declares a break. DEBUG.md still decides whether a red run is the spec's fault — but
-here the baseline spec is fixed, so once setup is ruled out (DEBUG.md rules
-5–6), a red run is the build's.
+The checks reuse everything the other branches built: SPEC.md for the contract,
+GENERATE.md for running it, ORACLE.md for traces and exported plans, TRACES.md
+for the trace database and for reviewing the spec diff that declares a break.
+DEBUG.md still decides whether a red run is the spec's fault — but here the
+baseline spec is fixed, so once setup is ruled out (DEBUG.md rules 5–6), a red
+run is the build's.

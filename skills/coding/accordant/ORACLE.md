@@ -140,19 +140,20 @@ plan carries the same header as a trace (rule 3). The overload without it
 writes just the cases.
 
 Each case lists `OperationCalls` with `Input.OperationName` and
-`Input.SerializedRequest`; concurrent cases use `Segments`. Your runner
-resets the system, executes each call, records the trace, and feeds it back
-through rule 3. When `DerivedFromOperationCalls` names an earlier call,
+`Input.SerializedRequest`; concurrent cases use `Segments`. Your runner resets
+the system, executes each call, records the trace, and feeds it back through
+rule 3. When `DerivedFromOperationCalls` names an earlier call,
 `SerializedRequest` is what the derivation produced from the spec's _mock_
 response at generation time — a placeholder ID like `"mock-1"` for a
 server-generated value. Rebuild the request from that call's real response
-(`DerivationVariant` says which variant). Polling isn't fully in the
-file: `Polling` holds only a per-input override (`WithPolling`), never the
-setup configured on the operation, and the built-in runner polls only when
-a call leaves unfinished background work. Unless `SkipPolling` is set,
-poll after every call that starts background work, using the input's
-`Polling` or, when it's `null`, the operation's own setup. Need the raw graph instead? `TestCaseGenerator.ExploreStateSpace(…)`
-returns the root `StateGraphNode` to walk however you like.
+(`DerivationVariant` says which variant). Polling isn't fully in the file:
+`Polling` holds only a per-input override (`WithPolling`), never the setup
+configured on the operation, and the built-in runner polls only when a call
+leaves unfinished background work. Unless `SkipPolling` is set, poll after every
+call that starts background work, using the input's `Polling` or, when it's
+`null`, the operation's own setup. Need the raw graph instead?
+`TestCaseGenerator.ExploreStateSpace(…)` returns the root `StateGraphNode` to
+walk however you like.
 
 ## 6. Events are requests with an empty response
 

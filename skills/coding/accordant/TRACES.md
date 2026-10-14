@@ -59,14 +59,14 @@ Two gaps in what the hook sees:
 
 ## 3. Store traces outside the repo; commit a manifest
 
-Never commit the traces: they grow with every run, and git keeps every
-version forever. Store them outside the repo — attached to the release with
-the rest of the contract (ship skill, COMPAT.md rule 4), or in an artifact
-store keyed by release — and commit only a manifest: one line per trace
-with its location, checksum, header, coverage tags (rule 4), and the
-candidate count its first replay ended with (rule 6). CI fetches what the manifest names, checks every
-checksum, and replays; a trace that's missing or doesn't match its
-checksum fails the build instead of being skipped.
+Never commit the traces: they grow with every run, and git keeps every version
+forever. Store them outside the repo — attached to the release with the rest of
+the contract (ship skill, COMPAT.md rule 4), or in an artifact store keyed by
+release — and commit only a manifest: one line per trace with its location,
+checksum, header, coverage tags (rule 4), and the candidate count its first
+replay ended with (rule 6). CI fetches what the manifest names, checks every
+checksum, and replays; a trace that's missing or doesn't match its checksum
+fails the build instead of being skipped.
 
 ## 4. Keep by coverage, not volume
 
@@ -123,14 +123,13 @@ it, or note why that field is not part of the contract.
 
 ## 8. Every outcome in the source must run
 
-Record the explanation from each branch of `Apply` as it runs, and fail
-when an outcome in the source never ran. `Apply` also runs during
-generation and when the runner explains a rejection, so gate the
-recording with a flag you set only around `RunTests` (the `AsyncLocal`
-pattern of FAULTS.md rule 6) and measure on green runs. Check in
-`AfterAll`, and count only the cases that ran — `info.Results` leaves out
-the ones `StopOnFirstFailure` skipped. The fix is an input that reaches it (GENERATE.md rule 4)
-or a rule that should be deleted.
+Record the explanation from each branch of `Apply` as it runs, and fail when an
+outcome in the source never ran. `Apply` also runs during generation and when
+the runner explains a rejection, so gate the recording with a flag you set only
+around `RunTests` (the `AsyncLocal` pattern of FAULTS.md rule 6) and measure on
+green runs. Check in `AfterAll`, and count only the cases that ran —
+`info.Results` leaves out the ones `StopOnFirstFailure` skipped. The fix is an
+input that reaches it (GENERATE.md rule 4) or a rule that should be deleted.
 
 ## 9. Post a spec change as a contract change
 
