@@ -19,7 +19,8 @@ Read the matching guide before you write or edit anything here; this file
 does not restate them.
 
 - `skills/coding/code/WRITE.md` · `REFACTOR.md` · `TEST.md`
-- `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING, DOCS_MARKETING
+- `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING,
+  DOCS_MARKETING
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH, COMPAT
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
 - `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC,
@@ -55,13 +56,17 @@ does not restate them.
 ## Checks
 
 CI and a laptop run the same tasks; the workflow only provides `mise` and
-calls `mise run ci`. Node comes from the environment — the checks use no
-dependencies.
+calls `mise run ci`. Node comes from the environment and the scripts use no
+packages. The one other tool, rumdl, is pinned in `mise.toml` with its
+checksums in `mise.lock`; `mise install` fetches it.
 
 - `mise run check` — fast tier: every `SKILL.md` has valid frontmatter
   (`name` matches its folder, no duplicate fields, `description` within the
   1024-char limit and warned above the ~450 budget), the README links every
   skill and branch guide, and its `Skill` table names each skill and guide.
+- `mise run lint` — fast tier: Markdown formatting and lint rules (rumdl,
+  configured in `.rumdl.toml`). Prose wraps at 80 columns; code blocks are
+  exempt. `mise run fmt` fixes what it reports, in place.
 - `mise run links` — full tier: every internal link resolves, every cited
   rule exists ("CI.md rule 7", "code skill, WRITE.md rule 25") and is still
   the rule it meant on main, and no page under `skills/` is orphaned.

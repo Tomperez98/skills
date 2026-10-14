@@ -230,12 +230,11 @@ test. They've done their job.
 
 ## 14. Test the contract as properties
 
-An example test checks one input. A property test states the contract
-(WRITE.md: state the contract) once, and a library such as Hypothesis, fast-check,
-proptest, or QuickCheck checks it against hundreds of generated inputs.
-Generate only inputs that meet the precondition. A precondition violation
-is a bug, so it belongs in `expect_crash` ("Keep defects separate"), not
-here.
+An example test checks one input. A property test states the contract (WRITE.md:
+state the contract) once, and a library such as Hypothesis, fast-check,
+proptest, or QuickCheck checks it against hundreds of generated inputs. Generate
+only inputs that meet the precondition. A precondition violation is a bug, so it
+belongs in `expect_crash` ("Keep defects separate"), not here.
 
 ```
 property(xs: nonempty_list<int>) {

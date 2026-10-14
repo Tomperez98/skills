@@ -12,8 +12,8 @@ them. Apply the rules in order.
   original exception is its `InnerException`), or a
   stack trace through your `Apply` during execution. A bug in the spec.
 - **The spec rejected a response.** `Allows` returned `IsValid: false`, its
-  `Message` the explanation string of the outcome that didn't match. Either the system
-  or the rule is wrong — rule 4 decides which.
+  `Message` the explanation string of the outcome that didn't match. Either the
+  system or the rule is wrong — rule 4 decides which.
 - **The setup is wrong.** A compile error, a missing binding, an
   unreset system, a graph of zero or a million states. Rules 5–8.
 
@@ -96,10 +96,10 @@ input multiplies the states.
 
 Every result's `LogFilePath` is the run's log folder (`Logger.OutputDirectory`,
 shared by every test), holding `test-runner.txt` with every step;
-`spec.WithJsonPrinters()` makes requests and responses readable there.
-Once you replace `Logger.LogLambda`, lines go to your lambda instead. Send logs to the test runner
-with `Logger.LogLambda = line => TestContext.WriteLine(line)` (or xUnit's
-`ITestOutputHelper`), keep runs apart with
+`spec.WithJsonPrinters()` makes requests and responses readable there. Once you
+replace `Logger.LogLambda`, lines go to your lambda instead. Send logs to the
+test runner with `Logger.LogLambda = line => TestContext.WriteLine(line)` (or
+xUnit's `ITestOutputHelper`), keep runs apart with
 `Logger.AsyncLocalOutputDirectory.Value = path`, and add your own lines from
 inside `Apply` with `Logger.Log(…)` when you need to see which branch ran.
 

@@ -9,10 +9,10 @@ things that take longer. Apply the rules in order.
 
 Some tests are too slow for every pull request: a version matrix across the
 runtimes you support, longer property or soak runs, concurrency and
-fault-injection suites judged by the released contract (COMPAT.md rule 7),
-or a full end-to-end suite. Run them on main, continuously or on a schedule, and report results
-per commit so you can tell which change broke things. Before releasing a
-commit, check that these runs are green for it.
+fault-injection suites judged by the released contract (COMPAT.md rule 7), or a
+full end-to-end suite. Run them on main, continuously or on a schedule, and
+report results per commit so you can tell which change broke things. Before
+releasing a commit, check that these runs are green for it.
 
 ## 2. Track the numbers users would notice
 

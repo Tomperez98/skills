@@ -31,13 +31,12 @@ you can, so a user can read them back. After building, assert the artifact
 reports what you meant to build, so a stale version string fails here
 instead of on a user's machine.
 
-Write a manifest beside the artifacts recording the release — name,
-version, commit, and a checksum per file. Include the contract files too
-(schema, spec, generated sequences), so the next release's compatibility
-check reads what actually shipped (COMPAT.md rule 4). Verification (rule 6) and a
-resume after a half-failed publish read from this manifest, not from
-memory or a re-glob; it is the single recorded answer to "what did I
-ship".
+Write a manifest beside the artifacts recording the release — name, version,
+commit, and a checksum per file. Include the contract files too (schema, spec,
+generated sequences), so the next release's compatibility check reads what
+actually shipped (COMPAT.md rule 4). Verification (rule 6) and a resume after a
+half-failed publish read from this manifest, not from memory or a re-glob; it is
+the single recorded answer to "what did I ship".
 
 When you stamp the version into a manifest at build time, write into a
 temporary copy and assert that the placeholder was actually found, then
