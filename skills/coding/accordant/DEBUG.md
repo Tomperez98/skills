@@ -77,6 +77,7 @@ Verify the reset once by reading back an empty system.
 | `InvalidCastException` from `Bind` / `GetOperation` | The `<TRequest, TResponse>` you passed differs from the operation's |
 | `InvalidCastException` from `Unit` to `String` at execution | `op.With("alice")` on a `string`-request operation picked the label-only overload — pass a label too: `op.With("alice", "Get alice")` |
 | `InvalidOperationException` from `ConfigureDerivations` / `ConfigurePolling` | Called on a class-based operation — override `DerivedFrom` / `Polling` |
+| Setting `MaxConcurrencyLevel` changes nothing | Accordant never reads it — set `ConcurrentTestCaseAlgorithm` (CONCURRENCY.md rule 4) |
 | `TestCaseGenerationException` wrapping `KeyNotFoundException` from `DerivationSources`, or `OperationValidationException: …only single-source derivations…` | A multi-source `Derive.From(a, b)` — only the first source is ever passed; resolve the second in the binding (GENERATE.md rule 9) |
 | A 429 isn't retried | The spec rejected it before `ShouldRetry` ran — declare it as an outcome (FAULTS.md rule 8) |
 | `spec.Validate` doesn't exist | It never did; the docs mean `spec.Allows` |

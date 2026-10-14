@@ -14,7 +14,7 @@ description: >
 
 [Accordant](https://github.com/microsoft/accordant) (`dotnet add package
 Microsoft.Accordant`) is a model-based testing framework for .NET. You write
-a *spec* — a minimal state plus one `Apply` per operation that says, for any
+a _spec_ — a minimal state plus one `Apply` per operation that says, for any
 state and request, which responses are correct and how the state moves. The
 spec then simulates the system, generates sequences, and validates every
 real response.
@@ -100,13 +100,27 @@ the top of your work.
   every one (`Expect.OneOf`, step functions) and lets later observations
   eliminate the impossible ones — it never guesses.
 
-Accordant earns its keep on state: sequences where an earlier call changes
-what a later one must return, races, background work, ambiguous failures.
-A system without state (a parser, a pure function) gets nothing from
-exploration: the graph is one node, and what's left is the spec as a
-frozen oracle (ORACLE.md, COMPAT.md). That still works, but in a repo
-without .NET, weigh adding the SDK against a frozen table of cases in the
-repo's own language, and say which you'd pick.
+## Where it pays off, and in what order
+
+Accordant earns its keep where correct behavior is hard to write down one
+test at a time: sequences where an earlier call changes what a later one
+must return, races, background work, and failures that may or may not
+have taken effect. Adopt the branches in that order of payoff, and stop
+where the system stops needing them:
+
+1. **SPEC + GENERATE** on one stateful cluster of operations. This alone
+   catches the orderings nobody writes by hand.
+2. **CONCURRENCY, FAULTS, ASYNC** only where races, timeouts, or jobs
+   actually bite. These find bugs hand-written tests almost never reach.
+3. **COMPAT** once something outside the team depends on the behavior.
+4. **TRACES** last, once the spec is long-lived and others rely on it.
+   Before that, the trace database is ceremony.
+
+The judge is only as strict as its predicates, and only as thorough as
+its `InputSet` and `MaxDepth`: an unchecked field or an unreached path is
+untested. The library is young (0.1.x) — some public options do nothing
+and some APIs compile but aren't wired in (DEBUG.md rule 6) — so check a
+surprising behavior against the source before blaming the spec.
 
 Start partial: two to four related operations, the happy path and one error
 each, then strengthen. The `code` skill's rule holds inside the spec too: a

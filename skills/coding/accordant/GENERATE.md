@@ -131,7 +131,7 @@ grow exponentially. `TestGenerationOptions` bounds it:
 - `ShouldApply` — skip an input in states where it makes no sense.
 - `MaxOperationApplicationCount` — reuse each input at most N times per path.
 - `ShouldIncludeTransition` — drop one kind of edge, `(from, call, to) =>
-  bool`. Prune narrowly (a refused Cancel in a state you've already
+bool`. Prune narrowly (a refused Cancel in a state you've already
   covered); dropping every self-loop removes the reads, and the reads are
   what check the state.
 - `DerivationSelectors` — keep only the derived requests you name (rule 9);
@@ -179,7 +179,7 @@ For big graphs, pass `new VisualizationOptions { NodeLabelLambda = … }` or
 - `SequentialTestCaseAlgorithms.CreateTransitionCoverage(maxSequenceLength: 4)`
   — every edge; many more tests.
 - `SequentialTestCaseAlgorithms.CreateRandomWalk(numberOfWalks: 200,
-  maxWalkLength: 8, seed: 42)` — sampling for graphs too large to cover;
+maxWalkLength: 8, seed: 42)` — sampling for graphs too large to cover;
   always pass a seed so failures reproduce.
 
 The delegate is `(TestingContext context, StateGraphNode root) =>

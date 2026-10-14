@@ -44,7 +44,7 @@ Check(createOp, new CreateAccountRequest("alice"), await client.CreateAccount("a
 Check(withdrawOp, new WithdrawRequest("alice", 100m), await client.Withdraw("alice", 100m));
 ```
 
-The scenario now says only *what to run*. When a rule changes, the spec
+The scenario now says only _what to run_. When a rule changes, the spec
 changes and every scenario follows.
 
 ## 3. Validate traces from any language
@@ -86,7 +86,7 @@ rejection — report it apart from the spec's verdicts.
 ## 4. Group concurrent calls only when they truly overlapped
 
 Calls that ran at the same time go to `AllowsConcurrent`, which accepts the
-results if *some* sequential order explains them:
+results if _some_ sequential order explains them:
 
 ```csharp
 var calls = group.Select(e =>
@@ -117,8 +117,10 @@ builds segments from them.
 ```json
 [
   [{ "operation": "CreateAccount", "request": {}, "response": {} }],
-  [{ "operation": "Withdraw", "request": {}, "response": {} },
-   { "operation": "Withdraw", "request": {}, "response": {} }]
+  [
+    { "operation": "Withdraw", "request": {}, "response": {} },
+    { "operation": "Withdraw", "request": {}, "response": {} }
+  ]
 ]
 ```
 
@@ -141,7 +143,7 @@ Each case lists `OperationCalls` with `Input.OperationName` and
 `Input.SerializedRequest`; concurrent cases use `Segments`. Your runner
 resets the system, executes each call, records the trace, and feeds it back
 through rule 3. When `DerivedFromOperationCalls` names an earlier call,
-`SerializedRequest` is what the derivation produced from the spec's *mock*
+`SerializedRequest` is what the derivation produced from the spec's _mock_
 response at generation time — a placeholder ID like `"mock-1"` for a
 server-generated value. Rebuild the request from that call's real response
 (`DerivationVariant` says which variant). Polling isn't fully in the
