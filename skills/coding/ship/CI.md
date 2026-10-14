@@ -154,6 +154,7 @@ check can tell.
 
 ---
 
-CI is the gate: it runs locally, it's reproducible, it's clear when it
-fails, and it sends people only the decisions that need them. MONITOR.md covers what the gate is too slow to run, and PUBLISH.md
-turns the dry-run build into a real release.
+CI is the gate: it runs locally, it's reproducible, it's clear when it fails,
+and it sends people only the decisions that need them. MONITOR.md covers what
+the gate is too slow to run, and PUBLISH.md turns the dry-run build into a real
+release.
