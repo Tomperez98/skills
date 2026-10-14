@@ -56,7 +56,10 @@ public abstract class FaultTolerantOperation<TReq, TResp, TState> : Operation<TR
 
     public sealed override ExpectedOutcomes Apply(TReq request, TState state)
     {
-        var outcomes = ApplyInternal(request, state).PossibleOutcomes.ToList();
+        var definite = ApplyInternal(request, state);
+        if (!IndefiniteFailureSemantics.Enabled) return definite;   // rule 6
+
+        var outcomes = definite.PossibleOutcomes.ToList();
         // + "indefinite failure, state unchanged"
         // + for each state-changing outcome: "indefinite failure, same next state"
         return new ExpectedOutcomes(outcomes.ToArray());

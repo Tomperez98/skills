@@ -185,9 +185,10 @@ the spec's `Failed` branch. So:
   rejected set the spec must keep rejecting, and say so in the commit.
   Re-recording everything trades the lost response you saw once for a run
   that didn't hit it.
-- **Bound the ambiguity.** On a trace's first replay, record in the
-  manifest how many candidate states it ended with (`profile.StatesAndStepFunctions.Count`;
-  the hooks only see the profile before each step). Fail a later replay
+- **Bound the ambiguity.** Record in the manifest how many candidate
+  states the trace ended with — `info.FinalState.StatesAndStepFunctions.Count`
+  in `AfterEach` when you record it, or the replayed profile's count on its
+  first replay. Fail a later replay
   that ends with more: a read that stopped narrowing (ASYNC.md rule 3) is a
   regression too.
 

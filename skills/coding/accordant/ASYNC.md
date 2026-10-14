@@ -33,7 +33,8 @@ gets its own cloned state:
 
 ```csharp
 .Triggers(AsyncOperation.Create<JobQueueState>(
-    isTerminal: s => s.Jobs[jobId].Status != JobStatus.Pending,
+    isTerminal: s => !s.Jobs.TryGetValue(jobId, out var job) ||
+                     job.Status != JobStatus.Pending,
     transitions: new Action<JobQueueState>[]
     {
         next => next.Jobs[jobId].Status = JobStatus.Completed,

@@ -64,7 +64,10 @@ clients send old requests, so this is what they'll see after the upgrade.
   reports.
 - **Exported sequences**: execute `contract/sequential.json` against the new build,
   record the trace, and validate it with the baseline spec (ORACLE.md rule
-  3).
+  3). In .NET, `TestCaseGenerator.LoadSequentialTestCases(context, path)`
+  (and `LoadConcurrentTestCases`) reads the file back into cases the
+  baseline spec's `RunTests` accepts, so the release's exact sequences
+  rerun without regenerating them.
 
 ```csharp
 var context = baselineSpec.CreateTestingContext();

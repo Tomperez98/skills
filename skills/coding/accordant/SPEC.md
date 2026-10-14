@@ -43,6 +43,13 @@ with a primitive, string, or enum key. No `HashSet` (use `List`), no
 interface-typed properties (`IList`, `IDictionary`). Every nested class
 needs its own `[State]`.
 
+Every transition deep-clones the state. A large value that never changes
+once set (file contents, an image) goes in a `[SharedState(Fingerprint =
+nameof(ContentFingerprint))]` property instead: it's copied by reference,
+and the fingerprint method (one parameter of the property's type,
+returning a deterministic `string`) stands in for it in equality. Never
+mutate a shared value — every clone sees the change.
+
 ## 3. One guard per refusal, in the implementation's order
 
 Each refusal is an early `return` with its own outcome. Check them in the
@@ -76,8 +83,9 @@ spec.Operation<Todo, ApiResult<Todo>>("CreateTodo", (request, state) =>
 
 ## 4. Use the form that compiles where you are
 
-Inline operations (`spec.Operation<TReq, TResp>(name, (req, state) => …)`)
-use the static `Expect`, which can't infer types: write
+Inline operations hang off a spec you create with `var spec = new
+Spec<AppState>();` (`spec.Operation<TReq, TResp>(name, (req, state) => …)`)
+and use the static `Expect`, which can't infer types: write
 `Expect.That<TResp>(…)` and `.ThenState<TState>(…)`. Class-based operations
 (`Operation<TReq, TResp, TState>`) get a typed `Expect` property, so the
 short form `Expect.That(r => …).ThenState(next => …)` works only there.

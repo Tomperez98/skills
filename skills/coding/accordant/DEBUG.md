@@ -8,7 +8,8 @@ them. Apply the rules in order.
 ## 1. Name the failure before you touch code
 
 - **The spec crashed.** `TestCaseGenerationException` during generation
-  (it prints the path from the root and the state where `Apply` threw), or a
+  (it prints the path from the root and the state where `Apply` threw; the
+  original exception is its `InnerException`), or a
   stack trace through your `Apply` during execution. A bug in the spec.
 - **The spec rejected a response.** `Allows` returned `false` with the
   explanation string of the outcome that didn't match. Either the system
@@ -65,7 +66,7 @@ Verify the reset once by reading back an empty system.
 
 | Symptom | Cause |
 |---------|-------|
-| `CS1660: Cannot convert lambda expression to type 'ResponseValidator'` | Short-form `Expect.That(r => …)` in an inline `spec.Operation` lambda — use `Expect.That<TResp>` and `.ThenState<TState>` (SPEC.md rule 4) |
+| `CS0411: The type arguments for method 'Expect.That<TResponse>(…)' cannot be inferred` | Short-form `Expect.That(r => …)` in an inline `spec.Operation` lambda — use `Expect.That<TResp>` and `.ThenState<TState>` (SPEC.md rule 4) |
 | `[State]` generator diagnostics | Class not `partial`, nested inside another type, a record/struct, or a `HashSet` / interface-typed property |
 | Nested state compares or clones wrong | A nested class without its own `[State]` |
 | `Execute not implemented for operation 'X'` | No binding for `X`, or a name that differs from the operation's |
