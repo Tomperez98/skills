@@ -152,11 +152,20 @@ that point.
 
 When a spec change turns tests red, either the system broke or the spec
 did. Record traces from passing runs (start a trace in `BeforeEach`, append
-in `OnStepExecuted`, keep it in `AfterEach` when `info.Success`), commit them
-while they're small (past that, store them with the release and commit a
-manifest of their checksums), and replay them through rule 3 in CI after
-every spec change. A trace that used to pass and now fails is a spec
-regression until proven otherwise.
+in `OnStepExecuted`, keep it in `AfterEach` when `info.Success`), and replay
+them through rule 3 in CI after every spec change. A trace that used to
+pass and now fails is a spec regression until proven otherwise.
+
+Never commit the traces: they grow with every run, and git keeps every
+version forever. Store them outside the repo — attached to the release with
+the rest of the contract (ship skill, COMPAT.md rule 4), or in an artifact
+store keyed by release — and commit only a manifest: one line per trace
+with its location, checksum, header (rule 3), and coverage tags. CI fetches
+what the manifest names, checks every checksum, and replays; a trace that's
+missing or doesn't match its checksum fails the build instead of being
+skipped. Keep the set small rather than the storage cheap: a prefix of an
+accepted trace is still accepted, so cut each trace after the last step
+that adds coverage, and drop a trace whose tags another one already covers.
 
 A non-deterministic system doesn't make the database flaky: replay never
 calls the system, so the same trace always gets the same verdict. It does
@@ -176,8 +185,8 @@ the spec's `Failed` branch. So:
   rejected set the spec must keep rejecting, and say so in the commit.
   Re-recording everything trades the lost response you saw once for a run
   that didn't hit it.
-- **Bound the ambiguity.** On a trace's first replay, store how many
-  candidate states it ended with (`profile.StatesAndStepFunctions.Count`;
+- **Bound the ambiguity.** On a trace's first replay, record in the
+  manifest how many candidate states it ended with (`profile.StatesAndStepFunctions.Count`;
   the hooks only see the profile before each step). Fail a later replay
   that ends with more: a read that stopped narrowing (ASYNC.md rule 3) is a
   regression too.
