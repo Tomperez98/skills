@@ -2,8 +2,9 @@
 
 This repo is a collection of skills for AI coding assistants, installable
 with `npx skills add Tomperez98/skills`. Five skills live here, `code`,
-`docs`, `ship`, `mvp`, and `accordant`. Everything in this repo — new skills,
-edits, examples — follows their one rules:
+`docs`, `ship`, `mvp`, and `accordant`, plus `ask`, a user-invoked router
+over them. Everything in this repo — new skills, edits, examples — follows
+their one rules:
 
 - **code** — bugs panic, expected failures return values.
 - **docs** — lead with the reader's task, win the 10-second skim, never mislead.
@@ -25,12 +26,16 @@ does not restate them.
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
 - `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC,
   FAULTS, BASELINE, TRACES, DEBUG
+- `skills/meta/ask/SKILL.md` — the router; no branch guides. Add a new
+  skill or guide to its map.
 
 ## Skill format
 
 - One skill per folder: `skills/<category>/<skill>/SKILL.md` plus branch
   guides, one per situation the skill handles.
-- Frontmatter: `name` (lowercase, hyphenated) + `description`.
+- Frontmatter: `name` (lowercase, hyphenated) + `description`. A skill
+  the user starts by name, like `ask`, adds `disable-model-invocation:
+  true` and keeps its description to what it answers.
 - **Keep `description` short — it's a trigger, not a table of contents.**
   The branch guides carry the detail; the description only decides whether
   the skill fires. Aim for under ~450 folded characters — the 1024 ceiling
@@ -74,8 +79,8 @@ checksums in `mise.lock`; `mise install` fetches it.
   (`name` matches its folder, no duplicate fields, `description` within the
   1024-char limit and warned above the ~450 budget), every `SKILL.md` has a
   `## Hand off` section and every branch guide a `## Done when`, the README
-  links every skill and branch guide, and its `Skill` table names each skill
-  and guide.
+  links every skill and branch guide, its `Skill` table names each skill
+  and guide, and the `ask` router's map names every other skill and guide.
 - `mise run lint` — fast tier: Markdown formatting and lint rules (rumdl,
   configured in `.rumdl.toml`). Prose wraps at 80 columns; code blocks are
   exempt. `mise run fmt` fixes what it reports, in place.
