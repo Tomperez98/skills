@@ -1,8 +1,8 @@
 # skills
 
 One rule per skill, branch guides that turn the rule into procedure, and a
-description that triggers at exactly the right moment. Five skills today,
-thirty branch guides, 245 numbered rules.
+description that triggers at exactly the right moment. Five skills plus a router
+today, thirty branch guides, 245 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
@@ -11,6 +11,7 @@ thirty branch guides, 245 numbered rules.
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
 | [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · BASELINE · TRACES · DEBUG |
+| [`ask`](skills/meta/ask/SKILL.md) | Name one skill and one guide, and read it before you recommend it | — (a router, invoked as `/ask`) |
 
 ## What it is
 
@@ -39,7 +40,7 @@ Already have the repo? Copy the folders directly — Claude and Codex read
 the same layout (`~/.claude/skills`, `~/.codex/skills`):
 
 ```bash
-cp -r skills/coding/code skills/coding/docs skills/coding/ship skills/coding/accordant skills/product/mvp ~/.pi/agent/skills/
+cp -r skills/coding/code skills/coding/docs skills/coding/ship skills/coding/accordant skills/product/mvp skills/meta/ask ~/.pi/agent/skills/
 ```
 
 ## How it works
@@ -96,7 +97,9 @@ follows its rules in order:
 
 ## Flows
 
-The skills hand off to each other. Most work runs along one path:
+The skills hand off to each other. Not sure where you are? Type `/ask`
+and describe it: the router names the skill and guide. Most work runs
+along one path:
 
 ```text
 mvp  PICK → RESEARCH → SPEC → AHA → VALIDATE

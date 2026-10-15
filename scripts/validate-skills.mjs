@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Validate the skill collection: frontmatter, description budget, README sync,
-// Hand off and Done when sections, link resolution, rule references, Skill tool
-// calls, and orphaned pages.
+// Hand off and Done when sections, the router's map, link resolution, rule
+// references, Skill tool calls, and orphaned pages.
 //
 // Run the whole suite, or one tier:
 //   node scripts/validate-skills.mjs        # everything
-//   node scripts/validate-skills.mjs check  # fast: frontmatter, sections, README sync
+//   node scripts/validate-skills.mjs check  # fast: frontmatter, sections, README sync, router map
 //   node scripts/validate-skills.mjs links  # links, rule references, Skill calls, orphans
 //
 // Exits 0 when clean, 1 when any check fails, 2 on a usage error. Every
@@ -27,8 +27,8 @@ const DESCRIPTION_BUDGET = 450; // AGENTS.md's "aim for under ~450"
 const MAX_SCAN_DEPTH = 16; // our own tree is bounded; deeper is a tool bug
 const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv", ".contract-report"]);
 const TIER_LABELS = {
-  all: "frontmatter, sections, README sync, links, rule references, Skill calls, orphans",
-  check: "frontmatter, sections, README sync",
+  all: "frontmatter, sections, README sync, router map, links, rule references, Skill calls, orphans",
+  check: "frontmatter, sections, README sync, router map",
   links: "links, rule references, Skill calls, orphans",
 };
 
@@ -328,6 +328,32 @@ function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
   }
 
   checkReadmeTable(readme, readmeText, skillFiles);
+  checkRouterMap(skillFiles);
+}
+
+/**
+ * A router is a user-invoked skill with no branch guides of its own (AGENTS.md:
+ * `ask`). Its map must name every other skill and every guide they have, so a
+ * new guide can't land without a route to it.
+ */
+function checkRouterMap(skillFiles) {
+  const routers = skillFiles.filter(
+    (skill) =>
+      branchGuides(skill).length === 0 &&
+      parseFrontmatter(readFileSync(skill, "utf8")).fields["disable-model-invocation"] === "true",
+  );
+  for (const router of routers) {
+    const words = new Set(stripNonProse(readFileSync(router, "utf8")).match(/[A-Za-z_]+/g));
+    for (const skill of skillFiles) {
+      if (skill === router) continue;
+      const name = basename(dirname(skill));
+      if (!words.has(name)) fail(router, `map never names the \`${name}\` skill`);
+      for (const guide of branchGuides(skill)) {
+        const stem = basename(guide, ".md");
+        if (!words.has(stem)) fail(router, `map has no route to ${name}'s ${stem}`);
+      }
+    }
+  }
 }
 
 /** The README's `Skill` table must have one row per skill naming every guide. */
