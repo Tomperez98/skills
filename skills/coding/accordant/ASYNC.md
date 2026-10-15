@@ -21,10 +21,22 @@ return Expect.That(r => r.IsSuccess && r.Data!.Status == JobStatus.Pending,
            transition: next => next.Jobs[jobId].Status = JobStatus.Completed));
 ```
 
-(Short-form `Expect` because this is a class-based operation — SPEC.md rule
-4.) Write `isTerminal` so it holds in every state the work can see,
-including after the resource was deleted; an unguarded `s.Jobs[jobId]` is a
-spec crash the first time a Delete races the job.
+(Short-form `Expect` because this is a class-based operation — SPEC.md rule 4.)
+When the server picks the job ID, the step function can't name it up
+front. Use the response overload after a response-aware `ThenState` that
+captures the ID (SPEC.md rule 8):
+
+```csharp
+.Triggers(resp => AsyncOperation.Create<AppState>(
+    isTerminal: s => !s.Jobs.TryGetValue(resp.Data!.Id, out var j) ||
+                     j.Status != JobStatus.Pending,
+    transition: next => next.Jobs[resp.Data!.Id].Status = JobStatus.Completed))
+```
+
+Write
+`isTerminal` so it holds in every state the work can see, including after the
+resource was deleted; an unguarded `s.Jobs[jobId]` is a spec crash the first
+time a Delete races the job.
 
 ## 2. Every possible ending is a transition
 
@@ -117,8 +129,13 @@ public override IReadOnlyList<RequestDerivation> DerivedFrom => new[]
     Derive.From<string, ApiResult<Job>, string>("CreateJob")
           .As((jobId, resp) => jobId),          // client-chosen ID
 };
-// server-generated: .When((req, resp) => resp.IsSuccess).As((req, resp) => resp.Data!.JobId)
+// server-generated: .When((req, resp) => resp?.IsSuccess == true).As((req, resp) => resp.Data!.JobId)
 ```
+
+Write `.When` null-safe. Generation calls it with a null response for any
+outcome that has no `mock:`, a refusal for instance, and `resp.IsSuccess`
+throws a `NullReferenceException` that surfaces as a
+`TestCaseGenerationException` from exploring the state graph.
 
 ## 7. `MaxRetryCount` is the liveness bound
 
