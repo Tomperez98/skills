@@ -1,6 +1,7 @@
 // Run from demo/: node tools/mutate.mjs. Plants one bug at a time in system/linear.mjs
 // and reruns the suite; SURVIVED means an input or predicate is missing.
-// Optional argument: only run mutants whose name contains it (a full run is slow).
+// Optional arguments: a name fragment (only matching mutants) and a dotnet test
+// filter (default: the sequential, concurrent and pinned suites). A full run is slow.
 import { readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 const file = "system/linear.mjs";
@@ -38,12 +39,13 @@ const M = [
   ["team not persisted", "this.teams.set(key, { counter: 0, issues: new Map() });\n    await this.#persist();", "this.teams.set(key, { counter: 0, issues: new Map() });"],
 ];
 const only = process.argv[2];
+const testFilter = process.argv[3] ?? "FullyQualifiedName~System_matches|FullyQualifiedName~System_is_linearizable|FullyQualifiedName~Pinned_race|FullyQualifiedName~Archived_number";
 const results = [];
 try {
   for (const [name, from, to] of M.filter(([n]) => !only || n.includes(only))) {
     if (!orig.includes(from)) { results.push([name, "BAD-PATTERN"]); continue; }
     writeFileSync(file, orig.replace(from, to));
-    const r = spawnSync("dotnet", ["test", "--no-restore", "--filter", "FullyQualifiedName~System_matches|FullyQualifiedName~System_is_linearizable|FullyQualifiedName~Pinned_race|FullyQualifiedName~Archived_number"], { cwd: "spec", encoding: "utf8" });
+    const r = spawnSync("dotnet", ["test", "--no-restore", "--filter", testFilter], { cwd: "spec", encoding: "utf8" });
     results.push([name, /Failed!/.test(r.stdout) ? "killed" : /Passed!/.test(r.stdout) ? "SURVIVED" : "ERROR"]);
     console.log(name.padEnd(32), results.at(-1)[1]);
   }
