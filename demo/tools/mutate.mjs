@@ -37,6 +37,14 @@ const M = [
   ["archive not persisted", "team.issues.delete(id);\n    await this.#persist();", "team.issues.delete(id);"],
   ["issue save not persisted", "team.issues.set(issue.id, issue);\n    await this.#persist();", "team.issues.set(issue.id, issue);"],
   ["team not persisted", "this.teams.set(key, { counter: 0, issues: new Map() });\n    await this.#persist();", "this.teams.set(key, { counter: 0, issues: new Map() });"],
+  // Background jobs (judged by the AsyncTests filter).
+  ["export: completion overwrites cancel", 'if (job.status !== "pending") return;\n      Object.assign', "Object.assign"],
+  ["export: cancel finished ok", 'if (job.status !== "pending") return fail(409, "export already finished");', ""],
+  ["export: cancel doesn't stick", 'job.status = "canceled";', ""],
+  ["export: count is live, not a snapshot", "Object.assign(job, { status: \"done\", count,", "Object.assign(job, { status: \"done\", count: t.issues.size,"],
+  ["export: file name changes per read", 'return job ? ok({ ...job }) : fail(404, "export not found");', 'return job ? ok({ ...job, file: job.file && `${job.file}.${Math.random()}` }) : fail(404, "export not found");'],
+  ["export: never finishes with issues", 'if (job.status !== "pending") return;\n      Object.assign', 'if (job.status !== "pending" || count > 0) return;\n      Object.assign'],
+  ["export: pending shows a count", 'const job = { id, team, status: "pending", count: null, file: null };', 'const job = { id, team, status: "pending", count: 0, file: null };'],
 ];
 const only = process.argv[2];
 const testFilter = process.argv[3] ?? "FullyQualifiedName~System_matches|FullyQualifiedName~System_is_linearizable|FullyQualifiedName~Pinned_race|FullyQualifiedName~Archived_number";

@@ -10,7 +10,8 @@ import { Linear } from "./linear.mjs";
 
 // LINEAR_DATA names the file that survives restarts; unset means in-memory.
 const file = process.env.LINEAR_DATA;
-let linear = new Linear(file);
+const options = { exportDelayMs: Number(process.env.EXPORT_DELAY_MS ?? 25) };
+let linear = new Linear(file, options);
 
 // LINEAR_TRACE names a JSON-lines log of everything this process did, for
 // judging by a spec elsewhere: raw requests and responses, plus the window in
@@ -19,12 +20,15 @@ let linear = new Linear(file);
 const trace = process.env.LINEAR_TRACE;
 const record = (entry) => trace && appendFileSync(trace, JSON.stringify(entry) + "\n");
 record({ event: "boot" });
-const ops = ["createTeam", "createIssue", "getIssue", "setStatus", "assign", "archiveIssue", "listIssues"];
+const ops = [
+  "createTeam", "createIssue", "getIssue", "setStatus", "assign", "archiveIssue", "listIssues",
+  "startExport", "getExport", "cancelExport",
+];
 
 async function handle({ op, req }) {
   if (op === "reset") {
     if (file) await rm(file, { force: true });
-    linear = new Linear(file);
+    linear = new Linear(file, options);
     record({ event: "reset" });
     return { status: 200 };
   }

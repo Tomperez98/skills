@@ -7,6 +7,18 @@ namespace Linear.Spec;
 public partial class AppState
 {
     public Dictionary<string, TeamState> Teams { get; set; } = new();
+    public Dictionary<string, ExportState> Exports { get; set; } = new();
+}
+
+[State]
+public partial class ExportState
+{
+    public string Team { get; set; } = string.Empty;
+    public string Status { get; set; } = "pending";
+    // Issues the team had when the export started; reported once it is done.
+    public int Count { get; set; }
+    // Named by the server, so unknown until the first read of a finished export.
+    public string? File { get; set; }
 }
 
 [State]
@@ -212,12 +224,104 @@ public static class LinearSpec
                     }));
         });
 
+        // Exports are background jobs: Start returns pending, and the work
+        // finishes on its own unless it is canceled first.
+        spec.Operation<string, ApiResult<ExportJob>>("StartExport", (team, state) =>
+        {
+            if (!state.Teams.TryGetValue(team, out var t))
+                return Expect.That<ApiResult<ExportJob>>(r => r.Status == 404,
+                           $"Team '{team}' doesn't exist → 404").SameState();
+
+            var count = t.Issues.Count;
+            var mockId = $"exp-{state.Exports.Count + 1}";
+            return Expect.That<ApiResult<ExportJob>>(
+                       r => r.Status == 200 && r.Data is { Status: "pending", Count: null, File: null } && r.Data.Team == team && r.Data.Id.Length > 0,
+                       $"Start export of {team} ({count} issues) → 200 pending")
+                   .ThenState<AppState>(
+                       (ApiResult<ExportJob> resp, AppState next) =>
+                           next.Exports[resp.Data!.Id] = new ExportState { Team = team, Count = count },
+                       mock: () => new ApiResult<ExportJob>
+                       {
+                           Status = 200,
+                           Data = new ExportJob(mockId, team, "pending", null, null),
+                       })
+                   .Triggers(resp =>
+                   {
+                       var id = resp.Data!.Id;
+                       return AsyncOperation.Create<AppState>(
+                           isTerminal: s => !s.Exports.TryGetValue(id, out var e) || e.Status != "pending",
+                           transition: next =>
+                           {
+                               if (next.Exports.TryGetValue(id, out var e) && e.Status == "pending") e.Status = "done";
+                           });
+                   });
+        });
+
+        spec.Operation<string, ApiResult<ExportJob>>("GetExport", (id, state) =>
+        {
+            if (!state.Exports.TryGetValue(id, out var job))
+                return Expect.That<ApiResult<ExportJob>>(r => r.Status == 404,
+                           $"Export {id} doesn't exist → 404").SameState();
+
+            // Each candidate world answers differently; the response picks the worlds that survive.
+            if (job.Status == "done" && job.File is null)
+                return Expect.That<ApiResult<ExportJob>>(
+                           r => r.Status == 200 && r.Data is { Status: "done" } d && d.Count == job.Count && !string.IsNullOrEmpty(d.File),
+                           $"First read of finished {id} → done, {job.Count} issues, has a file")
+                       .ThenState<AppState>(
+                           (ApiResult<ExportJob> resp, AppState next) => next.Exports[id].File = resp.Data!.File,
+                           mock: () => new ApiResult<ExportJob>
+                           {
+                               Status = 200,
+                               Data = new ExportJob(id, job.Team, "done", job.Count, "mock/file.csv"),
+                           });
+
+            return Expect.That<ApiResult<ExportJob>>(
+                       r => r.Status == 200 && r.Data is { } d && d.Id == id && d.Status == job.Status && d.Team == job.Team
+                            && d.Count == (job.Status == "done" ? job.Count : null) && d.File == job.File,
+                       $"{id} is {job.Status}{(job.File is null ? "" : $", file stays {job.File}")} → 200")
+                   .SameState();
+        });
+
+        spec.Operation<string, ApiResult<ExportJob>>("CancelExport", (id, state) =>
+        {
+            if (!state.Exports.TryGetValue(id, out var job))
+                return Expect.That<ApiResult<ExportJob>>(r => r.Status == 404,
+                           $"Export {id} doesn't exist → 404").SameState();
+            if (job.Status != "pending")
+                return Expect.That<ApiResult<ExportJob>>(r => r.Status == 409,
+                           $"Export {id} already {job.Status} → 409").SameState();
+            return Expect.That<ApiResult<ExportJob>>(r => r.Status == 200 && r.Data?.Status == "canceled",
+                       $"Cancel pending {id} → 200 canceled")
+                   .ThenState<AppState>(next => next.Exports[id].Status = "canceled");
+        });
+
+        // The runner can't guess which export to read or cancel.
+        spec.ConfigureDerivations("GetExport",
+            Derive.From<string, ApiResult<ExportJob>, string>("StartExport")
+                .When((req, resp) => resp?.Status == 200).As((req, resp) => resp.Data!.Id));
+        spec.ConfigureDerivations("CancelExport",
+            Derive.From<string, ApiResult<ExportJob>, string>("StartExport")
+                .When((req, resp) => resp?.Status == 200).As((req, resp) => resp.Data!.Id));
+
+        // Liveness: an export may take at most 20 x 25ms. Not part of the model.
+        spec.ConfigurePolling("StartExport", new PollingSetup
+        {
+            Operation = "GetExport",
+            WaitTimeInMs = 25,
+            MaxRetryCount = 20,
+        });
+
         // Durable: a restart keeps every acknowledged write, and issue numbers
         // are still never reused afterwards.
         spec.Operation<Unit, Unit>("Restart", (_, state) =>
-            Expect.Unit("Restart keeps every acknowledged write and counter").SameState());
+            Expect.Unit("Restart keeps every acknowledged write and counter, forgets every export")
+                  .ThenState<AppState>(next => next.Exports.Clear()));
 
         spec.ExecuteWith<LinearClient>()
+            .BindAsync<string, ApiResult<ExportJob>>("StartExport", (c, team) => c.CallAsync<object, ExportJob>("startExport", new { team }))
+            .BindAsync<string, ApiResult<ExportJob>>("GetExport", (c, id) => c.CallAsync<object, ExportJob>("getExport", new { id }))
+            .BindAsync<string, ApiResult<ExportJob>>("CancelExport", (c, id) => c.CallAsync<object, ExportJob>("cancelExport", new { id }))
             .BindAsync<Unit, Unit>("Restart", async (c, _) =>
             {
                 await c.RestartAsync();

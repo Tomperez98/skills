@@ -1,6 +1,7 @@
 // A tiny Linear-like tracker: teams own numbered issues (ENG-1, ENG-2, ...).
 // Storage is asynchronous (each read and write yields, like a database), and
 // each operation is a plain read-modify-write over it.
+import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { rename, writeFile } from "node:fs/promises";
 
@@ -76,9 +77,44 @@ class Store {
 
 export class Linear {
   store;
+  exports = new Map(); // in memory only: a restart forgets every export
+  #nextExport = 0;
+  #exportDelayMs;
 
-  constructor(file) {
+  constructor(file, { exportDelayMs = 25 } = {}) {
     this.store = new Store(file);
+    this.#exportDelayMs = exportDelayMs;
+  }
+
+  // An export snapshots how many issues the team has now and finishes later,
+  // writing a file whose name only the server knows.
+  async startExport({ team }) {
+    const t = await this.store.team(team);
+    if (!t) return fail(404, "team not found");
+    const id = `exp-${++this.#nextExport}`;
+    const job = { id, team, status: "pending", count: null, file: null };
+    const count = t.issues.size;
+    this.exports.set(id, job);
+    setTimeout(() => {
+      if (job.status !== "pending") return;
+      Object.assign(job, { status: "done", count, file: `exports/${id}-${randomUUID().slice(0, 6)}.csv` });
+    }, this.#exportDelayMs);
+    return ok({ ...job });
+  }
+
+  async getExport({ id }) {
+    await io();
+    const job = this.exports.get(id);
+    return job ? ok({ ...job }) : fail(404, "export not found");
+  }
+
+  async cancelExport({ id }) {
+    await io();
+    const job = this.exports.get(id);
+    if (!job) return fail(404, "export not found");
+    if (job.status !== "pending") return fail(409, "export already finished");
+    job.status = "canceled";
+    return ok({ ...job });
   }
 
   #tails = new Map(); // team key -> end of its queue of writers

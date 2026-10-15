@@ -5,6 +5,7 @@ namespace Linear.Spec;
 public record Team(string Key);
 public record Issue(string Id, int Number, string Title, int Priority, string Status, string? Assignee);
 public record Archived(string Id);
+public record ExportJob(string Id, string Team, string Status, int? Count, string? File);
 
 public record CreateIssueRequest(string Team, string Title, double Priority);
 public record SetStatusRequest(string Id, string Status);
