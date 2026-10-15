@@ -70,3 +70,17 @@ recovers it, TEST proves it, CRASHONLY makes the panic itself safe and
 cheap: a component you can kill at any instant and recover in milliseconds.
 PERFORMANCE keeps the contract while making the hot path fast. DEPENDENCIES
 holds code you didn't write to the same contract.
+
+## Hand off
+
+When the task crosses into another skill's ground, load it with the Skill
+tool rather than carrying on from memory:
+
+- **The API is stateful and order matters** (an earlier call changes what a
+  later one returns) → call the Skill tool with "accordant" and follow
+  SPEC.md: a spec judges those sequences better than tests written one at a
+  time.
+- **Gating the merge on the compiler, analyzers, or tests** → call the
+  Skill tool with "ship" and follow CI.md.
+- **Documenting the API's errors and operations** → call the Skill tool
+  with "docs" and follow API.md.

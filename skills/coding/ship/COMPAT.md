@@ -41,7 +41,9 @@ Behavior is checkable only when it's written as code that judges responses,
 not asserts scattered across tests. A spec that maps (request, state) to the
 correct responses can judge any build, including one it has never seen
 (accordant skill). Hand-written asserts tied to today's implementation
-can't be pointed at the next release.
+can't be pointed at the next release. To write that spec, call the Skill
+tool with "accordant" and follow its SPEC.md, then its COMPAT.md to run
+the baseline against the new build.
 
 The spec sees the system only through its API: requests in, responses and
 published events out. It checks what a caller can observe, never tables,
@@ -90,8 +92,9 @@ break is deliberate. A deliberate break lands only with a breaking entry,
 and a migration note, in the top changelog entry (docs skill, CHANGELOG.md),
 which makes the next version a major bump (RELEASE.md rule 3). CI enforces
 the pairing: a compatibility failure with no breaking entry fails the
-build (CI.md rule 7). After the major release ships, its contract becomes
-the new baseline.
+build (CI.md rule 7). To write the entry, call the Skill tool with "docs"
+and follow its CHANGELOG.md. After the major release ships, its contract
+becomes the new baseline.
 
 Only that undeclared break is an error. Give every other result its own
 level, so red keeps meaning "stop":

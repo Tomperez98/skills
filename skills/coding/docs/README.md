@@ -58,7 +58,8 @@ Give the exact command(s), no ceremony. One block, runnable as written.
 
 The example must run as pasted — imports, setup, expected output. It is the
 strongest thing on the page; don't truncate it with `...` in the interesting
-part. To keep it that way, cut it from a file CI runs (ship skill, CI.md).
+part. To keep it that way, cut it from a file CI runs (ship skill, CI.md):
+call the Skill tool with "ship" and follow its CI.md to wire that up.
 
 ```
 // complete, self-contained, with the output shown

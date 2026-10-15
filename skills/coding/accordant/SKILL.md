@@ -127,3 +127,13 @@ each, then strengthen. The `code` skill's rule holds inside the spec too: a
 `KeyNotFoundException` in `Apply` is a bug in the spec, so guard every
 lookup; an expected refusal (404, 409, a thrown domain exception) is an
 outcome you declare, never a crash you tolerate.
+
+## Hand off
+
+When the task crosses into another skill's ground, load it with the Skill
+tool rather than carrying on from memory:
+
+- **A rejection is a real bug in the system** → call the Skill tool with
+  "code" and follow WRITE.md or REFACTOR.md to fix the system, not the spec.
+- **Running the spec on every merge or against the last release** → call
+  the Skill tool with "ship" and follow CI.md or COMPAT.md.

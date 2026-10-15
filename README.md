@@ -94,6 +94,26 @@ follows its rules in order:
 | "I changed the spec — is it still right" | [`accordant/TRACES.md`](skills/coding/accordant/TRACES.md) | Replay a trace database on every spec change, mutate traces the spec must reject, exercise every outcome, post the spec diff as a contract change |
 | "My spec crashes / tests fail" | [`accordant/DEBUG.md`](skills/coding/accordant/DEBUG.md) | Name the failure first: spec crash, spec rejection, or setup — then fix the right one |
 
+## Flows
+
+The skills hand off to each other. Most work runs along one path:
+
+```text
+mvp  PICK → RESEARCH → SPEC → AHA → VALIDATE
+       ↓ build it
+code WRITE ⇄ TEST        accordant SPEC → GENERATE   (stateful APIs)
+       ↓ document it
+docs README · API · CHANGELOG
+       ↓ release it
+ship CI → RELEASE → PUBLISH   ·   COMPAT (accordant judges the old contract)
+```
+
+Each `SKILL.md` ends with a **Hand off** section naming the skill that
+picks up next and the guide to follow. A guide that needs another skill
+says so as an instruction: `call the Skill tool with "ship" and follow its
+CI.md`. A citation like "ship skill, CI.md rule 7" stays a reference: it
+explains why, and doesn't ask the agent to load anything.
+
 ## Why one rule
 
 A skill with twenty principles applies none of them. One rule fits in the

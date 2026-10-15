@@ -135,7 +135,8 @@ predicate checks that field, the break passes.
 The failure message is the old rule the new build violated ("User 'ghost'
 doesn't exist → 404", but the build answered 200). Either the new behavior
 is a regression (fix the system) or it's a deliberate break (declare it in
-the changelog and bump the major version — ship skill, COMPAT.md rule 6).
+the changelog and bump the major version — ship skill, COMPAT.md rule 6;
+call the Skill tool with "ship" and follow its COMPAT.md to declare it).
 Never edit the baseline spec to make it pass: the baseline is what users
 were promised, and changing it hides the break instead of declaring it.
 
