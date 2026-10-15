@@ -76,6 +76,14 @@ new TestGenerationOptions
 Each extra call in a group grows the check factorially, so raise the cap
 only with a reason.
 
+`MaxDepth` counts the setup calls and the group together. A race that
+needs a two-call setup (create a team, create an issue, then close it
+twice) is missing at `MaxDepth = 3` and appears at 4, so a green concurrent
+run says nothing about races deeper than its depth. Several clients sharing
+one pipe (a child process on stdin/stdout) need an id on every request and
+a reader that matches responses to calls, since replies come back in
+completion order.
+
 ## 5. Read "no linearization" as a bug report
 
 The failure says only which calls ran together: "The spec cannot explain
@@ -111,8 +119,10 @@ var race = TestCaseGenerator.CreateManualConcurrentTestCase(context, inputs,
 var results = await spec.RunTests(context, initial, [race], options);
 ```
 
-Run it in a loop (rule 7) — one manual case is still one interleaving per
-run.
+A manual case can't name one input twice, so to race a call against
+itself register the same request under a second label (`"Archive ENG-1"`
+and `"Archive ENG-1 B"`). Run it in a loop (rule 7) — one manual case is
+still one interleaving per run.
 
 ## 7. One green run is not proof
 
