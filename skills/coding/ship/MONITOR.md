@@ -42,6 +42,16 @@ tracking issue, later failures comment on it, and the first green run
 closes it. A new alert on every run, or a red badge nobody owns, trains
 people to look away.
 
+## Done when
+
+- The suites too slow for a pull request run on main, on a schedule or
+  continuously, and report a result per commit (rule 1).
+- A few numbers users would notice are recorded on every merge, from the
+  build you ship (rule 2).
+- Release validation runs on a schedule, not only after a release (rule 3).
+- A failing scheduled job opens one tracking issue, later failures comment
+  on it, and the first green run closes it (rule 4).
+
 ---
 
 MONITOR picks up where CI.md stops: slower tests, trends, and the outside

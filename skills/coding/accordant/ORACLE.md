@@ -97,7 +97,11 @@ Record the raw request and response, IDs and timestamps included. A value
 that differs on every run isn't noise to scrub: either the spec captures it
 and holds later steps to it (SPEC.md rule 8), or the spec leaves it out
 (SPEC.md rule 9) and it costs nothing — scrubbing only loses evidence, and
-a placeholder can break the capture. Give each trace a header naming where
+a placeholder can break the capture. Credentials are the exception. Drop
+auth headers, cookies, and tokens before a trace is written, because
+traces get stored and shared and the spec never judges a credential.
+Personal data from a production trace may be replaced only in fields the
+spec leaves out. Give each trace a header naming where
 it started (a reset or a snapshot), the spec version that accepted it, and
 whether failure outcomes were enabled (FAULTS.md rule 6) — replay with the
 same setting, or every timeout in a fault run reads as a violation. A trace
@@ -187,6 +191,19 @@ A system that emits events (webhooks, messages) fits the same shape: model
 each event as an operation whose request is the event and whose response is
 `Unit`. The spec then checks that each event was allowed in the state at
 that point.
+
+## Done when
+
+- Every `Allows` call takes the profile the previous call returned (rule 1).
+- Hand-written tests assert only through the spec and reset the profile
+  together with the system (rule 2).
+- Trace replay matches the system's casing and fails on unmapped fields;
+  each trace starts from a reset or snapshot its header names, and holds no
+  credentials (rule 3).
+- Copies of a recorded trace with one response corrupted are each rejected
+  (rule 3, TRACES.md rule 7).
+- With concurrent calls: only calls whose time windows overlapped share an
+  `AllowsConcurrent` group (rule 4).
 
 ---
 

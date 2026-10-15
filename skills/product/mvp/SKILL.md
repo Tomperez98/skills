@@ -66,3 +66,13 @@ The branches turn the rule into procedure: PICK finds an idea worth the
 test, RESEARCH de-risks the premise before you commit, SPEC writes it down
 specifically enough to build, AHA strips it to the one use case that can win
 five minutes, and VALIDATE gets the real person's verdict — then you loop.
+
+## Hand off
+
+When VALIDATE says build it, the work leaves this skill. Load the next one
+with the Skill tool rather than carrying on from memory:
+
+- **Building the core use case** → call the Skill tool with "code" and
+  follow WRITE.md. The brief is the paragraph from SPEC.md.
+- **The README or landing page the tester reads first** → call the Skill
+  tool with "docs" and follow README.md or LANDING.md.

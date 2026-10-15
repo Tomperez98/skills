@@ -91,6 +91,12 @@ the rejection under each candidate world. If every world rejects for the same
 reason, the rule is wrong; if they disagree, a read upstream didn't narrow the
 profile (ASYNC.md rule 3).
 
+End with one verdict: **system wrong**, **spec wrong**, or **undecided**.
+Undecided is where you stop when nobody who owns the behavior is around.
+Report the explanation string, the actual response, and what each reading
+would mean, then ask. Picking the reading that turns the test green is a
+guess, and it rewrites the contract.
+
 ## 5. Tests that pass alone and fail together are a reset problem
 
 The spec started at `new AppState()`; the system didn't. Make
@@ -142,6 +148,17 @@ test runner with `Logger.LogLambda = line => TestContext.WriteLine(line)` (or
 xUnit's `ITestOutputHelper`), keep runs apart with
 `Logger.AsyncLocalOutputDirectory.Value = path`, and add your own lines from
 inside `Apply` with `Logger.Log(…)` when you need to see which branch ran.
+Start each line you add with one tag (`[debug-a4f2]`), so a single grep
+finds them all when you take them out.
+
+## Done when
+
+- The failure has a name: crash, rejection, or setup (rule 1).
+- The failing case is a short hand-written sequence that now passes, and it
+  stays in the suite as a regression test (rule 2).
+- A rejection has its verdict (rule 4). A spec fix's commit names the rule
+  that changed and why; no predicate was loosened just to pass.
+- A grep for your debug tag finds nothing (rule 8).
 
 ---
 

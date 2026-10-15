@@ -98,6 +98,19 @@ rules 4–5 affordable: the review can focus on what the tests don't cover.
 When you take an update, a change in behavior fails a test at the line
 where it matters, instead of turning up later in production.
 
+## Done when
+
+- The transitive count is known, and the choice to depend, write, or fork
+  is stated (rules 1–2).
+- Every version, transitive ones included, is exact in the lockfile; no
+  floating ranges remain (rule 3).
+- An update has a stated reason, and a note says what was reviewed and what
+  wasn't (rules 4–5).
+- Only one module calls the dependency, and it maps the dependency's errors
+  into your own vocabulary (rule 6).
+- Tests against that boundary cover the outputs you parse and the errors
+  you map, and they pass (rule 7).
+
 ---
 
 A dependency is part of your program, so it follows the same contract as

@@ -31,3 +31,19 @@ to use it again, or hand it back and change the subject? Words say
 Either they hit the aha and you build the next feature — or they didn't, and
 you change the journey and try again. Validation isn't the end of the loop;
 it's the reset.
+
+Write each session down in the same shape, so sessions compare:
+
+```text
+Who:      <who they are to you>, never you
+Aha:      reached at <m:ss> | stalled at <step> after <m:ss>
+After:    <what they did unprompted: kept using it, asked again, handed it back>
+Verdict:  build the next feature | fix the journey at <step> | rethink the aha
+```
+
+## Done when
+
+- At least one person who isn't you used it without your help (rules 1–2).
+- Each session has its record, with the time to the aha or the stall
+  point (rule 3) and what they did afterwards (rule 4).
+- The verdict names the next action, and you started it (rule 5).

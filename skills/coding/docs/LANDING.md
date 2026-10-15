@@ -77,3 +77,14 @@ No clickbait, no "world's fastest" you can't prove, no overselling. A
 developer who tries your thing on a false claim leaves angry and tells
 everyone. Think hard about why it genuinely matters to the reader, and say
 only that. Honesty compounds; hype burns out.
+
+## Done when
+
+- The positioning is written down: the alternative, the differentiated
+  value, and who cares most (rule 1).
+- The hero has a task headline, a subhead, a snippet that runs, and one call
+  to action, and the page has no other primary CTA (rules 2–3).
+- The comparison names a real alternative and the one thing you do that it
+  doesn't (rule 4).
+- Every claim has a number, name, benchmark, or snippet behind it, and no
+  mission or founding story sits at the top (rules 5–6, 8).

@@ -10,7 +10,7 @@ thirty branch guides, 245 numbered rules.
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
-| [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · COMPAT · TRACES · DEBUG |
+| [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · BASELINE · TRACES · DEBUG |
 
 ## What it is
 
@@ -90,9 +90,29 @@ follows its rules in order:
 | "Find race conditions" | [`accordant/CONCURRENCY.md`](skills/coding/accordant/CONCURRENCY.md) | Sequential green first, colliding inputs, linearizability does the asserting, pin each race as a case, one green run is not proof |
 | "Background jobs / polling" | [`accordant/ASYNC.md`](skills/coding/accordant/ASYNC.md) | Step functions in the model, polling and derivations in the runner, `MaxRetryCount` as the liveness bound, polling off to act mid-job |
 | "Timeouts / 500s / fault injection" | [`accordant/FAULTS.md`](skills/coding/accordant/FAULTS.md) | Every explanation of an ambiguous response is an outcome; explore without faults, execute with them |
-| "Is the new version backward compatible" | [`accordant/COMPAT.md`](skills/coding/accordant/COMPAT.md) | The release's suite and sequences, unchanged, run against the new build through a strict client; closed sets don't grow silently; the upgrade runs over existing data; every service's spec judges both directions and the rollout |
+| "Is the new version backward compatible" | [`accordant/BASELINE.md`](skills/coding/accordant/BASELINE.md) | The release's suite and sequences, unchanged, run against the new build through a strict client; closed sets don't grow silently; the upgrade runs over existing data; every service's spec judges both directions and the rollout |
 | "I changed the spec — is it still right" | [`accordant/TRACES.md`](skills/coding/accordant/TRACES.md) | Replay a trace database on every spec change, mutate traces the spec must reject, exercise every outcome, post the spec diff as a contract change |
 | "My spec crashes / tests fail" | [`accordant/DEBUG.md`](skills/coding/accordant/DEBUG.md) | Name the failure first: spec crash, spec rejection, or setup — then fix the right one |
+
+## Flows
+
+The skills hand off to each other. Most work runs along one path:
+
+```text
+mvp  PICK → RESEARCH → SPEC → AHA → VALIDATE
+       ↓ build it
+code WRITE ⇄ TEST        accordant SPEC → GENERATE   (stateful APIs)
+       ↓ document it
+docs README · API · CHANGELOG
+       ↓ release it
+ship CI → RELEASE → PUBLISH   ·   COMPAT (accordant BASELINE runs the old spec)
+```
+
+Each `SKILL.md` ends with a **Hand off** section naming the skill that
+picks up next and the guide to follow. A guide that needs another skill
+says so as an instruction: `call the Skill tool with "ship" and follow its
+CI.md`. A citation like "ship skill, CI.md rule 7" stays a reference: it
+explains why, and doesn't ask the agent to load anything.
 
 ## Why one rule
 

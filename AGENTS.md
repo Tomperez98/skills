@@ -24,7 +24,7 @@ does not restate them.
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH, COMPAT
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
 - `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC,
-  FAULTS, COMPAT, TRACES, DEBUG
+  FAULTS, BASELINE, TRACES, DEBUG
 
 ## Skill format
 
@@ -43,6 +43,16 @@ does not restate them.
   a single situation.
 - One rule per skill, stated once up top; the branches turn it into
   procedure, applied in order.
+- A guide whose work has an end state closes with an unnumbered
+  `## Done when`: three to five checkable items, each citing the rule it
+  checks. Leave it unnumbered so rule citations don't shift. Where a guide
+  produces a record or verdict, give its shape as a fenced template in the
+  rule that produces it.
+- A step that can't be undone (a publish, a declared break) says the agent
+  stops and asks there, and says the steps before it run without asking.
+- When one skill needs another, say so as an instruction (`call the Skill
+  tool with "ship" and follow its CI.md`). End each `SKILL.md` with a
+  `## Hand off` section naming those transitions.
 
 ## Working here
 
@@ -62,14 +72,18 @@ checksums in `mise.lock`; `mise install` fetches it.
 
 - `mise run check` — fast tier: every `SKILL.md` has valid frontmatter
   (`name` matches its folder, no duplicate fields, `description` within the
-  1024-char limit and warned above the ~450 budget), the README links every
-  skill and branch guide, and its `Skill` table names each skill and guide.
+  1024-char limit and warned above the ~450 budget), every `SKILL.md` has a
+  `## Hand off` section and every branch guide a `## Done when`, the README
+  links every skill and branch guide, and its `Skill` table names each skill
+  and guide.
 - `mise run lint` — fast tier: Markdown formatting and lint rules (rumdl,
   configured in `.rumdl.toml`). Prose wraps at 80 columns; code blocks are
   exempt. `mise run fmt` fixes what it reports, in place.
 - `mise run links` — full tier: every internal link resolves, every cited
   rule exists ("CI.md rule 7", "code skill, WRITE.md rule 25") and is still
-  the rule it meant on main, and no page under `skills/` is orphaned.
+  the rule it meant on main, every Skill tool call (`call the Skill tool
+  with "ship" and follow its CI.md`) names a skill that exists and guides
+  that skill has, and no page under `skills/` is orphaned.
   Insert or remove a rule and this names every citation that now points at
   a different rule.
 - `mise run contract` — a report, never a failure: what the change does to

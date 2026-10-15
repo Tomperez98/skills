@@ -51,6 +51,11 @@ reference loses the visitor. If it's genuinely ambiguous and the user isn't
 reachable, default to the artifact named in the request, and state the
 assumption at the top.
 
+Before you write, read what the repo already decided: AGENTS.md or CONTRIBUTING,
+and its changelog format, house style, and docs layout. If they're missing,
+carry on without them. Where they exist, the repo's conventions decide the
+mechanics. They never override the one rule.
+
 ## The one rule
 
 **Lead with the reader's task — win the 10-second skim — and never mislead.**
@@ -73,3 +78,13 @@ assumption at the top.
   claim you can back up is proof. Delete the company history, the adjective
   pile-ups, the "powerful, flexible, robust," and every sentence that
   doesn't serve the reader's task.
+
+## Hand off
+
+When the task crosses into another skill's ground, load it with the Skill
+tool rather than carrying on from memory:
+
+- **Keeping a docs example runnable** → call the Skill tool with "ship" and
+  follow CI.md: CI runs the file the example is cut from.
+- **Release notes for a version about to ship** → call the Skill tool with
+  "ship" and follow RELEASE.md for the version the entry belongs to.

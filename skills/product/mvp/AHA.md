@@ -29,6 +29,13 @@ Consumers have almost no attention span — they'll give a new app about five
 minutes. Map the journey from open to value, and cut anything that pushes
 the aha past that window. Every extra step before the payoff costs users.
 
+```text
+Use case:  <the one sentence from rule 1>
+Journey:   open → <step> → <step> → aha: <the moment from rule 3>
+Time:      <m:ss> to the aha, under 5:00
+Cut:       <features and steps removed>
+```
+
 ## 5. The aha is the milestone
 
 The aha — the five-minute value moment — is your MVP, not the feature list.
@@ -39,3 +46,11 @@ Once a user can reach it, you have an MVP; everything else waits.
 Resist adding a second use case "while you're here." The MVP is a line, not
 a tour. The tour comes after the first use case is validated (see
 [VALIDATE.md](VALIDATE.md)).
+
+## Done when
+
+- The one core use case is written as one sentence (rule 1).
+- Every feature that doesn't serve it is cut (rule 2).
+- The journey is written step by step from open to the aha, and fits in five
+  minutes (rules 3–4).
+- No second use case is in the MVP (rule 6).

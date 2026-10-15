@@ -280,6 +280,19 @@ the session dies at 60 or after it is a contract question (rule 1). A
 system you can't host in the test needs a test-only endpoint that moves
 its clock.
 
+## Done when
+
+- Every refusal is its own early return, in the implementation's order
+  (rule 3), and every refusal and read ends in `.SameState()` (rule 5).
+- Every predicate checks each field the spec knows and carries a
+  `"<situation> → <outcome>"` explanation (rule 7).
+- Each server-generated value is captured with a `mock:` response, and
+  later reads compare against it (rule 8).
+- A generation-only run finishes with no spec crash and no broken
+  `Invariant.Assert` (rule 6, GENERATE.md rule 6).
+- With expiry, leases, or rate limits: "now" is in the state, advancing it
+  is an operation, and `Now` is capped (rule 10).
+
 ---
 
 GENERATE.md runs this spec against the system. When an operation can

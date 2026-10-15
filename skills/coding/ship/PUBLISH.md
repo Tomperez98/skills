@@ -115,6 +115,9 @@ idempotent).
   long-lived tokens. When you do need a token, use one per registry or
   target repository, scope it narrowly, give it an expiry, and write down
   how to rotate it.
+- Never print a secret. Run no `set -x` in the job that holds one, mask
+  it in the CI log, and when a step fails, report the registry and the
+  status, never the request headers.
 - Only one release runs at a time, and a running release isn't cancelled
   partway through. Validation (rule 6) shares that lock, so it never
   checks a release that's still being published.
@@ -154,6 +157,19 @@ that failure already alerted someone.
 A mismatch here means users are getting something other than what you
 tested, so treat it as a bug and fail loudly with the artifact name and
 both values.
+
+## Done when
+
+- The build runs without secrets and writes every artifact and a manifest
+  with a checksum per file into one directory (rule 1, rule 2).
+- Right after the build, the artifact reports the version and commit you
+  meant to build (rule 2).
+- Running publish again after a failure partway through finishes the
+  release without burning the version (rule 3, rule 4).
+- Only the upload job can obtain the publishing credential (rule 5).
+- A separate job installs the release from the public registry into a
+  clean environment and runs a smoke test, after each publish and on a
+  schedule (rule 6).
 
 ---
 

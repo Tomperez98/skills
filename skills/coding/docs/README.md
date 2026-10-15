@@ -58,7 +58,8 @@ Give the exact command(s), no ceremony. One block, runnable as written.
 
 The example must run as pasted — imports, setup, expected output. It is the
 strongest thing on the page; don't truncate it with `...` in the interesting
-part. To keep it that way, cut it from a file CI runs (ship skill, CI.md).
+part. To keep it that way, cut it from a file CI runs (ship skill, CI.md):
+call the Skill tool with "ship" and follow its CI.md to wire that up.
 
 ```
 // complete, self-contained, with the output shown
@@ -109,3 +110,15 @@ matters, and say only that.
 Most readers never scroll. Assume they read the hero, the example, and the
 install — and decide there. Put your three strongest beats in those first
 lines, in that order: what it does, proof it works, how to get it.
+
+## Done when
+
+- The top of the file, read alone, gives what it does, proof it works, and
+  how to get it, in that order (rules 1, 10).
+- Reading only the TL;DR, headings, and code blocks still tells the story
+  (rule 2).
+- The install command and the example run as pasted and print the output
+  shown — or the example is marked illustrative, with the parts to fill in
+  named (rules 4–5).
+- Every speed, size, or superlative claim has a number on the page behind it;
+  the rest is cut (rules 6, 9).

@@ -180,6 +180,18 @@ breaks only in an exact order: create, archive, restart, create reuses the
 archived number. Plain walks can miss it, so give `Restart` its own
 input and pin a sequence like that as a manual case once found.
 
+## Done when
+
+- Every timeout, reset, and 5xx maps to an indefinite failure the response
+  type can express (rule 1).
+- Every write has three outcomes, success, request lost, and response lost
+  (rule 2), added in one base class or helper that every return goes
+  through, refusals included (rule 4).
+- Tests generate with failure outcomes off and run with them on (rule 6).
+- Faults are injected both before sending and after receiving (rule 7).
+- When the system promises durability: `Restart` is an operation with its
+  own input (rule 9).
+
 ---
 
 The same profile mechanics drive ASYNC.md: a pending job is uncertainty

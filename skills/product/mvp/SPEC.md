@@ -11,6 +11,15 @@ bullets, then stop. The point isn't completeness — it's a target the first
 implementation can be checked against. A paragraph is enough to start; more
 is you stalling.
 
+```text
+<One paragraph: who opens it, what they see, what they do, what comes back.>
+
+- Screen:   <what the user sees first>
+- Action:   <what they tap or do>
+- Output:   <what they get back>
+- Key use:  <the one use case this is for>
+```
+
 ## 2. Imagine the interface
 
 Get concrete about the interface, not just the concept. Don't say "a
@@ -43,3 +52,13 @@ defend.
 All this specificity has one purpose: to surface the one use case that
 matters. If the paragraph doesn't make the key use case obvious, you aren't
 specific enough yet.
+
+## Done when
+
+- The spec is one paragraph and a handful of bullets, with no second feature
+  (rules 1, 4).
+- Each bullet names a screen, action, input, or output; none says "has AI"
+  (rules 2–3).
+- The key use case is named in the spec (rule 6).
+- A first implementation exists, and you wrote down what it got right, what
+  it got wrong, and the nudge (rule 5).

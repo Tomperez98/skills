@@ -185,6 +185,20 @@ profile, so a custom multi-step `TerminatingStepFunction` (Pending →
 Running → Done) returns itself in each `StepResult.StepFunctions` until
 terminal, or polling stops at Running.
 
+## Done when
+
+- Every operation that starts background work declares it with
+  `.Triggers(…)`, with every possible ending as a transition (rules 1–2).
+- `isTerminal` holds in every state, including after the resource is
+  deleted (rule 1).
+- Each read's expectation depends on the job's state, so a read narrows
+  the candidates (rule 3).
+- Every trigger has a `PollingSetup`, its poll operation has a null-safe
+  derivation from it, and `WaitTimeInMs × MaxRetryCount` is the longest the
+  system is allowed to take (rules 5–7).
+- At least one input triggers the work `.WithoutPolling()`, followed by a
+  call made while the work runs (rule 8).
+
 ---
 
 Server-generated IDs without any background work need only GENERATE.md

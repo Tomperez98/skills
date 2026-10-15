@@ -57,3 +57,13 @@ post, and a docs page. Write the example once, then repurpose it across
 surfaces with the framing each surface needs — the README leads with the
 hero, the launch post leads with the story, the docs page leads with the
 task.
+
+## Done when
+
+- Each page's title is the query it targets, and the first scroll delivers
+  what the title promises (rules 1, 5).
+- The page makes sense from the link alone, with no click-through needed
+  (rule 2).
+- The example runs as pasted and fits on one screen (rule 3).
+- A next step in the reader's task sits right after the example, not in a
+  banner (rule 4).

@@ -125,7 +125,7 @@ still one interleaving per run.
 
 Interleavings depend on timing, so a race can hide for a run or ten. Run
 concurrent suites repeatedly (a loop in the test, or a scheduled CI job;
-COMPAT.md rule 8 adds the last release's spec as a second judge).
+BASELINE.md rule 8 adds the last release's spec as a second judge).
 A concurrent case that fails intermittently is most likely the race you're
 hunting, not a flaky test — rule out an incomplete reset first, then treat
 it as a bug.
@@ -162,6 +162,17 @@ var gen = new TestGenerationOptions
 On an in-process counter whose deposit reads, waits, and writes, the
 plain cases all pass and the wrapped ones fail on the read (Accordant
 0b2c0d4). Name the read uniquely; the runner rejects a repeated call name.
+
+## Done when
+
+- The sequential tests pass before any concurrent case runs (rule 1).
+- The inputs put two actors on the same resource, plus a read that shows
+  who won (rule 3).
+- Every concurrent case ends with a read of the whole state (rule 8).
+- Each race found is a manual case that failed before the fix and passes
+  after it (rule 6).
+- The concurrent suite runs repeatedly, in a loop or a scheduled job, not
+  once (rule 7).
 
 ---
 

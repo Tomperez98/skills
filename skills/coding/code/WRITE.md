@@ -23,7 +23,7 @@ fn set_quantity(q: int) {
 
 Sprinkle `assert` wherever an assumption is clever or load-bearing. Stop
 running the moment it stops holding — assertions turn "that can't happen"
-into "that won't happen." Rule 24 says whose bug each assertion catches:
+into "that won't happen." Rule 21 says whose bug each assertion catches:
 the caller's (precondition) or yours (postcondition).
 
 Write the panic message for the person who reads it: name the invariant and
@@ -771,4 +771,18 @@ runs, which makes them the earliest crash you have. Let them fail the build.
   code safe, rewrite the code until it can instead of silencing the tool.
   If a tool can't reason about the code, a reviewer probably can't either.
 - **Gate the merge on it.** Run the compiler and analyzers in CI's fast tier
-  (ship skill, CI.md rules 2 and 7).
+  (ship skill, CI.md rules 2 and 7). To set that up, call the Skill tool
+  with "ship" and follow its CI.md.
+
+## Done when
+
+- Every expected failure is a returned value the signature shows, and no
+  call site drops one (rule 2).
+- Every broken invariant or precondition panics at its line, with a message
+  that names the value that broke it (rules 1 and 21).
+- Raw input and the environment are read once, at the edge, into typed
+  values; nothing below calls `getenv` or re-validates (rules 3 and 9).
+- Errors are translated once per boundary: no driver error type or
+  transport code reaches the domain (rules 5 and 7).
+- Every loop, queue, and recursion has a named bound, and the strict build
+  reports zero warnings (rules 14 and 25).
