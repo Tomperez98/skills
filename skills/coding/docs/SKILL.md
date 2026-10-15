@@ -51,6 +51,11 @@ reference loses the visitor. If it's genuinely ambiguous and the user isn't
 reachable, default to the artifact named in the request, and state the
 assumption at the top.
 
+Before you write, read what the repo already decided: AGENTS.md or CONTRIBUTING,
+and its changelog format, house style, and docs layout. If they're missing,
+carry on without them. Where they exist, the repo's conventions decide the
+mechanics. They never override the one rule.
+
 ## The one rule
 
 **Lead with the reader's task — win the 10-second skim — and never mislead.**

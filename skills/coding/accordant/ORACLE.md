@@ -97,7 +97,11 @@ Record the raw request and response, IDs and timestamps included. A value
 that differs on every run isn't noise to scrub: either the spec captures it
 and holds later steps to it (SPEC.md rule 8), or the spec leaves it out
 (SPEC.md rule 9) and it costs nothing — scrubbing only loses evidence, and
-a placeholder can break the capture. Give each trace a header naming where
+a placeholder can break the capture. Credentials are the exception. Drop
+auth headers, cookies, and tokens before a trace is written, because
+traces get stored and shared and the spec never judges a credential.
+Personal data from a production trace may be replaced only in fields the
+spec leaves out. Give each trace a header naming where
 it started (a reset or a snapshot), the spec version that accepted it, and
 whether failure outcomes were enabled (FAULTS.md rule 6) — replay with the
 same setting, or every timeout in a fault run reads as a violation. A trace

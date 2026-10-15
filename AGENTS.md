@@ -43,6 +43,16 @@ does not restate them.
   a single situation.
 - One rule per skill, stated once up top; the branches turn it into
   procedure, applied in order.
+- A guide whose work has an end state closes with an unnumbered
+  `## Done when`: three to five checkable items, each citing the rule it
+  checks. Leave it unnumbered so rule citations don't shift. Where a guide
+  produces a record or verdict, give its shape as a fenced template in the
+  rule that produces it.
+- A step that can't be undone (a publish, a declared break) says the agent
+  stops and asks there, and says the steps before it run without asking.
+- When one skill needs another, say so as an instruction (`call the Skill
+  tool with "ship" and follow its CI.md`). End each `SKILL.md` with a
+  `## Hand off` section naming those transitions.
 
 ## Working here
 

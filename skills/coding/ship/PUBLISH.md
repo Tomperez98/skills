@@ -115,6 +115,9 @@ idempotent).
   long-lived tokens. When you do need a token, use one per registry or
   target repository, scope it narrowly, give it an expiry, and write down
   how to rotate it.
+- Never print a secret. Run no `set -x` in the job that holds one, mask
+  it in the CI log, and when a step fails, report the registry and the
+  status, never the request headers.
 - Only one release runs at a time, and a running release isn't cancelled
   partway through. Validation (rule 6) shares that lock, so it never
   checks a release that's still being published.

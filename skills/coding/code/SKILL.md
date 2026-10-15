@@ -49,6 +49,11 @@ complaint about testing pain or a tangled conditional → REFACTOR; an
 explicit request for tests → TEST; a manifest, lockfile, or Dependabot PR →
 DEPENDENCIES) and state the assumption at the top of your work.
 
+Before you write, read what the repo already decided: AGENTS.md or CONTRIBUTING,
+and its error type, Result or exception style, and test layout. If they're
+missing, carry on without them. Where they exist, the repo's conventions decide
+the mechanics. They never override the one rule.
+
 ## The one rule
 
 **Bugs panic, expected failures return values.**
