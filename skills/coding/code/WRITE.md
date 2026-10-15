@@ -445,6 +445,30 @@ with. That fault model is "one error vocabulary per boundary" seen from the
 interface side: the caller handles the named failures and nothing else.
 Every implementation must keep that contract (rule 21).
 
+Shape the surface so a caller can guess it:
+
+- **A few nouns, a few verbs, one pattern.** Name every operation
+  `Noun` + `Verb` (`OrderCreate`, `OrderCancel`), so the next operation is
+  predictable and a gap or a duplicate stands out.
+- **One operation, one request type, one response type.** No mode flags, no
+  overloads, no call that does different jobs depending on its arguments.
+  Two jobs are two operations (rule 15).
+- **Closed enums for lifecycle and outcomes.** A reader sees every state an
+  object can be in, and every expected outcome (`created`, `duplicate`,
+  `expired`, `absent`) comes back as a named value, not a boolean or a
+  string to parse.
+- **Compose by wrapping, not copying.** A request that includes another
+  operation's input carries that request instead of redeclaring its fields,
+  so each concept is defined once.
+- **Make misuse hard.** Required parameters over ordered optional ones,
+  distinct types for ids that look alike (rule 13), no boolean parameters.
+- **Hide what callers don't need.** Storage layout and internal states stay
+  behind the interface, so they can change without a breaking change
+  (rule 21).
+- **State which operations are safe to repeat.** Idempotency is part of the
+  contract: a retry returns the original result or a named `duplicate`,
+  never a second effect or an unnamed error.
+
 Push control flow up and data flow down — callers decide, leaves compute.
 Abstract a non-deterministic physical interface (network, clock, disk)
 behind a deterministic logical one, so the caller and the test see a stable
