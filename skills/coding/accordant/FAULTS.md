@@ -175,12 +175,10 @@ with rule 2, a restart while a call is in flight is an indefinite failure.
 Background jobs (ASYNC.md) that must survive a restart keep their step
 functions across it.
 
-Hunt for derived state. A counter recomputed on boot from the surviving
-rows (`max(number)`) reuses the number of an archived last row, so create,
-archive, restart, create returns the old ID. The bug needs that exact
-four-call order, and a plain random walk over many inputs can miss it for
-a run; the swarm and fault runs found it. Pin the sequence as a manual
-case (GENERATE.md rule 7) once found.
+State recomputed on boot (a counter rebuilt from the surviving rows)
+breaks only in an exact order: create, archive, restart, create reuses the
+archived number. Plain walks can miss it, so give `Restart` its own
+input and pin a sequence like that as a manual case once found.
 
 ---
 

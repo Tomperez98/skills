@@ -79,10 +79,7 @@ only with a reason.
 `MaxDepth` counts the setup calls and the group together. A race that
 needs a two-call setup (create a team, create an issue, then close it
 twice) is missing at `MaxDepth = 3` and appears at 4, so a green concurrent
-run says nothing about races deeper than its depth. Several clients sharing
-one pipe (a child process on stdin/stdout) need an id on every request and
-a reader that matches responses to calls, since replies come back in
-completion order.
+run says nothing about races deeper than its depth.
 
 ## 5. Read "no linearization" as a bug report
 

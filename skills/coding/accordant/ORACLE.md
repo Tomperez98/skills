@@ -87,15 +87,11 @@ map it to `CreateIssue` and unwrap a request the spec models as a plain
 a `Restart` the replay feeds through `Allows` with `Unit.Value` for
 request and response, so durability is judged from traffic as well.
 
-The oracle is only as thorough as the traffic. An untargeted fuzzer in the
-system's own language left 11 of 28 planted bugs undetected, with the same
-spec that killed them in generated tests: its calls named issues that
-never existed, its bursts mixed unrelated calls, and it never sent a
-five-letter team key. Aim the workload with what it sees in responses
-(reuse IDs the server handed out), race a call against copies of itself,
-restart often, and include each boundary value. Then corrupt single
-responses in a recorded trace and require every corrupted trace to be
-rejected (TRACES.md rule 7), or a green replay proves nothing.
+The oracle is only as thorough as the traffic, so aim the workload: reuse
+IDs the server returned, race a call against copies of itself, and cover
+each boundary. Then corrupt single responses in a recorded trace and
+require each corrupted trace to be rejected (TRACES.md rule 7), or a green
+replay proves nothing.
 
 Record the raw request and response, IDs and timestamps included. A value
 that differs on every run isn't noise to scrub: either the spec captures it
