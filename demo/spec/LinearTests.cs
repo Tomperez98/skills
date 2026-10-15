@@ -26,9 +26,11 @@ public class LinearTests
         var assign = Spec.GetOperation<AssignRequest, ApiResult<Issue>>("Assign");
         var archive = Spec.GetOperation<string, ApiResult<Archived>>("ArchiveIssue");
         var list = Spec.GetOperation<ListIssuesRequest, ApiResult<List<Issue>>>("ListIssues");
+        var restart = Spec.GetOperation<Unit, Unit>("Restart");
 
         return new InputSet
         {
+            restart.With("Restart"),
             team.With("ENG", "Create team ENG"),
             team.With("eng", "Create team eng (bad key)"),
             team.With("A", "Create team A (1 letter)"),
@@ -113,9 +115,9 @@ public class LinearTests
         Assert.That(Spec.GenerateTests(new AppState(), Inputs(), Gen), Is.Not.Empty);
     }
 
-    static async Task<List<(bool Ok, string? Message, string? Log)>> Run(TestGenerationOptions gen)
+    static async Task<List<(bool Ok, string? Message, string? Log)>> Run(TestGenerationOptions gen, double faultRate = 0, int seed = 0)
     {
-        using var client = new LinearClient();
+        using var client = new LinearClient(seed);
         var context = Spec.CreateTestingContext();
         context.Register(client);
 
@@ -126,8 +128,19 @@ public class LinearTests
             StopOnFirstFailure = false,
             BeforeEachAsync = info => info.Context.Get<LinearClient>().Reset(),
         };
-        var results = await Spec.RunTests(context, initial, tests, options);
-        return results.Select(r => (r.Success, (string?)r.LastFailureMessage, (string?)r.LogFilePath)).ToList();
+
+        // Tests were generated with timeouts off; run them with timeouts on.
+        client.FaultRate = faultRate;
+        LinearSpec.IndefiniteFailures = faultRate > 0;
+        try
+        {
+            var results = await Spec.RunTests(context, initial, tests, options);
+            return results.Select(r => (r.Success, (string?)r.LastFailureMessage, (string?)r.LogFilePath)).ToList();
+        }
+        finally
+        {
+            LinearSpec.IndefiniteFailures = false;
+        }
     }
 
     static void AssertAllPassed(List<(bool Ok, string? Message, string? Log)> results)
@@ -139,6 +152,21 @@ public class LinearTests
 
     [Test]
     public async Task System_matches_spec() => AssertAllPassed(await Run(Gen));
+
+    // A quarter of calls time out, either before the server hears them or after
+    // it has answered. The spec keeps both worlds until a later read decides.
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    [TestCase(4)]
+    public async Task System_matches_spec_under_faults(int seed) =>
+        AssertAllPassed(await Run(new TestGenerationOptions
+        {
+            MaxDepth = -1,
+            StateConstraint = Gen.StateConstraint,
+            SimplifyOperationCallNames = false,
+            SequentialTestCaseAlgorithm = CyclingWalk(walks: 300, length: 14, seed: seed),
+        }, faultRate: 0.25, seed: seed));
 
     // Each swarm switches a random third of the inputs off, so walks that
     // would be derailed by reads and refusals go deep (e.g. two issues, both
@@ -269,5 +297,26 @@ public class LinearTests
             var results = await Spec.RunTests(context, initial, [test], options);
             Assert.That(results.All(r => r.Success), $"{race} (run {i}): {results.FirstOrDefault(r => !r.Success)?.LastFailureMessage}");
         }
+    }
+
+    // Found by the swarm and fault runs, missed by the plain walk: a number freed
+    // by archiving must stay freed across a restart.
+    [Test]
+    public async Task Archived_number_stays_retired_after_restart()
+    {
+        using var client = new LinearClient();
+        var context = Spec.CreateTestingContext();
+        context.Register(client);
+        var initial = new AppState();
+        var inputs = Inputs();
+        inputs.Add(Spec.GetOperation<CreateIssueRequest, ApiResult<Issue>>("CreateIssue")
+            .With(new("ENG", "Fix login", 1), "Create ENG issue B"));
+        var test = TestCaseGenerator.CreateManualSequentialTestCase(context, inputs,
+            "Create team ENG", "Create ENG issue", "Archive ENG-1", "Restart", "Create ENG issue B", "List ENG");
+        var results = await Spec.RunTests(context, initial, [test], new TestExecutionOptions
+        {
+            BeforeEachAsync = info => info.Context.Get<LinearClient>().Reset(),
+        });
+        Assert.That(results.All(r => r.Success), results.FirstOrDefault(r => !r.Success)?.LastFailureMessage);
     }
 }

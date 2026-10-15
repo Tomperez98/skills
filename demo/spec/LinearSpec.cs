@@ -61,6 +61,31 @@ public static class LinearSpec
             return v.IsValid ? v : ValidationResult.Invalid($"{why}: {v.FailureMessage}");
         });
 
+    /// <summary>
+    /// When on, a call may also end in a timeout whose effect is unknown, so
+    /// every operation lists the extra worlds (FAULTS.md rule 2). Keep it off
+    /// while generating tests, on while running them (rule 6).
+    /// </summary>
+    public static bool IndefiniteFailures { get; set; }
+
+    static ExpectedOutcomeBuilder<TResp> Timeout<TResp>(string why) where TResp : ITimeout =>
+        Expect.That<TResp>(r => r.IsTimeout, why);
+
+    // A read or a refusal: leaves the state as it was, even when the reply is lost.
+    static ExpectedOutcomes Settled<TResp>(ExpectedOutcomeBuilder<TResp> definite) where TResp : ITimeout =>
+        IndefiniteFailures
+            ? Expect.OneOf(definite.SameState(), Timeout<TResp>("Timeout: nothing changed").SameState())
+            : definite.SameState();
+
+    // A write: a timeout means the request was lost or the reply was.
+    static ExpectedOutcomes Writes<TResp>(ExpectedOutcomeBuilder<TResp> ok, Action<AppState> effect) where TResp : ITimeout =>
+        IndefiniteFailures
+            ? Expect.OneOf(
+                ok.ThenState<AppState>(effect),
+                Timeout<TResp>("Timeout: request lost").SameState(),
+                Timeout<TResp>("Timeout: response lost").ThenState<AppState>(effect))
+            : ok.ThenState<AppState>(effect);
+
     public static Spec<AppState> Build()
     {
         var spec = new Spec<AppState>();
@@ -69,30 +94,28 @@ public static class LinearSpec
         spec.Operation<string, ApiResult<Team>>("CreateTeam", (key, state) =>
         {
             if (!Regex.IsMatch(key, "^[A-Z]{2,5}$"))
-                return Expect.That<ApiResult<Team>>(r => r.Status == 400,
-                           $"Team key '{key}' is not 2-5 capitals → 400").SameState();
+                return Settled(Expect.That<ApiResult<Team>>(r => r.Status == 400,
+                           $"Team key '{key}' is not 2-5 capitals → 400"));
             if (state.Teams.ContainsKey(key))
-                return Expect.That<ApiResult<Team>>(r => r.Status == 409,
-                           $"Team '{key}' already exists → 409").SameState();
-            return Expect.That<ApiResult<Team>>(r => r.Status == 200 && r.Data?.Key == key,
-                       $"New team '{key}' → 200")
-                   .ThenState<AppState>(next => next.Teams[key] = new TeamState());
+                return Settled(Expect.That<ApiResult<Team>>(r => r.Status == 409,
+                           $"Team '{key}' already exists → 409"));
+            return Writes(Expect.That<ApiResult<Team>>(r => r.Status == 200 && r.Data?.Key == key,
+                       $"New team '{key}' → 200"), next => next.Teams[key] = new TeamState());
         });
 
         spec.Operation<CreateIssueRequest, ApiResult<Issue>>("CreateIssue", (req, state) =>
         {
             if (!state.Teams.TryGetValue(req.Team, out var team))
-                return Expect.That<ApiResult<Issue>>(r => r.Status == 404,
-                           $"Team '{req.Team}' doesn't exist → 404").SameState();
+                return Settled(Expect.That<ApiResult<Issue>>(r => r.Status == 404,
+                           $"Team '{req.Team}' doesn't exist → 404"));
             if (string.IsNullOrWhiteSpace(req.Title) || req.Priority < 0 || req.Priority > 4 || req.Priority != Math.Floor(req.Priority))
-                return Expect.That<ApiResult<Issue>>(r => r.Status == 400,
-                           "Blank title, or priority not an integer in 0-4 → 400").SameState();
+                return Settled(Expect.That<ApiResult<Issue>>(r => r.Status == 400,
+                           "Blank title, or priority not an integer in 0-4 → 400"));
 
             var number = team.Counter + 1;
             var id = $"{req.Team}-{number}";
             var expected = new IssueState { Number = number, Title = req.Title, Priority = (int)req.Priority };
-            return Judge<ApiResult<Issue>>($"New issue → 200 as {id}, backlog, unassigned", r => SameIssue(r, id, expected))
-                   .ThenState<AppState>(next =>
+            return Writes(Judge<ApiResult<Issue>>($"New issue → 200 as {id}, backlog, unassigned", r => SameIssue(r, id, expected)), next =>
                    {
                        var t = next.Teams[req.Team];
                        t.Counter = number;
@@ -104,75 +127,73 @@ public static class LinearSpec
 
         spec.Operation<string, ApiResult<Issue>>("GetIssue", (id, state) =>
             TryFindIssue(state, id, out var issue)
-                ? Judge<ApiResult<Issue>>($"Issue {id} exists → 200 with its current fields", r => SameIssue(r, id, issue)).SameState()
-                : Expect.That<ApiResult<Issue>>(r => r.Status == 404,
-                      $"Issue {id} doesn't exist → 404").SameState());
+                ? Settled(Judge<ApiResult<Issue>>($"Issue {id} exists → 200 with its current fields", r => SameIssue(r, id, issue)))
+                : Settled(Expect.That<ApiResult<Issue>>(r => r.Status == 404,
+                      $"Issue {id} doesn't exist → 404")));
 
         spec.Operation<SetStatusRequest, ApiResult<Issue>>("SetStatus", (req, state) =>
         {
             if (!TryFindIssue(state, req.Id, out var issue))
-                return Expect.That<ApiResult<Issue>>(r => r.Status == 404,
-                           $"Issue {req.Id} doesn't exist → 404").SameState();
+                return Settled(Expect.That<ApiResult<Issue>>(r => r.Status == 404,
+                           $"Issue {req.Id} doesn't exist → 404"));
             if (!Statuses.Contains(req.Status))
-                return Expect.That<ApiResult<Issue>>(r => r.Status == 400,
-                           $"Status '{req.Status}' is unknown → 400").SameState();
+                return Settled(Expect.That<ApiResult<Issue>>(r => r.Status == 400,
+                           $"Status '{req.Status}' is unknown → 400"));
             if ((issue.Status is "done" or "canceled") && req.Status != "todo")
-                return Expect.That<ApiResult<Issue>>(r => r.Status == 409,
-                           $"{req.Id} is {issue.Status}; only todo reopens it → 409").SameState();
+                return Settled(Expect.That<ApiResult<Issue>>(r => r.Status == 409,
+                           $"{req.Id} is {issue.Status}; only todo reopens it → 409"));
 
             var expected = new IssueState
             {
                 Number = issue.Number, Title = issue.Title, Priority = issue.Priority,
                 Status = req.Status, Assignee = issue.Assignee,
             };
-            return Judge<ApiResult<Issue>>($"{req.Id} {issue.Status} → {req.Status}: 200", r => SameIssue(r, req.Id, expected))
-                   .ThenState<AppState>(next =>
+            return Writes(Judge<ApiResult<Issue>>($"{req.Id} {issue.Status} → {req.Status}: 200", r => SameIssue(r, req.Id, expected)), next =>
                        next.Teams[TeamOf(req.Id)].Issues[req.Id].Status = req.Status);
         });
 
         spec.Operation<AssignRequest, ApiResult<Issue>>("Assign", (req, state) =>
         {
             if (!TryFindIssue(state, req.Id, out var issue))
-                return Expect.That<ApiResult<Issue>>(r => r.Status == 404,
-                           $"Issue {req.Id} doesn't exist → 404").SameState();
+                return Settled(Expect.That<ApiResult<Issue>>(r => r.Status == 404,
+                           $"Issue {req.Id} doesn't exist → 404"));
             if (req.Assignee == "")
-                return Expect.That<ApiResult<Issue>>(r => r.Status == 400,
-                           "Empty assignee name → 400").SameState();
+                return Settled(Expect.That<ApiResult<Issue>>(r => r.Status == 400,
+                           "Empty assignee name → 400"));
 
             var expected = new IssueState
             {
                 Number = issue.Number, Title = issue.Title, Priority = issue.Priority,
                 Status = issue.Status, Assignee = req.Assignee,
             };
-            return Judge<ApiResult<Issue>>($"{req.Id} assignee → '{req.Assignee ?? "(none)"}': 200", r => SameIssue(r, req.Id, expected))
-                   .ThenState<AppState>(next =>
+            return Writes(Judge<ApiResult<Issue>>($"{req.Id} assignee → '{req.Assignee ?? "(none)"}': 200", r => SameIssue(r, req.Id, expected)), next =>
                        next.Teams[TeamOf(req.Id)].Issues[req.Id].Assignee = req.Assignee);
         });
 
         spec.Operation<string, ApiResult<Archived>>("ArchiveIssue", (id, state) =>
         {
             if (!TryFindIssue(state, id, out _))
-                return Expect.That<ApiResult<Archived>>(r => r.Status == 404,
-                           $"Issue {id} doesn't exist → 404").SameState();
-            return Expect.That<ApiResult<Archived>>(r => r.Status == 200 && r.Data?.Id == id,
-                       $"Archive {id} → 200; its number is never reused")
-                   .ThenState<AppState>(next => next.Teams[TeamOf(id)].Issues.Remove(id));
+                return Settled(Expect.That<ApiResult<Archived>>(r => r.Status == 404,
+                           $"Issue {id} doesn't exist → 404"));
+            return Writes(Expect.That<ApiResult<Archived>>(r => r.Status == 200 && r.Data?.Id == id,
+                       $"Archive {id} → 200; its number is never reused"),
+                   next => next.Teams[TeamOf(id)].Issues.Remove(id));
         });
 
         spec.Operation<ListIssuesRequest, ApiResult<List<Issue>>>("ListIssues", (req, state) =>
         {
             if (!state.Teams.TryGetValue(req.Team, out var team))
-                return Expect.That<ApiResult<List<Issue>>>(r => r.Status == 404,
-                           $"Team '{req.Team}' doesn't exist → 404").SameState();
+                return Settled(Expect.That<ApiResult<List<Issue>>>(r => r.Status == 404,
+                           $"Team '{req.Team}' doesn't exist → 404"));
             if (req.Status is not null && !Statuses.Contains(req.Status))
-                return Expect.That<ApiResult<List<Issue>>>(r => r.Status == 400,
-                           $"Status filter '{req.Status}' is unknown → 400").SameState();
+                return Settled(Expect.That<ApiResult<List<Issue>>>(r => r.Status == 400,
+                           $"Status filter '{req.Status}' is unknown → 400"));
 
             var expected = team.Issues
                 .Where(kv => req.Status is null || kv.Value.Status == req.Status)
                 .OrderBy(kv => kv.Value.Number)
                 .ToList();
-            return Judge<ApiResult<List<Issue>>>(
+            return Settled(Judge<ApiResult<List<Issue>>>(
                     $"List {req.Team} (filter {req.Status ?? "none"}) → {expected.Count} issues in number order",
                     r =>
                     {
@@ -188,11 +209,20 @@ public static class LinearSpec
                             if (!v.IsValid) return v;
                         }
                         return ValidationResult.Valid();
-                    })
-                .SameState();
+                    }));
         });
 
+        // Durable: a restart keeps every acknowledged write, and issue numbers
+        // are still never reused afterwards.
+        spec.Operation<Unit, Unit>("Restart", (_, state) =>
+            Expect.Unit("Restart keeps every acknowledged write and counter").SameState());
+
         spec.ExecuteWith<LinearClient>()
+            .BindAsync<Unit, Unit>("Restart", async (c, _) =>
+            {
+                await c.RestartAsync();
+                return Unit.Value;
+            })
             .BindAsync<string, ApiResult<Team>>("CreateTeam", (c, key) => c.CallAsync<object, Team>("createTeam", new { key }))
             .BindAsync<CreateIssueRequest, ApiResult<Issue>>("CreateIssue", (c, r) => c.CallAsync<CreateIssueRequest, Issue>("createIssue", r))
             .BindAsync<string, ApiResult<Issue>>("GetIssue", (c, id) => c.CallAsync<object, Issue>("getIssue", new { id }))

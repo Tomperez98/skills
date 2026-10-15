@@ -1,5 +1,6 @@
 // Run from demo/: node tools/mutate.mjs. Plants one bug at a time in system/linear.mjs
 // and reruns the suite; SURVIVED means an input or predicate is missing.
+// Optional argument: only run mutants whose name contains it (a full run is slow).
 import { readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 const file = "system/linear.mjs";
@@ -30,13 +31,19 @@ const M = [
   ["no lock: setStatus", 'this.#exclusive(String(id).split("-")[0], () => this.#setStatus(args))', "this.#setStatus(args)"],
   ["no lock: assign", 'this.#exclusive(String(id).split("-")[0], () => this.#assign(args))', "this.#assign(args)"],
   ["no lock: archiveIssue", 'this.#exclusive(String(id).split("-")[0], () => this.#archiveIssue(args))', "this.#archiveIssue(args)"],
+  // Durability: each write must reach the file before it is acknowledged.
+  ["counter not persisted", "counter: t.counter, issues: [...t.issues.values()]", "counter: [...t.issues.values()].reduce((m, i) => Math.max(m, i.number), 0), issues: [...t.issues.values()]"],
+  ["archive not persisted", "team.issues.delete(id);\n    await this.#persist();", "team.issues.delete(id);"],
+  ["issue save not persisted", "team.issues.set(issue.id, issue);\n    await this.#persist();", "team.issues.set(issue.id, issue);"],
+  ["team not persisted", "this.teams.set(key, { counter: 0, issues: new Map() });\n    await this.#persist();", "this.teams.set(key, { counter: 0, issues: new Map() });"],
 ];
+const only = process.argv[2];
 const results = [];
 try {
-  for (const [name, from, to] of M) {
+  for (const [name, from, to] of M.filter(([n]) => !only || n.includes(only))) {
     if (!orig.includes(from)) { results.push([name, "BAD-PATTERN"]); continue; }
     writeFileSync(file, orig.replace(from, to));
-    const r = spawnSync("dotnet", ["test", "--no-restore", "--filter", "FullyQualifiedName~System_matches|FullyQualifiedName~System_is_linearizable|FullyQualifiedName~Pinned_race"], { cwd: "spec", encoding: "utf8" });
+    const r = spawnSync("dotnet", ["test", "--no-restore", "--filter", "FullyQualifiedName~System_matches|FullyQualifiedName~System_is_linearizable|FullyQualifiedName~Pinned_race|FullyQualifiedName~Archived_number"], { cwd: "spec", encoding: "utf8" });
     results.push([name, /Failed!/.test(r.stdout) ? "killed" : /Passed!/.test(r.stdout) ? "SURVIVED" : "ERROR"]);
     console.log(name.padEnd(32), results.at(-1)[1]);
   }

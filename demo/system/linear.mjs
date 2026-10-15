@@ -1,6 +1,9 @@
 // A tiny Linear-like tracker: teams own numbered issues (ENG-1, ENG-2, ...).
 // Storage is asynchronous (each read and write yields, like a database), and
 // each operation is a plain read-modify-write over it.
+import { existsSync, readFileSync } from "node:fs";
+import { rename, writeFile } from "node:fs/promises";
+
 export const STATUSES = ["backlog", "todo", "in_progress", "done", "canceled"];
 const TERMINAL = new Set(["done", "canceled"]);
 
@@ -10,6 +13,30 @@ const io = () => new Promise((resolve) => setImmediate(resolve));
 
 class Store {
   teams = new Map(); // key -> { counter, issues: Map<id, issue> }
+  #file;
+  #flushed = Promise.resolve();
+
+  constructor(file) {
+    this.#file = file;
+    if (file && existsSync(file)) {
+      for (const [key, { counter, issues }] of Object.entries(JSON.parse(readFileSync(file, "utf8")))) {
+        this.teams.set(key, { counter, issues: new Map(issues.map((i) => [i.id, i])) });
+      }
+    }
+  }
+
+  // Durable before the caller answers: writes queue and finish in order.
+  #persist() {
+    if (!this.#file) return this.#flushed;
+    const snapshot = JSON.stringify(
+      Object.fromEntries([...this.teams].map(([key, t]) => [key, { counter: t.counter, issues: [...t.issues.values()] }])),
+    );
+    const tmp = `${this.#file}.tmp`;
+    return (this.#flushed = this.#flushed.then(async () => {
+      await writeFile(tmp, snapshot);
+      await rename(tmp, this.#file);
+    }));
+  }
 
   async team(key) {
     await io();
@@ -18,6 +45,7 @@ class Store {
   async createTeam(key) {
     await io();
     this.teams.set(key, { counter: 0, issues: new Map() });
+    await this.#persist();
   }
   async counter(team) {
     await io();
@@ -36,16 +64,23 @@ class Store {
     const team = await this.team(issue.id.split("-")[0]);
     await io();
     team.issues.set(issue.id, issue);
+    await this.#persist();
   }
   async deleteIssue(id) {
     const team = await this.team(id.split("-")[0]);
     await io();
     team.issues.delete(id);
+    await this.#persist();
   }
 }
 
 export class Linear {
-  store = new Store();
+  store;
+
+  constructor(file) {
+    this.store = new Store(file);
+  }
+
   #tails = new Map(); // team key -> end of its queue of writers
 
   // Writers to one team run one at a time; readers never wait.
