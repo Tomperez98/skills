@@ -72,14 +72,18 @@ checksums in `mise.lock`; `mise install` fetches it.
 
 - `mise run check` — fast tier: every `SKILL.md` has valid frontmatter
   (`name` matches its folder, no duplicate fields, `description` within the
-  1024-char limit and warned above the ~450 budget), the README links every
-  skill and branch guide, and its `Skill` table names each skill and guide.
+  1024-char limit and warned above the ~450 budget), every `SKILL.md` has a
+  `## Hand off` section and every branch guide a `## Done when`, the README
+  links every skill and branch guide, and its `Skill` table names each skill
+  and guide.
 - `mise run lint` — fast tier: Markdown formatting and lint rules (rumdl,
   configured in `.rumdl.toml`). Prose wraps at 80 columns; code blocks are
   exempt. `mise run fmt` fixes what it reports, in place.
 - `mise run links` — full tier: every internal link resolves, every cited
   rule exists ("CI.md rule 7", "code skill, WRITE.md rule 25") and is still
-  the rule it meant on main, and no page under `skills/` is orphaned.
+  the rule it meant on main, every Skill tool call (`call the Skill tool
+  with "ship" and follow its CI.md`) names a skill that exists and guides
+  that skill has, and no page under `skills/` is orphaned.
   Insert or remove a rule and this names every citation that now points at
   a different rule.
 - `mise run contract` — a report, never a failure: what the change does to

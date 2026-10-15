@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 // Validate the skill collection: frontmatter, description budget, README sync,
-// link resolution, rule references, and orphaned pages.
+// Hand off and Done when sections, link resolution, rule references, Skill tool
+// calls, and orphaned pages.
 //
 // Run the whole suite, or one tier:
 //   node scripts/validate-skills.mjs        # everything
-//   node scripts/validate-skills.mjs check  # fast: frontmatter + README sync
-//   node scripts/validate-skills.mjs links  # links + rule references + orphaned pages
+//   node scripts/validate-skills.mjs check  # fast: frontmatter, sections, README sync
+//   node scripts/validate-skills.mjs links  # links, rule references, Skill calls, orphans
 //
 // Exits 0 when clean, 1 when any check fails, 2 on a usage error. Every
 // message names the file and what to change. Warnings are advisory and do not
 // fail the run; the hard description limit stays a fatal error.
 
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,9 +27,9 @@ const DESCRIPTION_BUDGET = 450; // AGENTS.md's "aim for under ~450"
 const MAX_SCAN_DEPTH = 16; // our own tree is bounded; deeper is a tool bug
 const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv", ".contract-report"]);
 const TIER_LABELS = {
-  all: "frontmatter, README sync, links, rule references, orphans",
-  check: "frontmatter, README sync",
-  links: "links, rule references, orphans",
+  all: "frontmatter, sections, README sync, links, rule references, Skill calls, orphans",
+  check: "frontmatter, sections, README sync",
+  links: "links, rule references, Skill calls, orphans",
 };
 
 /**
@@ -261,6 +262,9 @@ function branchGuides(skill) {
     .sort();
 }
 
+const HAND_OFF = /^## Hand off$/m;
+const DONE_WHEN = /^## Done when$/m;
+
 function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
   const skillFiles = markdownFiles.filter((file) => file.endsWith("SKILL.md"));
   if (skillFiles.length === 0) {
@@ -301,6 +305,13 @@ function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
       } else if (length > DESCRIPTION_BUDGET) {
         warn(skill, `description is ${length} chars, over the ~${DESCRIPTION_BUDGET} budget — tighten it`);
       }
+    }
+
+    // AGENTS.md: every SKILL.md names its transitions to other skills, and
+    // every branch guide ends on a checkable completion criterion.
+    if (!HAND_OFF.test(text)) fail(skill, "no `## Hand off` section");
+    for (const guide of branchGuides(skill)) {
+      if (!DONE_WHEN.test(readFileSync(guide, "utf8"))) fail(guide, "no `## Done when` section");
     }
 
     // README must link the skill and every branch guide in its folder.
@@ -348,6 +359,40 @@ function checkReadmeTable(readme, readmeText, skillFiles) {
   for (const row of table.rows) {
     if (!skillFiles.some((skill) => linksFor(row).includes(skill))) {
       fail(readme, `skill table row \`${(row[0] ?? "").trim()}\` does not link a SKILL.md`);
+    }
+  }
+}
+
+// `call the Skill tool with "ship" and follow its CI.md, then RELEASE.md.`
+// The clause runs to the sentence's end: a period before whitespace, a colon,
+// a semicolon, or a closing parenthesis. A `.md` inside it is no boundary.
+const SKILL_CALL = /call\s+the\s+Skill\s+tool\s+with\s+"([^"]+)"([\s\S]*?)(?:\.(?=\s|$)|[:;)]|$)/gi;
+const GUIDE_NAME = /\b[A-Z][A-Z_]*\.md\b/g;
+
+/**
+ * Every instruction to load another skill names a skill that exists, and every
+ * guide it says to follow exists in that skill's folder. A rename that misses
+ * one leaves the agent loading the right skill and opening a missing page.
+ */
+function checkSkillCalls(markdownFiles) {
+  const skillDirs = new Map(
+    markdownFiles
+      .filter((file) => file.endsWith("SKILL.md"))
+      .map((file) => [basename(dirname(file)), dirname(file)]),
+  );
+  for (const file of markdownFiles) {
+    const text = tidy(readFileSync(file, "utf8").replace(/`/g, ""));
+    for (const [, name, clause] of text.matchAll(SKILL_CALL)) {
+      const dir = skillDirs.get(name);
+      if (!dir) {
+        fail(file, `Skill tool call names "${name}", which is not a skill`);
+        continue;
+      }
+      for (const guide of clause.match(GUIDE_NAME) ?? []) {
+        if (!existsSync(join(dir, guide))) {
+          fail(file, `Skill tool call to "${name}" says to follow ${guide}, which ${name} doesn't have`);
+        }
+      }
     }
   }
 }
@@ -539,6 +584,7 @@ if (tier === "all" || tier === "check") {
 if (tier === "all" || tier === "links") {
   runLinks(markdownFiles);
   checkRuleReferences(markdownFiles);
+  checkSkillCalls(markdownFiles);
 }
 
 const skillCount = markdownFiles.filter((file) => file.endsWith("SKILL.md")).length;
