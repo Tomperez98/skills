@@ -188,14 +188,28 @@ Read in a row, the strings are the contract in words, so a diff of them
 between two versions of the spec is the review a contract change needs
 (TRACES.md rule 9).
 When several fields can be wrong, return a `ValidationResult` so the
-message names the field and the actual value:
+message names the field and the actual value. That overload of
+`Expect.That` takes no explanation string (0.1.6), so a one-argument call
+loses the `"<situation> → <outcome>"` line. Fold it into the failure
+message with a helper:
 
 ```csharp
-Expect.That<ApiResult<User>>(r =>
+static ExpectedOutcomeBuilder<TResp> Judge<TResp>(
+    string why, Func<TResp, ValidationResult> check) =>
+    Expect.That<TResp>(r =>
+    {
+        var v = check(r);
+        return v.IsValid ? v : ValidationResult.Invalid($"{why}: {v.FailureMessage}");
+    });
+
+Judge<ApiResult<User>>($"User '{id}' exists → 200 with its name", r =>
     r.Data?.Name != user.Name
         ? ValidationResult.Invalid($"Name: expected '{user.Name}', got '{r.Data?.Name}'")
         : ValidationResult.Valid())
 ```
+
+Passing the string as a second argument to the `ValidationResult` form
+does not compile; the `bool` form `Expect.That<T>(r => …, "why")` does.
 
 ## 8. Capture what you can't predict, then hold it stable
 
