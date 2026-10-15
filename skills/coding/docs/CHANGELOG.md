@@ -60,3 +60,12 @@ The changelog is the record; the release notes are the pitch. In a release
 post or announcement, lead with the headline change and the problem it
 solves, in the reader's task vocabulary, with a before/after example. See
 LANDING.md for the pitch craft.
+
+## Done when
+
+- The release has its own section with a SemVer number, a date, a compare
+  link, and the standard groups (rule 1).
+- Every breaking change comes first, with a migration note (rule 2).
+- Each entry is one user-visible change, stated as its impact; no refactors,
+  bumps, or typo fixes (rules 3–5).
+- Each entry landed in the same commit as its change (rule 6).

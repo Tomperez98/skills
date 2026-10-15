@@ -82,3 +82,11 @@ the 10% caveats.
 
 A code fence without a language is unreadable for half your readers. Fence
 with the language so syntax highlighting and copy-paste both work.
+
+## Done when
+
+- Each operation has its own page, titled with the task it does (rules 1, 7).
+- Each page gives the signature, parameters, and return in that order, and
+  lists every error with what the caller should do (rules 2–3).
+- Each example runs as pasted, has no `...`, and shows its output (rule 4).
+- Every code fence names its language (rule 9).

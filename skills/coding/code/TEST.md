@@ -342,3 +342,16 @@ means nothing until you have seen it fail. Cap the budget — a handful of
 mutants and runs, not an afternoon — and stop when new survivors stop
 teaching you anything. Mutants are ephemeral: never merge one. They are
 calibration; the test is the artifact.
+
+## Done when
+
+- Every error variant in the signature has its own test, which asserts the
+  variant before the payload (rules 1–2).
+- A workflow's tests show later steps don't run after an early failure, and
+  retry tests assert the exact attempt list with zero delay (rules 3–4).
+- Where the code claims crash-only behavior, each claim has its test:
+  restart after a kill, double-apply, ack before release (rules 10–12).
+- A refactor has an equivalence test against the original, and a decision
+  table has one case per row plus a gap-or-overlap check (rules 13 and 15).
+- The suite went red on at least one injected mutant, and no mutant is left
+  in the code (rule 16).

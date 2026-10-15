@@ -101,6 +101,20 @@ If a fix can't ship through the normal path, for example when upgrading to
 the new version is itself broken, write the emergency procedure down before
 you need it, not during the incident.
 
+## Done when
+
+- The checklist is in the repo, with exact commands and a recovery step for
+  each way a release can fail (rule 1).
+- The version lives in one place, and the next number comes from the last
+  changelog entry, not from typing it (rule 3).
+- The changelog entry starts from the list of merged changes and puts
+  breaking changes first, with migration steps (rule 4).
+- The tag points at a SHA resolved from remote main that passed CI and the
+  post-merge checks (rule 5).
+- An agent running the release stopped once, before the first upload,
+  showed the commit, version, and changelog entry, and waited for a "go"
+  (rule 6).
+
 ---
 
 RELEASE decides what ships and what it's called. CI.md and MONITOR.md

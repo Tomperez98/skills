@@ -96,6 +96,11 @@ build (CI.md rule 7). To write the entry, call the Skill tool with "docs"
 and follow its CHANGELOG.md. After the major release ships, its contract
 becomes the new baseline.
 
+Declaring a break is the user's call, never the agent's. A declared break
+forces a major version on everyone downstream. Show the failing check and
+the proposed changelog entry, then wait for a yes. Fixing the change so the
+check passes again needs no permission.
+
 Only that undeclared break is an error. Give every other result its own
 level, so red keeps meaning "stop":
 
@@ -107,6 +112,28 @@ level, so red keeps meaning "stop":
 
 Prefer deprecation to removal: keep the old behavior for at least one
 release, warn when it's used, and say in the changelog when it goes away.
+
+When an agent asks "is this a breaking change?" about a change it wrote
+itself, run the review in a subagent. A fresh context judges the diff
+instead of the intent behind it. Before you start it, check that the
+baseline tag resolves and the diff is non-empty, so bad input fails here
+and not inside the subagent. Then paste in everything it can't see for
+itself:
+
+```text
+Classify this change against release <tag>, layer by layer (COMPAT.md
+rule 1). Inputs: the diff, <pasted>; the shape-diff output, <pasted or
+"none">; the behavior-check output, <pasted or "none">.
+For each change, report one line:
+  <file:symbol> | shape or behavior | undeclared break, declared break,
+  promise reworded, or new promise | the evidence (tool line or failing
+  check)
+End with the overall level, the highest one found. Under 300 words.
+Report what the evidence shows. Where no check covers a change, say
+"unchecked"; never guess.
+```
+
+Report its lines as written, under the overall level. Don't re-rank them.
 
 ## 7. Run the slow suites on a schedule, not on every pull request
 
@@ -171,6 +198,17 @@ with the specs judging the responses. A schema change to stored data runs
 as expand, migrate, contract, spread over at least two releases: add the
 new shape and write both, move readers over, then remove the old shape
 once no N-1 code is left.
+
+## Done when
+
+- The shape diff against the last release ran and its output is read
+  (rule 2).
+- The last release's suite ran against this build, judged by the old spec
+  (rule 5).
+- Every failure is fixed or declared. A declared break has the user's yes,
+  a breaking changelog entry, and a migration note (rule 6).
+- With several services: both directions and the rollout order ran green
+  (rules 9–10).
 
 ---
 

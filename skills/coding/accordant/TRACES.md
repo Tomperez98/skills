@@ -174,6 +174,38 @@ change produces each piece:
   sequence (DEBUG.md rule 2). The author pastes it into a test and has the
   failure in seconds.
 
+When an agent wrote the spec change and is also asked to review it, run
+the review in a subagent. A fresh context reads the four pieces instead of
+the intent behind them. Produce the pieces first. A review started without
+the replay results has nothing to judge. Then paste them in:
+
+```text
+Review this spec change as a contract change. Inputs: the explanation-
+string diff, <pasted>; the state and edge diff, <pasted>; main's spec on
+the branch build and the branch's spec on main's traces, <pasted>.
+For each changed promise, report one line:
+  <explanation string> | added, removed, tightened, or loosened |
+  intended? yes, no, or ask | the evidence (diff line or replay result)
+End with the replay results, both sides as given. Under 300 words.
+Mark "ask" wherever the evidence can't tell intent; never guess.
+```
+
+Post its lines as written beside the four pieces. An "ask" goes to the
+spec's owner, not back to the author's agent.
+
+## Done when
+
+- Only traces from passing runs are kept, each with its header (rule 2)
+  and coverage tags (rule 4).
+- The repo holds a manifest, not traces, and CI fails on a trace that is
+  missing or doesn't match its checksum (rule 3).
+- CI replays the whole database on every spec change and fails a replay
+  that ends with more candidates than the manifest recorded (rules 5–6).
+- Every mutated copy of a trace is rejected, or the field is noted as
+  outside the contract (rule 7).
+- Every outcome in the source matched at least once on a green run
+  (rule 8).
+
 ---
 
 A trace that fails replay goes through DEBUG.md rule 4 like any other

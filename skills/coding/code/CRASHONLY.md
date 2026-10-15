@@ -136,6 +136,19 @@ and retry. Brief unavailability becomes raised latency, not errors. Don't
 let a fresh flood of requests hit a component that is still rebuilding its
 state.
 
+## Done when
+
+- The component has one stop path, crash, and one start path, recovery; no
+  graceful-shutdown or fresh-install path exists (rules 1–2).
+- Nothing must happen at shutdown: a `kill -9` mid-write, then a restart,
+  leaves the state sound (rules 2–3).
+- Every retryable effect carries an idempotency key or sequence number, or
+  is marked as not idempotent (rule 4).
+- Durable state lives in a store, and a unit of work carries everything a
+  fresh instance needs to resume it (rules 5 and 8).
+- Every call has a timeout, every hold has a lease, and retries are capped,
+  backed off, and jittered (rules 6 and 10).
+
 ---
 
 Crash-only is the other half of the one rule: a panic is only usable as a

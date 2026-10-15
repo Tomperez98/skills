@@ -251,6 +251,20 @@ labeled with the consumer's name (`"Billing: cancel shipped order"`), and
 the sequences as manual cases over those labels (GENERATE.md rule 7), so
 the provider's CI runs them and a failure names who would break.
 
+## Done when
+
+- The baseline suite is checked out at the last release tag, matched with
+  prereleases excluded, not copied onto main (rule 1).
+- The release's exported sequences ran unchanged against the new build,
+  and every rejection is a fix to the system or a declared break, never an
+  edit to the baseline spec (rule 2, rule 4).
+- The baseline's deserializer rejects a dropped field and an unknown enum
+  value (rule 3).
+- An upgrade case runs the last release and then the new build on the same
+  storage, inside one test (rule 7).
+- With several services: every service's baseline ran against the new
+  build, and every main suite against the last release (rule 9).
+
 ---
 
 The checks reuse everything the other branches built: SPEC.md for the contract,

@@ -70,6 +70,15 @@ would dominate the data plane. This is where fail-fast and performance
 agree: the control plane can afford to be paranoid — WRITE.md's assertions
 (rule 1) belong in the control plane, not repeated inside the hot loop.
 
+## Done when
+
+- A written sketch names the bottleneck: which of network, storage, memory,
+  or compute, and whether bandwidth or latency (rule 1).
+- A profile or timing, before and after, shows the change sped up the path
+  the sketch named (rules 1–2).
+- The hot loop makes no per-item query and runs no per-item check or
+  assertion; validation runs once per batch (rules 2–3).
+
 ---
 
 These are constant-factor wins, not new algorithms — pick the right

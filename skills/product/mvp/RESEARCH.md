@@ -18,11 +18,24 @@ Hand deep research a specific question — "is X growing, and who's already
 built on it?" — not a topic. A vague topic gets you a homework assignment; a
 question gets you evidence you can act on.
 
+When the harness can run a background agent, hand the research to one and
+keep shaping the idea while it reads. Give it the question and the record
+from rule 3 as its output, with a source on every line, under 300 words.
+Tell it to write "no evidence found" rather than fill a line from memory.
+Read the record it returns, not its transcript.
+
 ## 3. Keep the brief bounded
 
 Take the cited brief as a means, not an end. Extract the trend, the
 incumbents, and the gap, then stop reading. A brief that costs more time
 than your idea's five-minute value window is the wrong tool for this stage.
+
+```text
+Question:    <the question from rule 2>
+Trend:       real | not real, <cited evidence>
+Incumbents:  <who already ships on it>
+Gap:         <what they do slowly or not at all>
+```
 
 ## 4. Extract the gap, not the consensus
 
@@ -43,3 +56,12 @@ A cited brief is your own excitement with footnotes. The rule is "get a real
 person to their aha in five minutes" — research de-risks the idea; it never
 proves it. The moment you've confirmed the premise, stop researching and
 start validating.
+
+## Done when
+
+- The question was written down before the research ran (rule 2).
+- The brief is reduced to its record: trend, incumbents, and gap (rule 3).
+- The gap names what incumbents do slowly or not at all, not that the space
+  is popular (rule 4).
+- No question asked whether people will use it, and the next step is SPEC
+  or VALIDATE, not more research (rules 1, 5–6).

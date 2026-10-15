@@ -158,6 +158,19 @@ A mismatch here means users are getting something other than what you
 tested, so treat it as a bug and fail loudly with the artifact name and
 both values.
 
+## Done when
+
+- The build runs without secrets and writes every artifact and a manifest
+  with a checksum per file into one directory (rule 1, rule 2).
+- Right after the build, the artifact reports the version and commit you
+  meant to build (rule 2).
+- Running publish again after a failure partway through finishes the
+  release without burning the version (rule 3, rule 4).
+- Only the upload job can obtain the publishing credential (rule 5).
+- A separate job installs the release from the public registry into a
+  clean environment and runs a smoke test, after each publish and on a
+  schedule (rule 6).
+
 ---
 
 PUBLISH is the machine side of a boring release: build once, check before

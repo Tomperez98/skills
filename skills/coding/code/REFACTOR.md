@@ -129,3 +129,11 @@ asked you to harden does not.
 If a test is still painful to write after the refactor, that's not a mocking
 problem — the structure still violates one of the rules above. Loop back to
 step 1.
+
+## Done when
+
+- The violation doing the most damage is named from the checklist (rule 1).
+- That violation is gone, and an equivalence test shows external behavior
+  is unchanged (rule 2).
+- The tests the new structure allows are written, and none needs a mock to
+  work around the structure (rules 2–3).

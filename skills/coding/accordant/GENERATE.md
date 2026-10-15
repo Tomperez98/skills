@@ -379,6 +379,19 @@ does the same for the spec. Run it on the cluster you just specified, not
 the whole system, and on a schedule rather than every push — it reruns
 the suite once per mutant.
 
+## Done when
+
+- Every operation has a binding with its exact name and types, and async
+  APIs go through `BindAsync` (rule 1).
+- `BeforeEachAsync` puts the system in the spec's initial state before
+  every test (rule 3).
+- Every guard in the spec has an input that fires it, and every write has
+  a read that observes it (rule 4).
+- A generation-only run finished with a non-empty, bounded graph, and the
+  rendered graph has no missing edge or unexpected state (rules 5–6).
+- The real run asserts that no result failed, and a failure reports the
+  spec's message (rule 8).
+
 ---
 
 Once sequential tests pass, CONCURRENCY.md reuses the same spec, inputs,

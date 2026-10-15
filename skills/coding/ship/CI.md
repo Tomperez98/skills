@@ -152,6 +152,19 @@ on green alone after the specs have caught real bugs: a spec that only
 checks `success` passes every coverage check and judges nothing, and no
 check can tell.
 
+## Done when
+
+- One command runs the whole suite on a laptop and in CI, and the CI config
+  only sets up the environment and calls it (rule 1).
+- Main moves only to merged results that passed, and every commit on main
+  keeps its own result (rule 3).
+- Toolchains, dependencies, ad hoc tools, and CI actions are pinned in one
+  place both a laptop and CI read, and jobs get no permissions or secrets
+  by default (rule 4).
+- A failing step names the command that failed and how to replay it
+  locally, seed included (rule 5, rule 6).
+- The release build runs in dry-run mode on every merge (rule 8).
+
 ---
 
 CI is the gate: it runs locally, it's reproducible, it's clear when it fails,

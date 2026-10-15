@@ -69,3 +69,14 @@ the guides. Leave them mid-momentum, not at a dead end.
 Run your own tutorial from scratch, in a clean environment, pasting each
 command exactly as written. Any step that doesn't produce the stated output
 is a bug in the tutorial, not the reader. Fix the text, not the reader.
+
+## Done when
+
+- The first lines state the one outcome and the prerequisites, with how to
+  check each (rules 1–2).
+- Every command shows its expected output and at least one common failure
+  with its fix (rules 3–4).
+- Each checkpoint links to the complete code so far (rule 5).
+- It ends with the finished result and one concrete next step (rule 7).
+- You ran it from scratch in a clean environment, pasting each command as
+  written, and every output matched the page (rule 8).

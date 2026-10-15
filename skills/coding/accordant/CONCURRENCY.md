@@ -163,6 +163,17 @@ On an in-process counter whose deposit reads, waits, and writes, the
 plain cases all pass and the wrapped ones fail on the read (Accordant
 0b2c0d4). Name the read uniquely; the runner rejects a repeated call name.
 
+## Done when
+
+- The sequential tests pass before any concurrent case runs (rule 1).
+- The inputs put two actors on the same resource, plus a read that shows
+  who won (rule 3).
+- Every concurrent case ends with a read of the whole state (rule 8).
+- Each race found is a manual case that failed before the fix and passes
+  after it (rule 6).
+- The concurrent suite runs repeatedly, in a loop or a scheduled job, not
+  once (rule 7).
+
 ---
 
 ORACLE.md rule 4 applies the same check to concurrent traces recorded

@@ -773,3 +773,16 @@ runs, which makes them the earliest crash you have. Let them fail the build.
 - **Gate the merge on it.** Run the compiler and analyzers in CI's fast tier
   (ship skill, CI.md rules 2 and 7). To set that up, call the Skill tool
   with "ship" and follow its CI.md.
+
+## Done when
+
+- Every expected failure is a returned value the signature shows, and no
+  call site drops one (rule 2).
+- Every broken invariant or precondition panics at its line, with a message
+  that names the value that broke it (rules 1 and 21).
+- Raw input and the environment are read once, at the edge, into typed
+  values; nothing below calls `getenv` or re-validates (rules 3 and 9).
+- Errors are translated once per boundary: no driver error type or
+  transport code reaches the domain (rules 5 and 7).
+- Every loop, queue, and recursion has a named bound, and the strict build
+  reports zero warnings (rules 14 and 25).

@@ -24,6 +24,11 @@ what, with what result.* A sentence forces you to name the user and the
 outcome instead of gesturing at a category. "An app" is not an idea; "a
 camera app that maps a face and tells you exactly what to fix" is.
 
+```text
+Idea:   For <who>, <doing what>, so that <result>.
+Trend:  <what is moving, and where you can show it>
+```
+
 ## 3. Prefer the shortest path to value
 
 Between two ideas, pick the one a user can feel the payoff from fastest.
@@ -34,3 +39,12 @@ takes an hour to reach is the wrong idea, however clever.
 
 Don't collect ideas. Pick one, spec it, and validate it before reaching for
 the next. A folder of half-spec'd ideas is a folder of nothing.
+
+## Done when
+
+- The trend is one you can show, or a cited research brief backs it
+  (rule 1).
+- The idea is written as one sentence naming who, doing what, with what
+  result (rule 2).
+- You picked one idea, the one with the fastest payoff, and the rest are
+  parked (rules 3–4).

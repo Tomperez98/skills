@@ -192,6 +192,19 @@ each event as an operation whose request is the event and whose response is
 `Unit`. The spec then checks that each event was allowed in the state at
 that point.
 
+## Done when
+
+- Every `Allows` call takes the profile the previous call returned (rule 1).
+- Hand-written tests assert only through the spec and reset the profile
+  together with the system (rule 2).
+- Trace replay matches the system's casing and fails on unmapped fields;
+  each trace starts from a reset or snapshot its header names, and holds no
+  credentials (rule 3).
+- Copies of a recorded trace with one response corrupted are each rejected
+  (rule 3, TRACES.md rule 7).
+- With concurrent calls: only calls whose time windows overlapped share an
+  `AllowsConcurrent` group (rule 4).
+
 ---
 
 Traces judged this way are also the evidence for testing the spec itself:
