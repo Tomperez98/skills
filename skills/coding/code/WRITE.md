@@ -23,7 +23,7 @@ fn set_quantity(q: int) {
 
 Sprinkle `assert` wherever an assumption is clever or load-bearing. Stop
 running the moment it stops holding — assertions turn "that can't happen"
-into "that won't happen." Rule 24 says whose bug each assertion catches:
+into "that won't happen." Rule 21 says whose bug each assertion catches:
 the caller's (precondition) or yours (postcondition).
 
 Write the panic message for the person who reads it: name the invariant and
