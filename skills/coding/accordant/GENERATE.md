@@ -246,7 +246,11 @@ SequentialTestCaseAlgorithm CyclingWalk(int walks, int length, int seed) => (ctx
         var calls = new List<OperationCall>();
         for (var (node, i) = (root, 0); i < length && node.Edges.Count > 0; i++)
         {
-            var edge = node.Edges[rng.Next(node.Edges.Count)];
+            // Reads and refusals are self-loops; favor edges that move, or
+            // most walks never leave the initial state.
+            var moving = node.Edges.Where(e => e.Target != node).ToList();
+            var pool = moving.Count > 0 && rng.NextDouble() < 0.7 ? moving : node.Edges;
+            var edge = pool[rng.Next(pool.Count)];
             var call = ((OperationCall)edge.Metadata).Clone();
             call.Name = $"{call.Name} #{i}";
             calls.Add(call);
@@ -278,6 +282,13 @@ a random subset of inputs switched off through `ShouldApply` (`(input,
 state) => enabled.Contains(input.Name)`). Delete keeps a queue from ever
 filling and Cancel keeps a quota from running out; a run without them gets
 there.
+
+Check that walks get deep: in a spec where most inputs are reads or
+refusals, an unweighted walk spends nearly every step on self-loops, so a
+rule that needs an issue created, closed, then closed again stays
+untested while the run is green (a 70% bias toward moving edges fixed
+it). Count the generated cases that contain the sequence a rule needs, or
+plant a bug in that rule and see the suite fail (rule 10).
 
 The delegate is `(TestingContext context, StateGraphNode root) =>
 IList<SequentialTestCase>`, so a custom walk is a function you write.

@@ -80,6 +80,19 @@ deserialize into the spec's request and response types, and the system must
 really be in the initial state when the trace starts — reset it in tests,
 or start a production trace from a snapshot.
 
+The system can record the wire format and leave the spec's vocabulary to
+the reader: log `createIssue` with `{"id": "ENG-1"}` and let the replay
+map it to `CreateIssue` and unwrap a request the spec models as a plain
+`string`. Log lifecycle events too (`reset`, `boot`): a boot after calls is
+a `Restart` the replay feeds through `Allows` with `Unit.Value` for
+request and response, so durability is judged from traffic as well.
+
+The oracle is only as thorough as the traffic, so aim the workload: reuse
+IDs the server returned, race a call against copies of itself, and cover
+each boundary. Then corrupt single responses in a recorded trace and
+require each corrupted trace to be rejected (TRACES.md rule 7), or a green
+replay proves nothing.
+
 Record the raw request and response, IDs and timestamps included. A value
 that differs on every run isn't noise to scrub: either the spec captures it
 and holds later steps to it (SPEC.md rule 8), or the spec leaves it out
@@ -120,7 +133,11 @@ entries overlapped and go to `AllowsConcurrent` together. Under
 `spec.RunTests` the runner already knows: `OnStepExecuted` reports a
 concurrent batch as `info.Operations` — write that batch as one segment. A
 system recording its own trace logs each call's start and end time and
-builds segments from them.
+builds segments from them. Sweep calls by start time and join a call to
+the group while it started before the group's latest end. Clocks like
+`performance.now()` restart with the process, so close the group at every
+boot. A window measured inside the server is narrower than the client's, so
+it can only under-group, which keeps the check strict.
 
 ```json
 [

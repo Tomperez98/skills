@@ -70,13 +70,35 @@ public abstract class FaultTolerantOperation<TReq, TResp, TState> : Operation<TR
 Operations then declare only their definite behavior, and the failure model
 can't drift between them.
 
+Inline operations have no base class; two helpers do the same job. A read
+or a refusal gets "timeout, nothing changed"; a write gets the three
+outcomes of rule 2. Every return in the spec goes through one of them,
+including the refusals, since a lost 404 is still a timeout:
+
+```csharp
+static ExpectedOutcomes Settled<T>(ExpectedOutcomeBuilder<T> definite) where T : ITimeout =>
+    Faults.On
+        ? Expect.OneOf(definite.SameState(), Timeout<T>("nothing changed").SameState())
+        : definite.SameState();
+
+static ExpectedOutcomes Writes<T>(ExpectedOutcomeBuilder<T> ok, Action<AppState> effect)
+    where T : ITimeout =>
+    Faults.On
+        ? Expect.OneOf(ok.ThenState<AppState>(effect),
+                       Timeout<T>("request lost").SameState(),
+                       Timeout<T>("response lost").ThenState<AppState>(effect))
+        : ok.ThenState<AppState>(effect);
+```
+
 ## 5. When the effect may have happened but you never saw its ID
 
 A create that timed out might have made a server-generated ID you'll never
 learn. Model the uncertainty explicitly — a `MaybeExists` list or a
 `HasUnknownJob` flag — and let later listings accept one unrecognized item
 while that flag is set, then capture it and clear the flag. Don't invent a
-placeholder ID; no real response will ever match it.
+placeholder ID; no real response will ever match it. When the ID is a
+function of state (the next number of a counter), the spec predicts it and
+needs no flag: the lost create is just the two outcomes of rule 2.
 
 ## 6. Keep exploration deterministic; let execution see the faults
 
@@ -152,6 +174,11 @@ is crash safety, and rebuild the clients the other bindings use. Combined
 with rule 2, a restart while a call is in flight is an indefinite failure.
 Background jobs (ASYNC.md) that must survive a restart keep their step
 functions across it.
+
+State recomputed on boot (a counter rebuilt from the surviving rows)
+breaks only in an exact order: create, archive, restart, create reuses the
+archived number. Plain walks can miss it, so give `Restart` its own
+input and pin a sequence like that as a manual case once found.
 
 ---
 
