@@ -12,7 +12,7 @@ system running. Apply the rules in order.
   response. Replay judges them with the spec alone (ORACLE.md rule 3), so
   they catch a *spec* that changed.
 - **Test plans** hold only what to call (ORACLE.md rule 5). Running them
-  again against a build catches a *system* that changed (COMPAT.md).
+  again against a build catches a *system* that changed (BASELINE.md).
 
 When a spec change turns a run red, replay the traces before blaming the
 system: a trace that used to pass and now fails is a spec regression until
@@ -91,7 +91,7 @@ make every trace a sample — a run that saw `Completed` says nothing about
 the spec's `Failed` branch.
 
 Keep at least one trace per operation and outcome, including passing runs
-from the scheduled fault and concurrent suites (COMPAT.md rule 8).
+from the scheduled fault and concurrent suites (BASELINE.md rule 8).
 `Allows` doesn't report which outcome matched, so tag each trace with the
 generated case it came from (`info.TestCase`; each case is a path through
 the spec's graph) or, for a trace from another language, with each step's
@@ -112,7 +112,7 @@ the lost response you saw once for a run that didn't hit it.
 
 A trace that no longer deserializes into the spec's types is a changed
 request or response type, not a rejection — a shape break to declare
-(COMPAT.md rule 4), not a rule to loosen.
+(BASELINE.md rule 4), not a rule to loosen.
 
 ## 6. Bound the ambiguity
 
@@ -161,13 +161,13 @@ change produces each piece:
   409 on cancel"`. Interpolated strings diff as templates, which is what a
   reviewer wants. It's a hint, not the check: a predicate can tighten
   under an unchanged string, which only replay (rule 5) and the baseline
-  run (COMPAT.md rule 2) catch.
+  run (BASELINE.md rule 2) catch.
 - **States that changed:** render `spec.VisualizeStateSpace` with the same
   inputs on both sides and post the states and edges added or removed. "A
   shipped order can now be cancelled" shows up as a new edge, where a code
   diff hides it.
 - **Which side moved:** run main's spec against the branch build
-  (COMPAT.md rule 2) and the branch's spec over main's trace database
+  (BASELINE.md rule 2) and the branch's spec over main's trace database
   (rule 5), and post both results side by side.
 - **Exact replay:** for each failing result, post its input labels in
   order, the explanation string, and the actual response as a `Check`
@@ -178,4 +178,4 @@ change produces each piece:
 
 A trace that fails replay goes through DEBUG.md rule 4 like any other
 rejection. Checking the system, not the spec, against the last release is
-COMPAT.md.
+BASELINE.md.

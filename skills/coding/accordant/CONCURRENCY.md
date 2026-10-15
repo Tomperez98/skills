@@ -125,7 +125,7 @@ still one interleaving per run.
 
 Interleavings depend on timing, so a race can hide for a run or ten. Run
 concurrent suites repeatedly (a loop in the test, or a scheduled CI job;
-COMPAT.md rule 8 adds the last release's spec as a second judge).
+BASELINE.md rule 8 adds the last release's spec as a second judge).
 A concurrent case that fails intermittently is most likely the race you're
 hunting, not a flaky test — rule out an incomplete reset first, then treat
 it as a bug.

@@ -42,7 +42,7 @@ not asserts scattered across tests. A spec that maps (request, state) to the
 correct responses can judge any build, including one it has never seen
 (accordant skill). Hand-written asserts tied to today's implementation
 can't be pointed at the next release. To write that spec, call the Skill
-tool with "accordant" and follow its SPEC.md, then its COMPAT.md to run
+tool with "accordant" and follow its SPEC.md, then its BASELINE.md to run
 the baseline against the new build.
 
 The spec sees the system only through its API: requests in, responses and

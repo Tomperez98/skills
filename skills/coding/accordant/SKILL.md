@@ -57,7 +57,7 @@ front of you, or by asking if the user is around:
   [FAULTS.md](FAULTS.md). Every explanation of an ambiguous response is an
   outcome; the state profile carries all of them.
 - **"Is the new version backward compatible / check against the last release"**
-  → [COMPAT.md](COMPAT.md). The released spec and sequences, unchanged,
+  → [BASELINE.md](BASELINE.md). The released spec and sequences, unchanged,
   judge the new build through a client as strict as the promise; the
   upgrade runs over data the old build wrote; traces from the release
   replay under main's spec.
@@ -77,7 +77,7 @@ being edited → SPEC; a test fixture or `InputSet` → GENERATE; a log, trace
 file, or non-.NET service → ORACLE; a lock, transaction, or "sometimes
 both succeed" → CONCURRENCY; a `Pending` status or a job table → ASYNC; a
 retry loop or fault proxy → FAULTS; a release tag or baseline suite →
-COMPAT; a spec diff under review or a trace database → TRACES; a red
+BASELINE; a spec diff under review or a trace database → TRACES; a red
 test or a stack trace → DEBUG) and state the assumption at
 the top of your work.
 
@@ -112,7 +112,7 @@ where the system stops needing them:
    catches the orderings nobody writes by hand.
 2. **CONCURRENCY, FAULTS, ASYNC** only where races, timeouts, or jobs
    actually bite. These find bugs hand-written tests almost never reach.
-3. **COMPAT** once something outside the team depends on the behavior.
+3. **BASELINE** once something outside the team depends on the behavior.
 4. **TRACES** last, once the spec is long-lived and others rely on it.
    Before that, the trace database is ceremony.
 

@@ -24,7 +24,7 @@ does not restate them.
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH, COMPAT
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
 - `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC,
-  FAULTS, COMPAT, TRACES, DEBUG
+  FAULTS, BASELINE, TRACES, DEBUG
 
 ## Skill format
 

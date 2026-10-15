@@ -79,7 +79,7 @@ When the task crosses into another skill's ground, load it with the Skill
 tool rather than carrying on from memory:
 
 - **Writing the behavior spec COMPAT.md checks** → call the Skill tool with
-  "accordant" and follow SPEC.md, then its COMPAT.md.
+  "accordant" and follow SPEC.md, then its BASELINE.md.
 - **Writing the changelog entry a release or a break needs** → call the
   Skill tool with "docs" and follow CHANGELOG.md.
 - **Fixing the code a failing gate points at** → call the Skill tool with
