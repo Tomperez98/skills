@@ -6,7 +6,7 @@ public record Team(string Key);
 public record Issue(string Id, int Number, string Title, int Priority, string Status, string? Assignee);
 public record Archived(string Id);
 
-public record CreateIssueRequest(string Team, string Title, int Priority);
+public record CreateIssueRequest(string Team, string Title, double Priority);
 public record SetStatusRequest(string Id, string Status);
 public record AssignRequest(string Id, string? Assignee);
 public record ListIssuesRequest(string Team, string? Status);

@@ -84,13 +84,13 @@ public static class LinearSpec
             if (!state.Teams.TryGetValue(req.Team, out var team))
                 return Expect.That<ApiResult<Issue>>(r => r.Status == 404,
                            $"Team '{req.Team}' doesn't exist → 404").SameState();
-            if (string.IsNullOrWhiteSpace(req.Title) || req.Priority < 0 || req.Priority > 4)
+            if (string.IsNullOrWhiteSpace(req.Title) || req.Priority < 0 || req.Priority > 4 || req.Priority != Math.Floor(req.Priority))
                 return Expect.That<ApiResult<Issue>>(r => r.Status == 400,
-                           "Blank title or priority outside 0-4 → 400").SameState();
+                           "Blank title, or priority not an integer in 0-4 → 400").SameState();
 
             var number = team.Counter + 1;
             var id = $"{req.Team}-{number}";
-            var expected = new IssueState { Number = number, Title = req.Title, Priority = req.Priority };
+            var expected = new IssueState { Number = number, Title = req.Title, Priority = (int)req.Priority };
             return Judge<ApiResult<Issue>>($"New issue → 200 as {id}, backlog, unassigned", r => SameIssue(r, id, expected))
                    .ThenState<AppState>(next =>
                    {
