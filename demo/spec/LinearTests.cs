@@ -124,11 +124,7 @@ public class LinearTests
         var options = new TestExecutionOptions
         {
             StopOnFirstFailure = false,
-            BeforeEachAsync = info =>
-            {
-                info.Context.Get<LinearClient>().Reset();
-                return Task.CompletedTask;
-            },
+            BeforeEachAsync = info => info.Context.Get<LinearClient>().Reset(),
         };
         var results = await Spec.RunTests(context, initial, tests, options);
         return results.Select(r => (r.Success, (string?)r.LastFailureMessage, (string?)r.LogFilePath)).ToList();
@@ -166,5 +162,112 @@ public class LinearTests
             SequentialTestCaseAlgorithm = CyclingWalk(walks: 200, length: 20, seed: seed),
         };
         AssertAllPassed(await Run(gen));
+    }
+
+    // Few inputs that contend for the same issue; each also races a copy of
+    // itself. Two creates must not share a number, two closes can't both win.
+    static InputSet ConcurrentInputs()
+    {
+        var team = Spec.GetOperation<string, ApiResult<Team>>("CreateTeam");
+        var create = Spec.GetOperation<CreateIssueRequest, ApiResult<Issue>>("CreateIssue");
+        var status = Spec.GetOperation<SetStatusRequest, ApiResult<Issue>>("SetStatus");
+        var assign = Spec.GetOperation<AssignRequest, ApiResult<Issue>>("Assign");
+        var archive = Spec.GetOperation<string, ApiResult<Archived>>("ArchiveIssue");
+        var list = Spec.GetOperation<ListIssuesRequest, ApiResult<List<Issue>>>("ListIssues");
+
+        return new InputSet
+        {
+            team.With("ENG", "Create team ENG"),
+            create.With(new("ENG", "Fix login", 1), "Create ENG issue"),
+            status.With(new("ENG-1", "done"), "ENG-1 done"),
+            status.With(new("ENG-1", "canceled"), "ENG-1 canceled"),
+            assign.With(new("ENG-1", "alice"), "Assign ENG-1 alice"),
+            archive.With("ENG-1", "Archive ENG-1"),
+            list.With(new("ENG", null), "List ENG"),
+        };
+    }
+
+    // Every case ends in a read of everything, since a lost update where all
+    // racers get 200 shows only in the state afterwards.
+    static TestGenerationOptions ConcurrentGen(InputSet inputs)
+    {
+        var concurrent = ConcurrentTestCaseAlgorithms.CreateDefaultConcurrentTestCaseGenerator(maxConcurrencyLevel: 3);
+        return new TestGenerationOptions
+        {
+            MaxDepth = 4,
+            StateConstraint = s => ((AppState)s).Teams.Values.All(t => t.Counter <= 2),
+            ConcurrentTestCaseAlgorithm = (ctx, root) => concurrent(ctx, root).Select(tc =>
+            {
+                tc.Segments.Add(new TestCaseSegment(new OperationCall("List ENG (after)", inputs["List ENG"])));
+                tc.Description = TestCaseGenerator.ConstructDescriptionForConcurrentTestCase(tc.Segments);
+                return tc;
+            }).ToList(),
+        };
+    }
+
+    // One green run isn't proof (CONCURRENCY.md rule 7): repeat.
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    public async Task System_is_linearizable(int run)
+    {
+        var inputs = ConcurrentInputs();
+        using var client = new LinearClient();
+        var context = Spec.CreateTestingContext();
+        context.Register(client);
+
+        var initial = new AppState();
+        var tests = Spec.GenerateConcurrentTests(initial, inputs, ConcurrentGen(inputs));
+        TestContext.Out.WriteLine($"run {run}: {tests.Count} concurrent cases");
+        var options = new TestExecutionOptions
+        {
+            StopOnFirstFailure = false,
+            BeforeEachAsync = info => info.Context.Get<LinearClient>().Reset(),
+        };
+        var results = await Spec.RunTests(context, initial, tests, options);
+        var failed = results.Select((r, i) => (r, i)).Where(x => !x.r.Success).ToList();
+        Assert.That(failed, Is.Empty,
+            $"{failed.Count}/{results.Count} failed. First: {failed.FirstOrDefault().r?.LastFailureMessage}\nCase: {(failed.Count > 0 ? tests[failed[0].i].Description : "")}\nLog: {failed.FirstOrDefault().r?.LogFilePath}");
+    }
+
+    // The races the concurrent suite found, each as its own case. A manual
+    // case can't repeat a label, so every racer is a separate input.
+    [TestCase("two creates share a number",
+        new[] { "Create team ENG" }, new[] { "Create ENG issue", "Create ENG issue B" })]
+    [TestCase("two teams with one key",
+        new string[0], new[] { "Create team ENG", "Create team ENG B" })]
+    [TestCase("a closed issue closed twice",
+        new[] { "Create team ENG", "Create ENG issue" }, new[] { "ENG-1 done", "ENG-1 done B" })]
+    [TestCase("an issue archived twice",
+        new[] { "Create team ENG", "Create ENG issue" }, new[] { "Archive ENG-1", "Archive ENG-1 B" })]
+    public async Task Pinned_race_stays_fixed(string race, string[] prefix, string[] racers)
+    {
+        var team = Spec.GetOperation<string, ApiResult<Team>>("CreateTeam");
+        var create = Spec.GetOperation<CreateIssueRequest, ApiResult<Issue>>("CreateIssue");
+        var status = Spec.GetOperation<SetStatusRequest, ApiResult<Issue>>("SetStatus");
+        var archive = Spec.GetOperation<string, ApiResult<Archived>>("ArchiveIssue");
+        var inputs = ConcurrentInputs();
+        inputs.Add(team.With("ENG", "Create team ENG B"));
+        inputs.Add(create.With(new("ENG", "Fix login", 1), "Create ENG issue B"));
+        inputs.Add(status.With(new("ENG-1", "done"), "ENG-1 done B"));
+        inputs.Add(archive.With("ENG-1", "Archive ENG-1 B"));
+
+        using var client = new LinearClient();
+        var context = Spec.CreateTestingContext();
+        context.Register(client);
+        var initial = new AppState();
+        var options = new TestExecutionOptions
+        {
+            StopOnFirstFailure = false,
+            BeforeEachAsync = info => info.Context.Get<LinearClient>().Reset(),
+        };
+
+        // One manual case is one interleaving per run, so repeat it.
+        for (var i = 0; i < 25; i++)
+        {
+            var test = TestCaseGenerator.CreateManualConcurrentTestCase(context, inputs, prefix, racers);
+            var results = await Spec.RunTests(context, initial, [test], options);
+            Assert.That(results.All(r => r.Success), $"{race} (run {i}): {results.FirstOrDefault(r => !r.Success)?.LastFailureMessage}");
+        }
     }
 }

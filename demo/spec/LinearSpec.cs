@@ -193,13 +193,13 @@ public static class LinearSpec
         });
 
         spec.ExecuteWith<LinearClient>()
-            .Bind<string, ApiResult<Team>>("CreateTeam", (c, key) => c.Call<object, Team>("createTeam", new { key }))
-            .Bind<CreateIssueRequest, ApiResult<Issue>>("CreateIssue", (c, r) => c.Call<CreateIssueRequest, Issue>("createIssue", r))
-            .Bind<string, ApiResult<Issue>>("GetIssue", (c, id) => c.Call<object, Issue>("getIssue", new { id }))
-            .Bind<SetStatusRequest, ApiResult<Issue>>("SetStatus", (c, r) => c.Call<SetStatusRequest, Issue>("setStatus", r))
-            .Bind<AssignRequest, ApiResult<Issue>>("Assign", (c, r) => c.Call<AssignRequest, Issue>("assign", r))
-            .Bind<string, ApiResult<Archived>>("ArchiveIssue", (c, id) => c.Call<object, Archived>("archiveIssue", new { id }))
-            .Bind<ListIssuesRequest, ApiResult<List<Issue>>>("ListIssues", (c, r) => c.Call<ListIssuesRequest, List<Issue>>("listIssues", r));
+            .BindAsync<string, ApiResult<Team>>("CreateTeam", (c, key) => c.CallAsync<object, Team>("createTeam", new { key }))
+            .BindAsync<CreateIssueRequest, ApiResult<Issue>>("CreateIssue", (c, r) => c.CallAsync<CreateIssueRequest, Issue>("createIssue", r))
+            .BindAsync<string, ApiResult<Issue>>("GetIssue", (c, id) => c.CallAsync<object, Issue>("getIssue", new { id }))
+            .BindAsync<SetStatusRequest, ApiResult<Issue>>("SetStatus", (c, r) => c.CallAsync<SetStatusRequest, Issue>("setStatus", r))
+            .BindAsync<AssignRequest, ApiResult<Issue>>("Assign", (c, r) => c.CallAsync<AssignRequest, Issue>("assign", r))
+            .BindAsync<string, ApiResult<Archived>>("ArchiveIssue", (c, id) => c.CallAsync<object, Archived>("archiveIssue", new { id }))
+            .BindAsync<ListIssuesRequest, ApiResult<List<Issue>>>("ListIssues", (c, r) => c.CallAsync<ListIssuesRequest, List<Issue>>("listIssues", r));
 
         return spec;
     }
