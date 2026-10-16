@@ -23,11 +23,11 @@ as it was.
 Each meaning lives in one place. Find it before you edit:
 
 ```bash
-grep -rn "<the phrase>" skills/ README.md AGENTS.md
+grep -rn "<the phrase>" <skills-dir> <instruction files> <index docs>
 ```
 
 Edit the branch guide that owns the rule. Delete the copies that summarise
-it elsewhere (`SKILL.md`, README rows, a router) or reduce each to a
+it elsewhere (`SKILL.md`, an index or README row, a router) or reduce each to a
 pointer, so the next change touches one file.
 
 ## 3. Keep the one rule intact
@@ -42,7 +42,7 @@ Inserting, removing, or moving a numbered rule shifts every citation that
 points at a later rule. Before the edit, list the citations:
 
 ```bash
-grep -rnE "<GUIDE>\.md[^.]*rules? [0-9]" skills/ README.md
+grep -rnE "<GUIDE>\.md[^.]*rules? [0-9]" <skills-dir> <index docs>
 ```
 
 After the edit, update each one. Where the repo has a link checker, run it:

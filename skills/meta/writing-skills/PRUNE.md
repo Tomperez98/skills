@@ -7,20 +7,20 @@ at a time so you can see which one changed the behavior.
 
 ## 1. Measure first
 
-List every file the agent loads for the situation, with its size. Separate
-the always-loaded files (descriptions, `AGENTS.md`) from the files behind a
-pointer. Trim the always-loaded ones first: each of their lines costs every
-task.
+List every file the agent loads for the situation, with its size. Separate the
+always-loaded files (skill descriptions, the project instruction file) from the
+files behind a pointer. Trim the always-loaded ones first: each of their lines
+costs every task.
 
 ```bash
-wc -c skills/*/*/SKILL.md AGENTS.md
+wc -c <skills-dir>/*/SKILL.md <instruction file>
 ```
 
 ## 2. Find the duplicates
 
 Search for each rule's wording elsewhere in the repo: the one rule restated
 in the intro, again in a blockquote, again in a section of its own; a
-guide's summary beside its pointer; a README row that restates a guide.
+guide's summary beside its pointer; an index row that restates a guide.
 Keep the copy in the guide that owns it. Replace each other copy with a
 pointer or delete it.
 

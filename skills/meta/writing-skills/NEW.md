@@ -10,7 +10,7 @@ Choose the form from who has to trigger the material.
 
 | Reader | Form | Context cost |
 |--------|------|--------------|
-| Every task in the repo | Instruction file (`AGENTS.md`) | Always loaded |
+| Every task in the project | Instruction file (`AGENTS.md`, `CLAUDE.md`, or the tool's equivalent) | Always loaded |
 | The agent, or another skill, on a situation | Model-invoked skill | The description, always loaded |
 | Only a person who types its name | User-invoked skill (`disable-model-invocation: true`) | None |
 | A guide inside a skill | Branch guide behind a pointer | None until read |
@@ -43,8 +43,8 @@ The description decides whether the skill fires, and it is always loaded.
   a skill", not "skill lifecycle management".
 - Add the "even if they never say X" cases that would otherwise miss.
 - Give each branch one trigger and collapse synonyms that name one situation.
-- Fold the length under the repo's budget (`AGENTS.md` here says ~450
-  characters). The detail goes in the branch guides.
+- Keep it to a few lines, well under any length limit the tool or project
+  states. The detail goes in the branch guides.
 
 ```yaml
 name: code

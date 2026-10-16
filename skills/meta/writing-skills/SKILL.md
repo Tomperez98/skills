@@ -52,9 +52,10 @@ rule.
 When the task crosses into another skill's ground, load it with the Skill
 tool rather than carrying on from memory:
 
-- **A skill that teaches writing** (docs, README, tutorials for people) →
-  call the Skill tool with "docs" and follow its guide for the artifact.
-- **Gating the skill collection on checks in CI** → call the Skill tool
-  with "ship" and follow CI.md.
-- **Not sure which skill covers the situation** → the user can type `/ask`;
-  add the new skill to its map when you create one.
+- **Writing for people** (a README, a tutorial) rather than for an agent →
+  when a `docs` skill is installed, call the Skill tool with "docs" and
+  follow its guide for the artifact.
+- **Gating the skill collection on checks in CI** → when a `ship` skill is
+  installed, call the Skill tool with "ship" and follow CI.md.
+- **The collection has a router skill** → add the new skill to its map when
+  you create one.
