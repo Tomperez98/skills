@@ -109,15 +109,15 @@ idempotent).
   Building and testing install third-party tools (test runners, linters,
   build plugins), so run them in a job without the credential and hand the
   tested artifact across. That also makes rule 2 true by construction.
-- Release jobs restore no caches. Another branch can write a cache that
-  the release would then trust.
+- Release jobs build from a clean cache. Another branch can write a cache
+  that the release would then trust.
 - Prefer short-lived credentials (OIDC or trusted publishing) over
   long-lived tokens. When you do need a token, use one per registry or
   target repository, scope it narrowly, give it an expiry, and write down
   how to rotate it.
-- Never print a secret. Run no `set -x` in the job that holds one, mask
-  it in the CI log, and when a step fails, report the registry and the
-  status, never the request headers.
+- Keep secrets out of output. Leave `set -x` off in the job that holds
+  one, mask it in the CI log, and when a step fails, report the registry
+  and the status only.
 - Only one release runs at a time, and a running release isn't cancelled
   partway through. Validation (rule 6) shares that lock, so it never
   checks a release that's still being published.
@@ -142,8 +142,7 @@ job check it the way a user would:
    points to this release.
 
 Registries serve through caches, so a new release can take minutes to
-appear. Poll for it with a time limit, then fail; don't fail on the first
-miss or sleep for a fixed time.
+appear. Poll for it with a time limit, then fail.
 
 Run the validation code from main against the latest released tag, not
 the copy that shipped with the release. Then a bug in the validation is

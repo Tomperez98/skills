@@ -30,7 +30,7 @@ return Expect.OneOf(
 ```
 
 A timeout matches both of the last two outcomes, so the state profile now
-holds both worlds. Never pick one: "a timeout means it failed" rejects a
+holds both worlds. Keep both: "a timeout means it failed" rejects a
 correct server the first time the response is lost.
 
 ## 3. Later responses resolve the ambiguity — and catch the bug
@@ -95,8 +95,8 @@ static ExpectedOutcomes Writes<T>(ExpectedOutcomeBuilder<T> ok, Action<AppState>
 A create that timed out might have made a server-generated ID you'll never
 learn. Model the uncertainty explicitly — a `MaybeExists` list or a
 `HasUnknownJob` flag — and let later listings accept one unrecognized item
-while that flag is set, then capture it and clear the flag. Don't invent a
-placeholder ID; no real response will ever match it. When the ID is a
+while that flag is set, then capture it and clear the flag. Leave the ID
+unnamed; a placeholder never matches a real response. When the ID is a
 function of state (the next number of a counter), the spec predicts it and
 needs no flag: the lost create is just the two outcomes of rule 2.
 

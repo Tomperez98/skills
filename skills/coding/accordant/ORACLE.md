@@ -13,11 +13,11 @@ var (isValid, message, next) = spec.Allows(withdrawOp, request, response, profil
 ```
 
 `Allows` runs `Apply` against every state the system could be in, keeps the
-ones that explain the response, and returns them as the next profile. Always
-carry `next` into the following call — validating each step against a
-fresh state judges it against the wrong world. `message` is the spec's
-explanation when nothing matches. There is no `spec.Validate`; some docs
-show one, but `Allows` is the API.
+ones that explain the response, and returns them as the next profile. Carry
+`next` into the following call; a fresh state judges the step against the
+wrong world. `message` is the spec's explanation when nothing matches.
+`Allows` is the API (some docs show a `spec.Validate`, which doesn't
+exist).
 
 ## 2. Hand-written tests become sequences
 
@@ -94,12 +94,12 @@ require each corrupted trace to be rejected (TRACES.md rule 7), or a green
 replay proves nothing.
 
 Record the raw request and response, IDs and timestamps included. A value
-that differs on every run isn't noise to scrub: either the spec captures it
-and holds later steps to it (SPEC.md rule 9), or the spec leaves it out
-(SPEC.md rule 10) and it costs nothing — scrubbing only loses evidence, and
-a placeholder can break the capture. Credentials are the exception. Drop
-auth headers, cookies, and tokens before a trace is written, because
-traces get stored and shared and the spec never judges a credential.
+that differs on every run is evidence: either the spec captures it and
+holds later steps to it (SPEC.md rule 9), or the spec leaves it out
+(SPEC.md rule 10) and it costs nothing; a placeholder can break the
+capture. Credentials are the exception. Drop auth headers, cookies, and
+tokens before a trace is written, because traces get stored and shared and
+the spec never judges a credential.
 Personal data from a production trace may be replaced only in fields the
 spec leaves out. Give each trace a header naming where
 it started (a reset or a snapshot), the spec version that accepted it, and
@@ -177,7 +177,7 @@ rule 3. When `DerivedFromOperationCalls` names an earlier call,
 response at generation time — a placeholder ID like `"mock-1"` for a
 server-generated value. Rebuild the request from that call's real response
 (`DerivationVariant` says which variant). Polling isn't fully in the file:
-`Polling` holds only a per-input override (`WithPolling`), never the setup
+`Polling` holds only a per-input override (`WithPolling`), not the setup
 configured on the operation, and the built-in runner polls only when a call
 leaves unfinished background work. Unless `SkipPolling` is set, poll after every
 call that starts background work, using the input's `Polling` or, when it's

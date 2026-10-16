@@ -6,8 +6,8 @@ production caller follows. Examples are pseudocode — translate the shape.
 
 ## 1. Assert the shape before the payload
 
-When a function returns a Result, don't unwrap. Narrow first — assert the
-variant — then inspect the payload.
+When a function returns a Result, narrow first: assert the variant, then
+inspect the payload.
 
 ```
 result = parse_port("3000")
@@ -33,7 +33,7 @@ If `RegisterUserError` has four variants, write four tests.
 
 ## 3. Test short-circuiting
 
-Once a workflow step fails, later steps must not run. Assert it.
+Once a workflow step fails, later steps stop running. Assert it.
 
 ```
 calls = []
@@ -48,7 +48,7 @@ assert(calls == [], "save() must not run after an early failure")
 ## 4. Test retries deterministically
 
 Inject the operation, keep delays at zero, assert the exact attempt list.
-No real sleeping, no flakiness.
+Time stays virtual, so the test is deterministic.
 
 ```
 attempts = []
@@ -65,8 +65,8 @@ assert(result is Ok)
 
 ## 5. Keep defects separate
 
-Expected failures live in the Result; defects are bugs that panic. Don't test
-a bug's panic as a normal result.
+Expected failures live in the Result; defects are bugs that panic. Assert a
+defect's panic with `expect_crash`, and a failure's variant with the Result.
 
 ```
 // Expected failure — assert the error variant
@@ -81,8 +81,8 @@ assertion, whatever it's called.
 
 ## 6. Helpers fail directly
 
-Test helpers never return errors — they crash, so the test fails for you.
-Usage stays a short sequence of steps, not a chain of error checks.
+Test helpers crash on failure, so the test fails for you. Usage stays a short
+sequence of steps, not a chain of error checks.
 
 ```
 // Awkward — every call site needs error checking
@@ -98,7 +98,7 @@ db = setup()
 
 Config is a value (STATE.md), so tests pass it in. Setting a variable
 mutates process-wide state for every test in the process: leaked values make
-tests order-dependent, and nothing runs in parallel.
+tests order-dependent and serialize the run.
 
 ```
 // Wrong — process-wide mutation, restored in a finally, tests serialized
@@ -110,7 +110,7 @@ assert(connect(url = "postgres://test") is Ok)
 ```
 
 To test the environment-to-config seam itself, hand the parser the
-environment as an argument — don't set a variable and hope it is restored.
+environment as an argument.
 
 ```
 config = parse_config(args = [], env = { "DATABASE_URL": "postgres://test" })
@@ -118,23 +118,23 @@ assert(config.url == "postgres://test")
 
 // The failure case is just another input value
 assert(parse_config(args = [], env = {}) == Err(Missing("DATABASE_URL")))
+```
 
 The same principle is the whole suite's. A test that owns all its state runs
 in any order, in parallel, and shards across machines; one that leaks state
 into its neighbors can't. Name the wall-clock budget the suite must fit,
-and treat state that leaks between tests as a bug to fix, not a quirk: at a
-hundred pulls a day the suite's speed is the merge queue's speed.
-```
+and fix state that leaks between tests as a bug: at a hundred pulls a day
+the suite's speed is the merge queue's speed.
 
 ## 8. Golden files for complex output
 
 Capture a correct run, eyeball it, commit it as the golden file, and compare
-future output against it. Don't hand-write brittle per-line assertions for
-complex structures (config rendering, serialization, formatted text).
-Golden files fit output whose exact bytes are the contract. When output
-carries values that change every run (IDs, timestamps, ordering), normalize
-them before comparing, or judge the output against rules instead: a golden
-that fails on correct runs gets re-recorded by reflex and stops testing.
+future output against it. Use it for complex structures (config rendering,
+serialization, formatted text) instead of per-line assertions. Golden files fit
+output whose exact bytes are the contract. When output carries values that
+change every run (IDs, timestamps, ordering), normalize them before comparing,
+or judge the output against rules instead: a golden that passes on every correct
+run keeps its meaning.
 
 ## 9. Pin the important unions at compile time
 
@@ -150,8 +150,8 @@ type_assert(register_user, fn(str) -> Result<User, RegisterUserError>)
 ## 10. Test that startup is recovery
 
 Recovery is the only startup path, so it must rebuild every invariant from
-durable state alone. Kill the component mid-write — no cleanup, no
-destructors — then restart it and assert the state is sound.
+durable state alone. Kill the component mid-write (skip cleanup and
+destructors), then restart it and assert the state is sound.
 
 ```
 store.set("a", 1)
@@ -161,8 +161,8 @@ restarted = Store.open(path)     // open IS recover
 assert(restarted.get("a") in [Ok(1), Ok(absent)])   // rebuilt or dropped, never corrupt
 ```
 
-Because this is the only startup path, this test exercises exactly what
-production runs every boot — recovery can't rot in the dark.
+This test exercises exactly what production runs every boot, so recovery
+stays exercised.
 
 ## 11. Test idempotency by double-applying
 
@@ -178,12 +178,12 @@ apply_payment(key, 100)          // the "retry" after a crash
 assert(balance_delta == 100)     // applied once, not twice
 ```
 
-The idempotency key (or sequence number) is what makes the retry safe; the
-test is what makes that safety explicit and non-negotiable.
+The idempotency key (or sequence number) makes the retry safe; the test
+pins that safety.
 
 ## 12. Test cancellation before release
 
-Asynchronous cancellation is a protocol: the caller may release the
+Asynchronous cancellation is a protocol: the caller releases the
 resources in-flight work touches only *after* the worker acknowledges.
 Assert that ordering — the ack fires before the release.
 
@@ -239,8 +239,8 @@ test. They've done their job.
 An example test checks one input. A property test states the contract (WRITE.md:
 state the contract) once, and a library such as Hypothesis, fast-check,
 proptest, or QuickCheck checks it against hundreds of generated inputs. Generate
-only inputs that meet the precondition. A precondition violation is a bug, so it
-belongs in `expect_crash` ("Keep defects separate"), not here.
+only inputs that meet the precondition; a precondition violation is a bug, so
+test it in `expect_crash` ("Keep defects separate").
 
 ```
 property(xs: nonempty_list<int>) {
@@ -253,8 +253,8 @@ property(xs: nonempty_list<int>) {
 Shapes that find bugs:
 
 - **Postcondition or invariant.** For any valid input, the result is `Ok`
-  and meets the postcondition, or it is one of the named errors. It never
-  crashes.
+  and meets the postcondition, or it is one of the named errors, and it
+  returns either way.
 - **Round-trip.** `parse(render(x)) == Ok(x)`, the check for WRITE.md's
   "parse at the edge".
 - **Oracle.** The result matches a slow but obviously correct version, or
@@ -305,7 +305,7 @@ finds it.
 
 ## 16. Prove the test can fail (kill the mutant)
 
-A green suite proves nothing until you have watched it go red. A test is
+A suite earns trust once you have watched it go red. A test is
 valuable only if it fails when the code is wrong, so inject a bug on
 purpose and confirm the suite catches it. If the suite still passes, it is
 blind — the mutation *survived*.
@@ -323,9 +323,9 @@ Choose the mutation to match the level of the test:
 - **Unit tests: a mechanical mutation is enough.** Flip a comparison, swap
   a signed operator, force a branch, delete a statement. Tooling
   (`cargo-mutants`, `mutmut`, Stryker, PIT) enumerates these for you.
-- **System, property, and end-to-end tests: mechanical mutations are
-  useless.** They panic or short-circuit and never reach the deep path the
-  test exists to exercise. Inject a *semantic* bug instead — one that keeps
+- **System, property, and end-to-end tests: inject a semantic bug.**
+  Mechanical mutations panic or short-circuit and never reach the deep path the
+  test exists to exercise. Pick one that keeps
   the common case working and breaks only a rare interleaving (restore an
   older snapshot, skip a dedup key on retry, drop a write during failover).
   It does not have to be hidden; it has to be *reached*.
@@ -343,11 +343,11 @@ Read the result as one of three outcomes, and only the first one is a pass:
   still survives, the property itself may be unfalsifiable — take it to
   someone who can say whether it is a theorem or a typo.
 
-This is rule 14's properties, turned on the suite: a passing property test
-means nothing until you have seen it fail. Cap the budget — a handful of
-mutants and runs, not an afternoon — and stop when new survivors stop
-teaching you anything. Mutants are ephemeral: never merge one. They are
-calibration; the test is the artifact.
+This is rule 14's properties, turned on the suite: a passing property test means
+nothing until you have seen it fail. Cap the budget — a handful of mutants and
+runs, not an afternoon — and stop when new survivors stop teaching you anything.
+Mutants are ephemeral: revert each one before you commit. They are calibration;
+the test is the artifact.
 
 ## Done when
 

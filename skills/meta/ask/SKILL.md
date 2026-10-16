@@ -15,12 +15,10 @@ where the work goes after. Everything here follows from one rule:
 > **Name one skill and one guide, and read it before you recommend it.**
 
 The map below is for orientation only. A guide's summary drifts from the
-guide; the guide doesn't. Never say what a guide does, or that a step can be
-skipped, from this page alone.
+guide; the guide doesn't. Describe a guide, or say a step can be skipped,
+only after reading it.
 
-## The one rule
-
-**Name one skill and one guide, and read it before you recommend it.**
+## Route
 
 1. **Say the situation back in one line**, in the user's words. If two
    situations fit and the answer changes the route, ask one question; if the

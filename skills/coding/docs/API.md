@@ -9,14 +9,14 @@ are different and belong in different places.)
 ## 1. One page per operation, one operation per page
 
 Each function, endpoint, or type gets its own page with a stable URL, so a
-search hit lands the reader exactly on the answer. Don't stack twenty
-endpoints on one page; the reader can't link to, search within, or skim it.
+search hit lands the reader exactly on the answer. Give twenty endpoints
+twenty pages, so each can be linked to, searched within, and skimmed.
 
 ## 2. Signature first, then parameters, then example
 
-Order: the signature (exactly as it's called), each parameter with its type
-and meaning, the return, then one complete example. A reference is not a
-narrative — it's the answer in a fixed shape.
+Order: the signature (exactly as it's called), each parameter with its type and
+meaning, the return, then one complete example. A reference is the answer in a
+fixed shape.
 
 ```
 // fetch_user(id: UserId) -> Result<User, UserError>
@@ -51,8 +51,8 @@ reference (ship skill, CI.md).
 Reference (this is the signature and the errors) and explanation (this is
 why it works that way) are different readers at different moments. Keep them
 in separate sections or separate pages. A reader who needs the signature
-should never wade through prose; a reader who needs the *model* needs prose,
-not a signature.
+gets it without prose; a reader who needs the *model* gets prose, not a
+signature.
 
 ## 6. Explain the mental model, not just the API
 
@@ -77,18 +77,20 @@ the task, not the internal name of the function. The URL inherits it.
 
 Lead with the common call in its simplest form. Edge cases, limits, and
 caveats come after, clearly marked, so the common reader gets the answer
-fast and the careful reader can go deeper. Never bury the 90% path behind
-the 10% caveats.
+fast and the careful reader can go deeper. The 90% path leads the page.
 
 ## 9. Mark every snippet with the language
 
-A code fence without a language is unreadable for half your readers. Fence
-with the language so syntax highlighting and copy-paste both work.
+Fence every snippet with its language so syntax highlighting and copy-paste
+both work.
 
 ## Done when
 
 - Each operation has its own page, titled with the task it does (rules 1, 7).
 - Each page gives the signature, parameters, and return in that order, and
   lists every error with what the caller should do (rules 2–3).
-- Each example runs as pasted, has no `...`, and shows its output (rule 4).
+- Each example runs as pasted from a file CI runs, has no `...`, and shows
+  its output (rule 4).
+- Reference and explanation sit in separate sections or pages, and the
+  happy path precedes the edge cases (rules 5, 8).
 - Every code fence names its language (rule 9).

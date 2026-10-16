@@ -8,7 +8,7 @@ untested change to code you now own. Apply the rules in order.
 
 ## 1. Every dependency is code you own
 
-Adding a dependency is a decision, so don't just run `install`. What you
+Adding a dependency is a decision. What you
 take on is the whole transitive tree, not just the one package you named.
 Before you add anything, count the tree, read the parts you'll call, and ask
 whether it's worth what it costs to own. A deep tree for a helper you could
@@ -29,7 +29,7 @@ Match how you own it to how big and how risky the code is:
 - **Mid-size libraries**: depend on them. Fork and trim one only when you
   use a small, stable slice of it. Code you deleted can't break, but a fork
   stops receiving upstream fixes, so you now watch upstream for security
-  fixes yourself. Don't fork on the user's behalf without saying so.
+  fixes yourself. Tell the user before you fork.
 - **Hard problems** (cryptography, network protocols, heavy frameworks):
   depend on them. You can't really own a fork of these, so a home-grown
   version or a stale fork is riskier than the upstream project.
@@ -43,14 +43,14 @@ like `^1.2` lets someone else decide what you ship.
 
 ## 4. Update on purpose, not automatically
 
-Every update needs a stated reason, and a new version existing isn't one.
+Every update needs a stated reason; a new release alone isn't one.
 An update ships changes from the whole transitive tree, so a bot PR is a
-proposal to review, not something to auto-merge.
+proposal to review.
 
 Good reasons: a security fix, a bug your users hit, a feature you need, or
 staying within reach of a runtime or toolchain upgrade. Not every security
 fix gets a CVE, so read release notes for the packages you rely on. Skipped
-updates also pile up. Five major versions at once is a harder, riskier
+updates pile up. Five major versions at once is a harder, riskier
 migration than five separate ones, so take updates in small, reviewed steps
 rather than never.
 
@@ -80,11 +80,11 @@ you need.
 
 ## 6. Wrap it behind one boundary
 
-Only one module calls the dependency. That module maps the dependency's
+One module calls the dependency. That module maps the dependency's
 errors into your own vocabulary, once (WRITE.md: one error vocabulary per
 boundary), and parses its output at the edge (WRITE.md: parse at the edge).
 Its documented failures come back as your values. If it returns something
-its contract rules out, that's a bug in code you own, so panic.
+its contract rules out, panic: that's a bug in code you own.
 
 ```
 fn fetch_rate(pair) -> Result<Rate, RateError> {

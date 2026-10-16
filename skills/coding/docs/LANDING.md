@@ -22,8 +22,7 @@ Who cares most: backend devs shipping anything that calls a flaky API
 
 One headline in the reader's task vocabulary, one subhead with the
 differentiated value, and one code snippet that shows it working — then a
-single call to action. No "powerful, flexible, scalable." The snippet *is*
-the claim.
+single call to action. The snippet *is* the claim.
 
 ```
 # Retry flaky calls, correctly.
@@ -45,10 +44,9 @@ repeated; secondary links go in the footer.
 
 ## 4. Answer "why not the alternative"
 
-A short comparison that names the real alternatives ("your own retry loop",
-"library X") and states the one thing you do that they don't — without
-slandering them. Developers are allergic to vague "better, faster, more
-robust"; they respect a concrete "X does A, we do A and B."
+A short, fair comparison that names the real alternatives ("your own retry
+loop", "library X") and states the one thing you do that they don't.
+Developers respect a concrete "X does A, we do A and B."
 
 ## 5. Proof over adjectives
 
@@ -60,10 +58,8 @@ real datapoints beat ten superlatives.
 
 ## 6. Cut the self-talk
 
-Delete "our mission", "we believe", the founding story, and the company
-timeline from the top of the page. The reader didn't come to learn about
-you; they came to learn whether you solve their problem. Put that stuff at
-the bottom, if at all.
+Open with the reader's problem; "our mission", "we believe", the founding
+story, and the company timeline go at the bottom, if at all.
 
 ## 7. The page is one job, not the whole product
 
@@ -73,10 +69,9 @@ others. A homepage that lists everything sells nothing.
 
 ## 8. Never mislead
 
-No clickbait, no "world's fastest" you can't prove, no overselling. A
-developer who tries your thing on a false claim leaves angry and tells
-everyone. Think hard about why it genuinely matters to the reader, and say
-only that. Honesty compounds; hype burns out.
+Say only what you can prove, and only why it genuinely matters to the
+reader. A developer who tries your thing on a false claim leaves angry and
+tells everyone.
 
 ## Done when
 

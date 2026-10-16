@@ -1,14 +1,13 @@
 # Refactoring untestable code
 
-The code is hard to test. Don't reach for mocks — that fights the symptom.
-Diagnose which structural principle the code violates, fix that first, then
-the tests write themselves.
+The code is hard to test. Diagnose which structural principle it violates,
+fix that first, and the tests write themselves; a mock only treats the
+symptom.
 
-Hard-to-test code is usually complex code. Simplicity is what keeps progress
-possible — a small, simple program is easy to change and easy to test, and
-every structure you add has to be paid for from then on. The refactor's real
-job is often deletion: name the structure doing the least work and remove
-it. The diagnosis below names which one that is.
+Hard-to-test code is usually complex code. A small, simple program is easy
+to change and easy to test, and every structure you add is paid for from
+then on. The refactor's real job is often deletion: remove the structure
+doing the least work. The diagnosis below names which one that is.
 
 ## 1. Diagnose
 
@@ -21,9 +20,9 @@ Run down this checklist and name the violation:
 - **Implicit exceptions** — failures thrown across stack frames, invisible in
   signatures. → Model errors as values (a Result/Either type, tagged union, or
   checked error).
-- **Dropped results** — a call returns a failure and the caller ignores it,
-  so the error vanishes and the code continues as if the call worked. →
-  Return a value for expected failures (never drop a returned failure).
+- **Dropped results** — a call returns a failure and the caller ignores it, so
+  the error vanishes and the code continues as if the call worked. → Return a
+  value for expected failures; handle, propagate, or visibly discard each one.
 - **Driver/framework error types leaking** — database exceptions reaching the
   domain. → One error vocabulary per boundary.
 - **Scattered steps** — the operation's failure space documented nowhere. →
@@ -111,7 +110,7 @@ interleaved with logic, raw input deep inside, or implicit exceptions.
 
 Refactor so the code follows the WRITE.md and CRASHONLY.md rules, preserving
 external behavior. Make one behavior-preserving rewrite at a time, rewrite
-conditions logically only when they're side-effect-free, and prove each
+conditions logically when they're side-effect-free, and prove each
 rewrite against the original (TEST.md, "Test a refactor against the
 original"). Then write the tests the new structure makes possible — see
 TEST.md.
@@ -121,19 +120,18 @@ named is gone and the external behavior is preserved — not when the
 subsystem is perfect. Prefer the smallest change that removes the dominant
 violation, prove it against the original, and stop. Golden recordings,
 contract suites, and mutation checks earn their cost when the risk and the
-request justify them; building a test framework around a function nobody
-asked you to harden does not.
+request justify them; a test framework around a function nobody asked
+you to harden does not.
 
 ## 3. Treat pain as a signal
 
-If a test is still painful to write after the refactor, that's not a mocking
-problem — the structure still violates one of the rules above. Loop back to
-step 1.
+If a test is still painful to write after the refactor, the structure still
+violates one of the rules above. Loop back to step 1.
 
 ## Done when
 
 - The violation doing the most damage is named from the checklist (rule 1).
 - That violation is gone, and an equivalence test shows external behavior
   is unchanged (rule 2).
-- The tests the new structure allows are written, and none needs a mock to
-  work around the structure (rules 2–3).
+- The tests the new structure allows are written, and each runs on real
+  values, with no mock standing in for structure (rules 2–3).

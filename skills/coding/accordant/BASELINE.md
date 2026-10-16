@@ -159,8 +159,8 @@ already sitting in a queue will still be accepted after the deploy.
 
 A baseline that rejects every new field turns every additive change into a
 false break. Check the fields the contract promised and say nothing about
-the rest (SPEC.md rule 10): no "exactly these keys", no "list has exactly
-three entries" unless three is the promise. A new optional field or a new
+the rest (SPEC.md rule 10); assert a list's length only when three is the
+promise, and leave "exactly these keys" out. A new optional field or a new
 operation should leave the baseline green.
 
 A value from a closed set is the exception. A new enum member, a new
@@ -258,8 +258,8 @@ the provider's CI runs them and a failure names who would break.
 - The baseline suite is checked out at the last release tag, matched with
   prereleases excluded, not copied onto main (rule 1).
 - The release's exported sequences ran unchanged against the new build,
-  and every rejection is a fix to the system or a declared break, never an
-  edit to the baseline spec (rule 2, rule 4).
+  and every rejection ended as a fix to the system or a declared break, with
+  the baseline spec unedited (rule 2, rule 4).
 - The baseline's deserializer rejects a dropped field and an unknown enum
   value (rule 3).
 - An upgrade case runs the last release and then the new build on the same

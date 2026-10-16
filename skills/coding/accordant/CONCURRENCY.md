@@ -27,8 +27,8 @@ one operation gets a serializability check. If the contract promises
 less — read committed, snapshot isolation, eventual consistency — this
 check rejects correct behavior. Model the stale reads the contract allows
 as extra outcomes (FAULTS.md rule 2), or check long histories and
-isolation anomalies with Elle over exported traces. Don't loosen
-predicates until the check passes.
+isolation anomalies with Elle over exported traces. Keep predicates as
+strict as the contract.
 
 ## 3. Choose inputs that collide
 
@@ -62,7 +62,7 @@ Same context, same reset, same failure assertion as sequential runs. Each
 case is a sequential prefix followed by a group that runs concurrently;
 every input also races a copy of itself (`Alice books 9am (2)`). Groups
 hold up to three calls. To change that, set the algorithm — the
-`MaxConcurrencyLevel` property is never read:
+`MaxConcurrencyLevel` property has no effect:
 
 ```csharp
 new TestGenerationOptions
