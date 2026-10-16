@@ -66,6 +66,11 @@ does not restate them.
 - To add a skill, copy the shape of an existing one (README → "Adding a
   skill").
 - Keep the README's skill table (name, one rule, branches) in sync.
+- **State the scale a rule assumes.** A rule that silently breaks at a
+  hundred pulls a day — one shared file every pull request edits, a full
+  suite run per change, a person reviewing every merge — is a bug in the
+  guide, not a caveat to leave unstated. Guidance that holds only for one
+  scale names that scale, or names what changes as the repo grows.
 - Run `mise run ci` before you push.
 
 ## Checks

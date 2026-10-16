@@ -28,6 +28,11 @@ validation with a baseline version (.NET), `japicmp` (Java), `apidiff`
 (Go), `griffe check` (Python). It runs in seconds, so it belongs in the
 fast tier (CI.md rule 2).
 
+Diff only the schemas the pull request touched, read from the ownership map
+(CI.md rule 10), and run the full set on main and the release. Diffing
+every schema on every pull request spends the whole surface each time, and
+the fast tier is the one budget you can't spend that way.
+
 If the schema is generated from code, regenerate it in CI and fail on a
 diff (CI.md rule 9), or the check compares two stale files.
 
@@ -51,6 +56,12 @@ internal calls, or private state. That boundary is what makes it a
 compatibility check: callers depend on the API, so the API is what must
 not change underneath them.
 
+The spec and the sequences it generates are deterministic and replayable by
+construction: the same build and the same inputs give the same verdict
+every time. A spec that flips its verdict run to run cannot gate hundreds
+of pull requests a day, because a red gate nobody can reproduce is a gate
+people route around.
+
 ## 4. Ship the contract with the release
 
 Put the schema, the spec, and the test sequences it generated into the
@@ -60,9 +71,12 @@ rebuilt from memory or from a tag that was patched later.
 
 If the last release shipped no contract, make one: write the spec on main,
 then run it against the last release's published artifact. Green means it
-describes what users already have; freeze that as the baseline. Red means
-either the spec is wrong or main already broke something, and you just
-found out before the release did.
+describes what users already have; freeze that as the baseline. Until a
+release has shipped a contract, every change reports *baseline* (no
+earlier contract to diff against) rather than *additive*, and the baseline
+is real only from the release that ships the contract. Red means either the
+spec is wrong or main already broke something, and you just found out
+before the release did.
 
 ## 5. The released contract judges every build
 
@@ -72,6 +86,13 @@ the responses with the old spec, never by comparing them to recorded
 responses byte for byte: IDs, timestamps, and ordering legitimately change,
 and an exact match fails on all of them. The spec knows which fields must
 match and which only have to exist.
+
+Decide "can change behavior" mechanically, never by running the suite to
+find out. A pull request can change behavior only if it touches the API
+surface or any code the spec's requests can reach, read from the ownership
+map (CI.md rule 10); every other pull request skips the suite. That filter
+is what keeps the gate cheap enough to run on each of hundreds of pull
+requests a day.
 
 The suite stays the old one on purpose. Old clients send old requests, so
 the check is exactly what they will experience after upgrading.

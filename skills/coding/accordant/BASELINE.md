@@ -74,7 +74,9 @@ TestCaseGenerator.SaveConcurrentTestCases(context, header, "contract/concurrent.
 
 Run the baseline's tests unchanged, with only the target swapped. Old
 clients send old requests, so this is what they'll see after the upgrade.
-Load the release's sequences rather than regenerating them:
+Run it on the pull requests that can change behavior, not on every pull
+request (ship skill, COMPAT.md rule 5), so the baseline stays in the fast
+tier. Load the release's sequences rather than regenerating them:
 
 ```csharp
 var context = baselineSpec.CreateTestingContext();

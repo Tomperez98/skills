@@ -54,6 +54,13 @@ The changelog is a running document, updated in the same commit as the
 change. A changelog reconstructed at release time from the git log is a list
 of commits with extra steps — and it will be wrong.
 
+Write each entry in its own file, not into one shared section: a single
+"Unreleased" block that a hundred pull requests a day all edit is the most
+contended file in the repo. Keep one fragment per change (a `.changes/`
+directory), and assemble the release section from the fragments at release
+time, so parallel pull requests never touch the same lines and the running
+changelog still reads as one section.
+
 ## 7. The release notes answer "why upgrade"
 
 The changelog is the record; the release notes are the pitch. In a release

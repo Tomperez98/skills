@@ -59,6 +59,14 @@ a safe substitute only if it requires no more and promises no less
 (WRITE.md: state the contract). Tighter input validation, a new error
 variant, or a removed field is a breaking change, even in a patch release.
 
+Group the volume: at a hundred pulls a day, review capacity, not the
+updates, is the bottleneck. Batch the bot's proposals into one weekly pull
+request per ecosystem, and let the boundary tests (rule 7) be the review
+for patch releases inside the pinned range: a patch whose boundary tests
+stay green may auto-merge, and everything else waits for a person. This
+keeps "update on purpose" true while making the review in rule 5
+affordable.
+
 ## 5. Review in proportion to risk
 
 Match the review to what the update can break. A patch release of a leaf

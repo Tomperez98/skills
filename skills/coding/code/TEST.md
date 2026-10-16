@@ -118,6 +118,12 @@ assert(config.url == "postgres://test")
 
 // The failure case is just another input value
 assert(parse_config(args = [], env = {}) == Err(Missing("DATABASE_URL")))
+
+The same principle is the whole suite's. A test that owns all its state runs
+in any order, in parallel, and shards across machines; one that leaks state
+into its neighbors can't. Name the wall-clock budget the suite must fit,
+and treat state that leaks between tests as a bug to fix, not a quirk: at a
+hundred pulls a day the suite's speed is the merge queue's speed.
 ```
 
 ## 8. Golden files for complex output

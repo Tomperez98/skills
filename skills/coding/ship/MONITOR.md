@@ -42,6 +42,14 @@ tracking issue, later failures comment on it, and the first green run
 closes it. A new alert on every run, or a red badge nobody owns, trains
 people to look away.
 
+The gate that routes review fails the same way. Watch the numbers behind
+it: the fraction of pull requests that are additive or breaking rather than
+unchanged, the contract suite's flake rate, how long the verdict takes, and
+how long a spec owner takes to approve. A surface where the same API keeps
+changing is hot; version it or move it behind a stable boundary, because a
+contract that changes constantly defeats the point of letting most pull
+requests merge on green alone (CI.md rule 10).
+
 ## Done when
 
 - The suites too slow for a pull request run on main, on a schedule or
@@ -51,6 +59,9 @@ people to look away.
 - Release validation runs on a schedule, not only after a release (rule 3).
 - A failing scheduled job opens one tracking issue, later failures comment
   on it, and the first green run closes it (rule 4).
+- The gate's own numbers (hot surfaces, flake rate, verdict latency,
+  owner-approval time) are watched, and a hot surface is versioned or moved
+  behind a stable boundary (rule 4).
 
 ---
 
