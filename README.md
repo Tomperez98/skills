@@ -2,12 +2,12 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Five skills, a router,
-and a skill for writing skills today, thirty-six branch guides, 283 numbered
+and a skill for writing skills today, thirty-seven branch guides, 283 numbered
 rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
-| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · STATE · SHAPE · LOGIC · PERFORMANCE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
+| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · STATE · SHAPE · LOGIC · PERFORMANCE · REFACTOR · TEST · CRASHONLY · CRASH_TESTS · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
@@ -72,6 +72,7 @@ follows its rules in order:
 | "This code is hard to test / simplify this conditional" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
 | "Write tests for this" | [`code/TEST.md`](skills/coding/code/TEST.md) | Assert the shape before the payload, one test per error variant, test short-circuiting |
 | "Make this crash-safe / recover fast / crash-only" | [`code/CRASHONLY.md`](skills/coding/code/CRASHONLY.md) | Stop = crash, start = recover: make the panic safe and the recovery cheap |
+| "Test crash recovery / idempotency / cancellation" | [`code/CRASH_TESTS.md`](skills/coding/code/CRASH_TESTS.md) | Kill mid-write and restart, double-apply, ack before release |
 | "Add / update this dependency" | [`code/DEPENDENCIES.md`](skills/coding/code/DEPENDENCIES.md) | Own every dependency, pin it, update on purpose, review in proportion to risk |
 | "Write / fix the README" | [`docs/README.md`](skills/coding/docs/README.md) | Win the 10-second skim: hero, what-it-is, install, one working example, link onward |
 | "Write / fix API docs" | [`docs/API.md`](skills/coding/docs/API.md) | Signature first, name the fault model, one example per operation |

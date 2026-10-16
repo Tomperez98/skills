@@ -67,10 +67,9 @@ the seed and print the command that replays it. Treat a flaky test as a
 bug: fix it, or quarantine it with an owner; a retry-until-green hides
 real failures. A concurrency check that fails now and then is not flaky:
 it's the race it exists to find, so keep it red until the race is fixed
-(COMPAT.md rule 7). A contract check that gates every pull request is the
-one check that stays out of quarantine: a flaky gate teaches people to
-merge past red. Make it deterministic and replayable by construction
-(COMPAT.md rule 3) and fix a flaky one now.
+(COMPAT.md rule 7). A contract check that gates every pull request never goes
+to quarantine: make it deterministic and replayable (COMPAT.md rule 3) and
+fix a flaky one now.
 
 ## 6. Make failures easy to read
 

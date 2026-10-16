@@ -61,12 +61,12 @@ one the request names and state the assumption at the top.
   read only through its headings, code blocks, and images, it's right; if it
   needs the prose, it isn't done. Something that runs proves more than a
   paragraph — it *is* the proof, and it's what gets shared.
-- **Never mislead.** No clickbait, no "world's fastest" you can't show, no
-  overselling. Think hard about why the thing genuinely matters to the
-  reader, and say that — honestly. A claim you can't back up is noise; a
-  claim you can back up is proof. Delete the company history, the adjective
-  pile-ups, the "powerful, flexible, robust," and every sentence that
-  doesn't serve the reader's task.
+- **Never mislead.** (The guides cite this rule instead of restating it.) No
+  clickbait, no "world's fastest" you can't show, no overselling. Think hard
+  about why the thing genuinely matters to the reader, and say that — honestly.
+  A claim you can't back up is noise; a claim you can back up is proof. Delete
+  the company history, the adjective pile-ups, the "powerful, flexible, robust,"
+  and every sentence that doesn't serve the reader's task.
 
 ## Hand off
 

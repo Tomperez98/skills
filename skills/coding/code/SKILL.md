@@ -49,6 +49,8 @@ parentheses and state the assumption at the top of your work.
 - **Too slow, or a scaling question** → [PERFORMANCE.md](PERFORMANCE.md).
 - **Crash safety, recovery, restart, retry** →
   [CRASHONLY.md](CRASHONLY.md).
+- **Test recovery, idempotency, or cancellation** →
+  [CRASH_TESTS.md](CRASH_TESTS.md).
 - **Hard to test, or a tangled design** (default for a complaint about
   testing pain) → [REFACTOR.md](REFACTOR.md).
 - **Write tests** (default for an explicit request for tests) →

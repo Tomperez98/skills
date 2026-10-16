@@ -16,8 +16,7 @@ var (isValid, message, next) = spec.Allows(withdrawOp, request, response, profil
 ones that explain the response, and returns them as the next profile. Carry
 `next` into the following call; a fresh state judges the step against the
 wrong world. `message` is the spec's explanation when nothing matches.
-`Allows` is the API (some docs show a `spec.Validate`, which doesn't
-exist).
+`Allows` is the API (not `spec.Validate`; DEBUG.md rule 6).
 
 ## 2. Hand-written tests become sequences
 

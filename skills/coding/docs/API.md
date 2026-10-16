@@ -40,11 +40,9 @@ Errors:
 
 ## 4. One complete example per operation
 
-Copy-paste complete: the imports, a minimal but realistic input, the call,
-and the output shown. An example with `...` in the argument list teaches the
-reader to guess, and they'll guess wrong. Cut the example from a file CI
-runs, so a change that breaks it fails the build instead of rotting the
-reference (ship skill, CI.md).
+Give each operation its own example, built to [README.md](README.md) rule 5:
+a minimal but realistic input, the call, the output shown, and no `...` in
+the argument list.
 
 ## 5. Split reference from explanation
 

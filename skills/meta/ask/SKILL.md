@@ -74,7 +74,8 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 - **Designing an interface, naming, or splitting a function** → code: SHAPE.
 - **A tangled condition or multi-input decision** → code: LOGIC.
 - **Crash safety, retries, timeouts** → code: CRASHONLY; against a remote
-  system that may or may not have acted, accordant: FAULTS.
+  system that may or may not have acted, accordant: FAULTS. Testing
+  recovery, idempotency, or cancellation → code: CRASH_TESTS.
 - **Races and background jobs** → accordant: CONCURRENCY and ASYNC.
 - **Traces or tests from a non-.NET system** → accordant: ORACLE.
 - **Landing copy, or docs that should acquire users** → docs: LANDING,

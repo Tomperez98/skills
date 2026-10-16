@@ -90,14 +90,13 @@ fn publish_to(registry, artifact) -> Result<(), Error> {
 ```
 
 Order the steps so that a partial failure never leaves users on a broken
-release. Stage first: a draft release or a staging repository. Publish to
-each registry. Make it visible last: the public release page, the `latest`
-tag, the announcement. Put steps users don't need to install the release,
-such as rebuilding the docs site, after it's visible, so their failure
-can't block it. After a failure, fix the cause and run the whole thing
-again, and no version is burned. Retry network calls a bounded number of
-times, then fail with a clear error (CRASHONLY.md: make retryable effects
-idempotent).
+release. Stage first: a draft release or a staging repository. Publish to each
+registry. Make it visible last: the public release page, the `latest` tag, the
+announcement. Put steps users don't need to install the release, such as
+rebuilding the docs site, after it's visible, so their failure can't block it.
+After a failure, fix the cause and run the whole thing again, and no version is
+burned. Retry network calls with bounds (code skill, CRASHONLY.md rules 4 and
+10), then fail with a clear error.
 
 ## 5. Protect the credentials
 

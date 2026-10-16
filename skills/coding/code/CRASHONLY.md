@@ -5,6 +5,8 @@ says bugs panic; this branch makes the panic cheap. A crash-only component
 has exactly one way to stop — crash — and exactly one way to start —
 recover. Before you write any stop path, name which way you're stopping.
 
+Test the claims below → [CRASH_TESTS.md](CRASH_TESTS.md).
+
 A panic message you can read is a panic you can fix fast, so write it for the
 person staring at the log after the crash: name the invariant and the value that
 broke it ([WRITE.md](WRITE.md), rule 1). A specific panic starts recovery with
@@ -147,5 +149,5 @@ component rebuilding its state sees no fresh flood.
 
 Crash-only is the other half of the one rule: a panic is only usable as a
 primary defense if it's cheap. This branch makes it cheap. WRITE.md builds
-the contract, CRASHONLY makes it survive the crash, TEST.md proves the
-recovery.
+the contract, CRASHONLY makes it survive the crash, and CRASH_TESTS.md
+proves the recovery.

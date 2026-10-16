@@ -22,10 +22,10 @@ colleague.
 
 ## 3. The example is the ad
 
-Your copy-paste example is the single most persuasive thing you ship. Make
-it complete (runs as pasted), real (a task the reader actually has), and
-short enough to fit in one screen. A reader who pastes it and it works has
-just had your best sales conversation — with zero sales.
+Your copy-paste example is the single most persuasive thing you ship. Build it
+to [README.md](README.md) rule 5, then make it real (a task the reader actually
+has) and short enough to fit in one screen. A reader who pastes it and it works
+has just had your best sales conversation — with zero sales.
 
 ## 4. Convert at the moment of success
 

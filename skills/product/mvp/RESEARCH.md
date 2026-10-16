@@ -51,8 +51,8 @@ hand it to a real person.
 
 ## 6. The report is still your excitement
 
-A cited brief is your own excitement with footnotes. The moment you've
-confirmed the premise, stop researching and start validating.
+A cited brief is your own excitement with footnotes. Once the premise is
+confirmed, stop (rule 1) and start validating.
 
 ## Done when
 

@@ -13,8 +13,8 @@ behavior that is shifting, a platform that just opened up.
 
 If the trend is something you *feel* rather than something you can show, hand
 the question to a deep-research skill before you spec — it returns a cited brief
-naming the trend, the incumbents, and the gap. Research de-risks the premise
-only (see [RESEARCH.md](RESEARCH.md)).
+naming the trend, the incumbents, and the gap, per
+[RESEARCH.md](RESEARCH.md) rule 1.
 
 ## 2. State the idea as one sentence
 

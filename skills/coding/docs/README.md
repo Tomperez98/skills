@@ -88,10 +88,9 @@ working?", as one small row, so the example stays above the fold.
 
 ## 9. Cut the noise — and never mislead
 
-Keep only claims you can show: "blazingly fast" appears only beside the
-benchmark that backs it, and company history, "world's first", and lists of
-adjectives go. If the project does something, the example shows it; if you
-have to say it, you haven't shown it. Say only why it genuinely matters.
+Apply the never-mislead rule in [SKILL.md](SKILL.md). For a README:
+"blazingly fast" appears only beside its benchmark, and company history and
+"world's first" go. If the project does something, the example shows it.
 
 ## 10. The top of the file is the whole pitch
 

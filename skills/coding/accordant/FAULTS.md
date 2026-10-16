@@ -126,11 +126,12 @@ both sides, or one of the two worlds in rule 2 is never exercised.
 
 ## 8. Retry what's safe to repeat, after the spec accepts it
 
-A response that is safe to repeat (429, a 503 the server promises did
-nothing) can be retried by the runner instead of carried through the rest
-of the test. The runner asks `TestExecutionOptions.ShouldRetry` only after
-the spec has accepted the response, so declare it first — a definite
-failure, `.SameState()` — then retry it with a cap:
+A response that is safe to repeat (429, a 503 the server promises did nothing;
+code skill, CRASHONLY.md rules 4 and 10) can be retried by the runner instead of
+carried through the rest of the test. The runner asks
+`TestExecutionOptions.ShouldRetry` only after the spec has accepted the
+response, so declare it first — a definite failure, `.SameState()` — then retry
+it with a cap:
 
 ```csharp
 // Match your concrete response type; a generic ApiResult<T> needs its T.
@@ -150,11 +151,11 @@ the `PollingSetup.MaxRetryCount` attempts (ASYNC.md rule 5).
 
 ## 9. Make restart an operation
 
-A system that loses acknowledged work on restart answers every call
-correctly until it reboots. Add `Restart` to the spec. Its `Apply` keeps
-what the system promises is durable and drops what it doesn't — sessions,
-caches, unflushed or in-flight work — so the explorer puts a restart
-between every pair of calls:
+A system that loses acknowledged work on restart answers every call correctly
+until it reboots (code skill, CRASHONLY.md rules 1-2). Add `Restart` to the
+spec. Its `Apply` keeps what the system promises is durable and drops what it
+doesn't — sessions, caches, unflushed or in-flight work — so the explorer puts a
+restart between every pair of calls:
 
 ```csharp
 spec.Operation<Unit, Unit>("Restart", (_, state) =>

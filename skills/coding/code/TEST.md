@@ -4,6 +4,9 @@ The structure is right (WRITE.md / REFACTOR.md), so failure paths are
 explicit and the edges are clean. Write tests that follow the same contract a
 production caller follows. Examples are pseudocode — translate the shape.
 
+Test crash recovery, idempotency, or cancellation →
+[CRASH_TESTS.md](CRASH_TESTS.md).
+
 ## 1. Assert the shape before the payload
 
 When a function returns a Result, narrow first: assert the variant, then
@@ -147,61 +150,7 @@ drift silently, using your language's compile-time type assertion
 type_assert(register_user, fn(str) -> Result<User, RegisterUserError>)
 ```
 
-## 10. Test that startup is recovery
-
-Recovery is the only startup path, so it must rebuild every invariant from
-durable state alone. Kill the component mid-write (skip cleanup and
-destructors), then restart it and assert the state is sound.
-
-```
-store.set("a", 1)
-store.crash()                    // just stop; no flush, no finalizers
-
-restarted = Store.open(path)     // open IS recover
-assert(restarted.get("a") in [Ok(1), Ok(absent)])   // rebuilt or dropped, never corrupt
-```
-
-This test exercises exactly what production runs every boot, so recovery
-stays exercised.
-
-## 11. Test idempotency by double-applying
-
-Restart/retry is only sound when re-running an effect applies it once. Pin
-that property: apply a retryable operation twice and assert the single
-effect.
-
-```
-key = new_idempotency_key()
-apply_payment(key, 100)
-apply_payment(key, 100)          // the "retry" after a crash
-
-assert(balance_delta == 100)     // applied once, not twice
-```
-
-The idempotency key (or sequence number) makes the retry safe; the test
-pins that safety.
-
-## 12. Test cancellation before release
-
-Asynchronous cancellation is a protocol: the caller releases the
-resources in-flight work touches only *after* the worker acknowledges.
-Assert that ordering — the ack fires before the release.
-
-```
-events = []
-worker = spawn(() -> { use(buffer); events.push("worker_done") })
-
-shutdown(worker)              // must not return until the worker acked
-events.push("released")
-
-assert(events == ["worker_done", "released"])
-```
-
-If `shutdown` returned early and the caller freed the buffer while the
-worker still read it, this test fails with a data race — the exact bug the
-protocol exists to prevent.
-
-## 13. Test a refactor against the original
+## 10. Test a refactor against the original
 
 A refactor promises identical behavior, so hold it to that. Keep the old
 implementation as the reference and assert that the new one agrees on every
@@ -234,7 +183,7 @@ for x in [true, false] {
 Once the refactor lands, delete the old implementation and its equivalence
 test. They've done their job.
 
-## 14. Test the contract as properties
+## 11. Test the contract as properties
 
 An example test checks one input. A property test states the contract (WRITE.md:
 state the contract) once, and a library such as Hypothesis, fast-check,
@@ -274,7 +223,7 @@ duplicates, and boundary numbers. When a property fails, keep the shrunk
 counterexample as a plain example test, so it stays pinned. Fix the seed
 in CI, or log it, so a failure can be replayed.
 
-## 15. Test every row of the decision table
+## 12. Test every row of the decision table
 
 A decision table (LOGIC.md: tabulate multi-input decisions) is already a
 test plan. Write one
@@ -303,7 +252,7 @@ for combo in product([true, false], [true, false], [Domestic, Intl]) {
 A gap or an overlap fails at the input that causes it, before a customer
 finds it.
 
-## 16. Prove the test can fail (kill the mutant)
+## 13. Prove the test can fail (kill the mutant)
 
 A suite earns trust once you have watched it go red. A test is
 valuable only if it fails when the code is wrong, so inject a bug on
@@ -343,7 +292,7 @@ Read the result as one of three outcomes, and only the first one is a pass:
   still survives, the property itself may be unfalsifiable — take it to
   someone who can say whether it is a theorem or a typo.
 
-This is rule 14's properties, turned on the suite: a passing property test means
+This is rule 11's properties, turned on the suite: a passing property test means
 nothing until you have seen it fail. Cap the budget — a handful of mutants and
 runs, not an afternoon — and stop when new survivors stop teaching you anything.
 Mutants are ephemeral: revert each one before you commit. They are calibration;
@@ -355,9 +304,7 @@ the test is the artifact.
   variant before the payload (rules 1–2).
 - A workflow's tests show later steps don't run after an early failure, and
   retry tests assert the exact attempt list with zero delay (rules 3–4).
-- Where the code claims crash-only behavior, each claim has its test:
-  restart after a kill, double-apply, ack before release (rules 10–12).
 - A refactor has an equivalence test against the original, and a decision
-  table has one case per row plus a gap-or-overlap check (rules 13 and 15).
+  table has one case per row plus a gap-or-overlap check (rules 10 and 12).
 - The suite went red on at least one injected mutant, and no mutant is left
-  in the code (rule 16).
+  in the code (rule 13).

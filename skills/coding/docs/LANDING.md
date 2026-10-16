@@ -69,9 +69,8 @@ others. A homepage that lists everything sells nothing.
 
 ## 8. Never mislead
 
-Say only what you can prove, and only why it genuinely matters to the
-reader. A developer who tries your thing on a false claim leaves angry and
-tells everyone.
+Apply the never-mislead rule in [SKILL.md](SKILL.md). Check this page: the
+hero, the comparison, and any number each have evidence on the page.
 
 ## Done when
 
