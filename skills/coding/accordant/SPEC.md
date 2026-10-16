@@ -1,8 +1,10 @@
 # Writing a spec
 
-You're writing the contract: a minimal state and, for each operation, the
-rule that maps (request, state) to the correct responses and the next
-state. Nothing here calls the system. Apply the rules in order.
+You're writing the contract, not code that does the job: a minimal state
+and, for each operation, the rule that maps (request, state) to the
+*responses that are correct* and the next state. The system produces one
+response; the spec says which ones it may produce. Nothing here calls the
+system. Apply the rules in order.
 
 ## 1. Pick a small cluster of related operations
 
@@ -13,14 +15,33 @@ and ask about the rules you can't see: does deleting a user cascade to their
 todos? Does a second Create conflict or overwrite? Don't assume HTTP; an
 in-process library is just as testable.
 
-Take the rules from the contract — API docs, the ticket, whoever owns the
-behavior — not from the implementation. A spec transcribed from the code
-agrees with it, bugs included, and every test passes. Read the code for
-names, types, and the order of refusals (rule 3); when the code and the
-contract disagree, that's a finding to raise (DEBUG.md rule 4), not a
-rule to copy.
+## 2. Write the contract, not a second implementation
 
-## 2. State is what the spec remembers, not what the system stores
+The spec and the system answer different questions: the system says *how*
+to produce a response, the spec says *which* responses are correct. Keep
+them apart, or the spec agrees with every bug.
+
+- **Take the rules from the contract** — API docs, the ticket, whoever owns
+  the behavior — not from the implementation. A spec transcribed from the
+  code agrees with it, bugs included, and every test passes. Read the code
+  for names, types, and the order of refusals when the contract is silent
+  (rule 4); when the code and the contract disagree, that's a finding to
+  raise (DEBUG.md rule 4), not a rule to copy.
+- **Accept everything the contract allows.** Where the contract leaves a
+  choice open — the order of a list, which of two valid IDs, a message's
+  wording — the predicate accepts every choice, not the one today's code
+  makes. Pinning the current choice is implementation bias: the spec
+  fails the first correct refactor.
+- **Don't copy the algorithm.** Compute expected values from the spec's own
+  simpler state: a cart's total is the sum of the prices the spec
+  recorded, not a call into the system's pricing code or a copy of it. A
+  model that mirrors the implementation shares its bugs.
+- **Keep it simpler than the system.** An `Apply` should be short enough to
+  check by reading against the contract. One that reads like the handler
+  it judges has become a second implementation; cut it back to what the
+  contract promises (rule 10).
+
+## 3. State is what the spec remembers, not what the system stores
 
 Model only what you need to decide whether a response is correct. A bank
 needs account balances, not tables, rows, or audit logs. Most specs start as
@@ -65,14 +86,15 @@ equality. A `[State]`-typed shared property can omit it; its own string
 form is used. Never
 mutate a shared value — every clone sees the change.
 
-## 3. One guard per refusal, in the implementation's order
+## 4. One guard per refusal, in the contract's order
 
-Each refusal is an early `return` with its own outcome. Order is the one
-thing to take from the code (rule 1). Check them in the order the
-implementation does: if the real code checks "user exists" before
-"todo exists", so does the spec, or a request that fails both checks gets a
-different answer from each. Use `TryGetValue`; never index a dictionary you
-haven't checked.
+Each refusal is an early `return` with its own outcome. Which refusal wins
+when a request fails two checks is observable, so it's part of the
+contract: if "user exists" is checked before "todo exists", so it is in
+the spec, or a request that fails both gets a different answer from each.
+When the contract doesn't say, take the order from the code — the one
+thing to take from it (rule 2) — and ask the owner whether that order is a
+promise. Use `TryGetValue`; never index a dictionary you haven't checked.
 
 ```csharp
 spec.Operation<Todo, ApiResult<Todo>>("CreateTodo", (request, state) =>
@@ -97,7 +119,7 @@ spec.Operation<Todo, ApiResult<Todo>>("CreateTodo", (request, state) =>
 });
 ```
 
-## 4. Use the form that compiles where you are
+## 5. Use the form that compiles where you are
 
 Inline operations hang off a spec you create with `var spec = new
 Spec<AppState>();` (`spec.Operation<TReq, TResp>(name, (req, state) => …)`)
@@ -130,9 +152,11 @@ public class AppSpec : Spec<AppState>
 Start inline; inline operations get polling and derivations through
 `spec.ConfigurePolling` and `spec.ConfigureDerivations`. Move to classes
 when an operation needs an `ExecuteAsync` next to its `Apply`, or a shared
-base class (FAULTS.md rule 4).
+base class (FAULTS.md rule 4). Sharing a class doesn't merge the jobs:
+`ExecuteAsync` only calls the system and returns what came back, and
+`Apply` only judges it.
 
-## 5. Refusals and reads keep the state
+## 6. Refusals and reads keep the state
 
 Every error branch and every read ends in `.SameState()`. An operation that
 throws is declared with `Expect.Throws<TException>(explanation)` (or the
@@ -144,7 +168,7 @@ failure. A `void`/`Task` operation responds with `Unit`: declare
 `InvalidOperationException` when the outcome is built — end it in
 `.SameState()` or, for a write that succeeds, `.ThenState(…)`.
 
-## 6. Change state only inside `ThenState`
+## 7. Change state only inside `ThenState`
 
 `ThenState` clones the current state and hands you the clone. Compute
 values from `state` up front, write them to `next`, and never mutate
@@ -178,7 +202,7 @@ rule that breaks a property fails a generation-only test (GENERATE.md
 rule 6) with the path that broke it, before the spec judges the system
 by a wrong rule.
 
-## 7. Predicates check the payload, and explain themselves
+## 8. Predicates check the payload, and explain themselves
 
 `r => r.IsSuccess` passes when the wrong user comes back. Check every field
 the spec knows: IDs, names, counts, balances. Always pass the explanation
@@ -211,7 +235,7 @@ Judge<ApiResult<User>>($"User '{id}' exists → 200 with its name", r =>
 Passing the string as a second argument to the `ValidationResult` form
 does not compile; the `bool` form `Expect.That<T>(r => …, "why")` does.
 
-## 8. Capture what you can't predict, then hold it stable
+## 9. Capture what you can't predict, then hold it stable
 
 Server-generated values (IDs, timestamps, ETags) can't be predicted, so
 check they exist, then capture them with the response-aware `ThenState`.
@@ -234,7 +258,7 @@ Once captured, later reads must return exactly that value: compare against
 the captured field and keep `.SameState()`. A value that's set once and
 never changes is a property the spec enforces, not a detail it skips.
 
-## 9. Leave out what doesn't matter yet
+## 10. Leave out what doesn't matter yet
 
 A spec can be partial and still catch bugs. Skip fields you don't care
 about, operations you aren't testing, and edge cases you'll add later. An
@@ -242,7 +266,7 @@ unmodeled detail should be absent from the predicate, not guessed at — a
 guessed rule fails on correct behavior and teaches the user to distrust
 the spec.
 
-## 10. Time is an input
+## 11. Time is an input
 
 Expiry, leases, token lifetimes, and rate-limit windows depend on a clock
 the generator doesn't control, so with a real clock they go untested. Put
@@ -276,25 +300,28 @@ spec.ExecuteWith<FakeTimeProvider>()
 Pick advances that land on the boundary — with a 60-second TTL, `59` and
 `1` reach just before, at, and just after it — and cap `Now` in the
 `StateConstraint`, or the clock alone makes the space infinite. Whether
-the session dies at 60 or after it is a contract question (rule 1). A
+the session dies at 60 or after it is a contract question (rule 2). A
 system you can't host in the test needs a test-only endpoint that moves
 its clock.
 
 ## Done when
 
-- Every refusal is its own early return, in the implementation's order
-  (rule 3), and every refusal and read ends in `.SameState()` (rule 5).
+- Every rule traces to the contract, not the code; every predicate accepts
+  each response the contract allows; and no `Apply` copies the system's
+  algorithm (rule 2).
+- Every refusal is its own early return, in the contract's order (rule 4),
+  and every refusal and read ends in `.SameState()` (rule 6).
 - Every predicate checks each field the spec knows and carries a
-  `"<situation> → <outcome>"` explanation (rule 7).
-- Each server-generated value is captured with a `mock:` response, and
-  later reads compare against it (rule 8).
+  `"<situation> → <outcome>"` explanation (rule 8), and each
+  server-generated value is captured with a `mock:` response that later
+  reads compare against (rule 9).
 - A generation-only run finishes with no spec crash and no broken
-  `Invariant.Assert` (rule 6, GENERATE.md rule 6).
+  `Invariant.Assert` (rule 7, GENERATE.md rule 6).
 - With expiry, leases, or rate limits: "now" is in the state, advancing it
-  is an operation, and `Now` is capped (rule 10).
+  is an operation, and `Now` is capped (rule 11).
 
 ---
 
 GENERATE.md runs this spec against the system. When an operation can
 legitimately answer in more than one way, FAULTS.md and ASYNC.md extend
-rule 3's single outcome into several.
+rule 4's single outcome into several.

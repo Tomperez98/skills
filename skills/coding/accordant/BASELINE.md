@@ -126,7 +126,7 @@ predicate checks that field, the break passes.
   instead. The binding then reports the break instead of hiding it.
 - Map the transport faithfully: the binding returns the real status code
   and body, not a wrapper that turns every 2xx into success.
-- A promise the spec leaves out (SPEC.md rule 9) is a promise nobody
+- A promise the spec leaves out (SPEC.md rule 10) is a promise nobody
   checks. Callers depend on it anyway. Before a release, list the fields
   and status codes the API documents and confirm a predicate checks each
   one; an unchecked one is either added to the spec or declared
@@ -159,7 +159,7 @@ already sitting in a queue will still be accepted after the deploy.
 
 A baseline that rejects every new field turns every additive change into a
 false break. Check the fields the contract promised and say nothing about
-the rest (SPEC.md rule 9): no "exactly these keys", no "list has exactly
+the rest (SPEC.md rule 10): no "exactly these keys", no "list has exactly
 three entries" unless three is the promise. A new optional field or a new
 operation should leave the baseline green.
 

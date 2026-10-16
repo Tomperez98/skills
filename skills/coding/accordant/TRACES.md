@@ -139,8 +139,8 @@ per copy — a status code, an amount, an ID, a `Pending` that should be
 answer, not into another explanation the spec declares: a success turned
 into a timeout is rightly accepted while failure outcomes are on
 (FAULTS.md rule 2), and a change to a field the contract never promised is
-rightly ignored (SPEC.md rule 9). A mutant that passes otherwise is a
-predicate that doesn't check what it should (SPEC.md rule 7); strengthen
+rightly ignored (SPEC.md rule 10). A mutant that passes otherwise is a
+predicate that doesn't check what it should (SPEC.md rule 8); strengthen
 it, or note why that field is not part of the contract.
 
 ## 8. Every outcome in the source must run
