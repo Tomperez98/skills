@@ -79,7 +79,7 @@ apply_payment(key, amount)   // safe to reissue after a crash
 A unit of work must be self-describing: everything a fresh instance needs to
 resume it travels with the request or is re-resolvable from an ID. Hidden
 in-process state dies with the crash and can't be rebuilt. (Same shape as
-WRITE.md: pass identity, not references; load only the state you need.)
+STATE.md: pass identity, not references; load only the state you need.)
 
 ## 6. Timeout every interaction; lease every resource
 

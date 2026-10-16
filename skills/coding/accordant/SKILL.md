@@ -4,10 +4,9 @@ description: >
   Specify and test any stateful system — any language, any transport —
   with Accordant. One rule: write the contract once, in the spec, and let
   it judge every response. Use when the user models a system, generates or
-  runs tests, validates traces from another language, hunts races, models
-  async jobs, polling, timeouts, retries, checks backward compatibility,
-  or changes or debugs a spec — even if they never say "model-based
-  testing" or "oracle".
+  runs tests, validates traces, hunts races, models async jobs or faults,
+  checks backward compatibility, or changes or debugs a spec — even if they
+  never say "model-based testing" or "oracle".
 ---
 
 # Accordant
@@ -44,35 +43,21 @@ Identify which situation you're in — from the user's prompt, the code in
 front of you, or by asking if the user is around:
 
 - **"Model this system / write a spec / add an operation"** →
-  [SPEC.md](SPEC.md). The contract, not a second implementation: minimal
-  state, guards in the contract's order, strong predicates, one outcome per
-  branch.
+  [SPEC.md](SPEC.md).
 - **"Generate tests / run them against my API / bind the client"** →
-  [GENERATE.md](GENERATE.md). Bind, reset, pick inputs, bound the graph,
-  look at it, run.
+  [GENERATE.md](GENERATE.md).
 - **"Validate my existing tests / traces / a system that isn't .NET"** →
-  [ORACLE.md](ORACLE.md). The spec as a pure judge: `spec.Allows`, traces
-  from any language, concurrent segments, exported test plans, events.
+  [ORACLE.md](ORACLE.md).
 - **"Find race conditions / double booking / lost updates"** →
-  [CONCURRENCY.md](CONCURRENCY.md). Sequential green first, then
-  linearizability over small concurrent groups; pin each race as a case.
+  [CONCURRENCY.md](CONCURRENCY.md).
 - **"Background jobs / polling / eventual completion / server-generated IDs"**
-  → [ASYNC.md](ASYNC.md). Step functions in the model, polling and
-  derivations at test time, liveness as a bound, polling off to act
-  mid-job.
+  → [ASYNC.md](ASYNC.md).
 - **"Timeouts / 500s / retries / fault injection / did it happen or not"** →
-  [FAULTS.md](FAULTS.md). Every explanation of an ambiguous response is an
-  outcome; the state profile carries all of them.
+  [FAULTS.md](FAULTS.md).
 - **"Is the new version backward compatible / check against the last release"**
-  → [BASELINE.md](BASELINE.md). The released spec and sequences, unchanged,
-  judge the new build through a client as strict as the promise; the
-  upgrade runs over data the old build wrote; traces from the release
-  replay under main's spec.
+  → [BASELINE.md](BASELINE.md).
 - **"I changed the spec — is it still right? / review this spec change /
-  would the spec catch a wrong answer?"** → [TRACES.md](TRACES.md). A trace
-  database replayed on every spec change, mutated traces the spec must
-  reject, every outcome exercised, the spec diff posted as a contract
-  change.
+  would the spec catch a wrong answer?"** → [TRACES.md](TRACES.md).
 - **"The spec crashes / tests fail / generation explodes / it won't compile"**
   → [DEBUG.md](DEBUG.md). Decide whether the spec or the system is wrong
   before touching either.
@@ -85,8 +70,7 @@ file, or non-.NET service → ORACLE; a lock, transaction, or "sometimes
 both succeed" → CONCURRENCY; a `Pending` status or a job table → ASYNC; a
 retry loop or fault proxy → FAULTS; a release tag or baseline suite →
 BASELINE; a spec diff under review or a trace database → TRACES; a red
-test or a stack trace → DEBUG) and state the assumption at
-the top of your work.
+test or a stack trace → DEBUG) and state the assumption at the top.
 
 ## The one rule
 

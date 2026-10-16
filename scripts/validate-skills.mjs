@@ -343,7 +343,7 @@ function checkRouterMap(skillFiles) {
       parseFrontmatter(readFileSync(skill, "utf8")).fields["disable-model-invocation"] === "true",
   );
   for (const router of routers) {
-    const words = new Set(stripNonProse(readFileSync(router, "utf8")).match(/[A-Za-z_]+/g));
+    const words = new Set(stripNonProse(readFileSync(router, "utf8")).match(/[A-Za-z_][A-Za-z_-]*/g));
     for (const skill of skillFiles) {
       if (skill === router) continue;
       const name = basename(dirname(skill));

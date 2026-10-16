@@ -96,7 +96,7 @@ db = setup()
 
 ## 7. Arrange config by value, not by environment
 
-Config is a value (WRITE.md), so tests pass it in. Setting a variable
+Config is a value (STATE.md), so tests pass it in. Setting a variable
 mutates process-wide state for every test in the process: leaked values make
 tests order-dependent, and nothing runs in parallel.
 
@@ -276,7 +276,7 @@ in CI, or log it, so a failure can be replayed.
 
 ## 15. Test every row of the decision table
 
-A decision table (WRITE.md: tabulate multi-input decisions) is already a
+A decision table (LOGIC.md: tabulate multi-input decisions) is already a
 test plan. Write one
 case per row, and add one test that proves the table itself is complete and
 unambiguous: enumerate every combination of inputs and assert that exactly
