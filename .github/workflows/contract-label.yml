@@ -5,9 +5,10 @@
 # The ci job runs the pull request's code with a read-only token and uploads
 # the label as data. This workflow holds the write token, so it runs only
 # trusted code from main: it never checks out the pull request, and it treats
-# the uploaded report as untrusted input. GitHub runs workflow_run workflows
-# from the default branch only, so a pull request can't change this file and
-# label itself with it.
+# the uploaded report as untrusted input. It applies the verdict only while it
+# still describes the pull request's current head and base (CI.md rule 10).
+# GitHub runs workflow_run workflows from the default branch only, so a pull
+# request can't change this file and label itself with it.
 name: contract label
 
 on:
@@ -36,13 +37,21 @@ jobs:
           path: report
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
-      # A missing report is a bug in ci (it runs the report first), not a
-      # reason to skip quietly: say so on this run.
-      - name: Say that there was no report
+      # A missing report is a bug in ci (it runs the report first), so fail
+      # loudly — except for a cancelled run, whose artifact never existed
+      # because a newer push superseded it (rule 5).
+      - name: Report a missing contract report
         if: steps.report.outcome == 'failure'
         env:
           RUN_URL: ${{ github.event.workflow_run.html_url }}
-        run: echo "::warning::no contract-report artifact in $RUN_URL; the pull request was not labeled"
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          if [ "$CONCLUSION" = cancelled ]; then
+            echo "ci run was cancelled (a newer push superseded it); no verdict to apply"
+            exit 0
+          fi
+          echo "::error::no contract-report artifact in $RUN_URL; the pull request was not labeled"
+          exit 1
       - name: Label the pull request
         if: steps.report.outcome == 'success'
         env:
@@ -53,6 +62,7 @@ jobs:
           # Untrusted input: accept only the shapes we expect.
           pr="$(cat report/pr 2>/dev/null || true)"
           label="$(cat report/label 2>/dev/null || true)"
+          base="$(cat report/base 2>/dev/null || true)"
           if ! [[ "$pr" =~ ^[0-9]+$ ]]; then
             echo "::error::the report names no pull request"
             exit 1
@@ -61,11 +71,22 @@ jobs:
             unchanged | additive | changed | breaking) ;;
             *) echo "::error::unknown label '$label'"; exit 1 ;;
           esac
-          # Label only the pull request's current head: a slow run for an
-          # older push must not overwrite the label of a newer one.
-          head="$(gh pr view "$pr" --json headRefOid --jq .headRefOid)"
+          if ! [[ "$base" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::the report names no base commit"
+            exit 1
+          fi
+          # Label only the pull request's current head and base: a slow run for
+          # an older push or a base that moved must not apply a stale verdict
+          # (CI.md rule 10).
+          meta="$(gh pr view "$pr" --json headRefOid,baseRefOid --jq '.headRefOid + " " + .baseRefOid')"
+          head="${meta%% *}"
+          pr_base="${meta##* }"
           if [ "$head" != "$HEAD_SHA" ]; then
             echo "report is for ${HEAD_SHA::7}, pull request #$pr is at ${head::7}; skipping"
+            exit 0
+          fi
+          if [ "$pr_base" != "$base" ]; then
+            echo "report was diffed against ${base::7}, pull request #$pr now targets ${pr_base::7}; a fresh run will label it"
             exit 0
           fi
 
