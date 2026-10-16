@@ -114,6 +114,13 @@ A trace that no longer deserializes into the spec's types is a changed
 request or response type, not a rejection — a shape break to declare
 (BASELINE.md rule 4), not a rule to loosen.
 
+Bound the replay so the fast tier stays fast. On a pull request, replay only
+the traces whose coverage tags (rule 4) the changed operations or outcomes
+can touch, under a wall-clock budget; run the full database replay on main
+and on a schedule, the way the slow suites move off the pull request (ship
+skill, COMPAT.md rule 7). A spec change to one operation never needs every
+trace replayed to be trusted.
+
 ## 6. Bound the ambiguity
 
 Replay can pass while the spec gets vaguer. Record the candidate count

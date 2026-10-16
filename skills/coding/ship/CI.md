@@ -67,7 +67,11 @@ the seed and print the command that replays it. Treat a flaky test as a
 bug: fix it or quarantine it with an owner. Don't retry it until it passes,
 because that hides real failures. A concurrency check that fails now and
 then is not flaky: it's the race it exists to find, so keep it red until
-the race is fixed (COMPAT.md rule 7).
+the race is fixed (COMPAT.md rule 7). A contract check that gates every
+pull request is the one check you can't quarantine: a flaky gate teaches
+people to merge past red. Make it deterministic and replayable by
+construction (COMPAT.md rule 3), and treat a flaky one as a bug to fix
+now, not a test to retry or quarantine.
 
 ## 6. Make failures easy to read
 
@@ -123,6 +127,9 @@ review:
 - **Breaking:** the last release's contract rejects the build. The spec's
   owners approve, and the breaking changelog entry is present (COMPAT.md
   rule 6).
+- **Baseline:** no earlier release shipped a contract, so there is nothing
+  to diff against; this change records the first one. Not a stage on the
+  way to *additive*, and it blocks nothing.
 
 Put the spec and schema directories under named owners (a `CODEOWNERS`
 file), so a contract change never merges without a person. People decide
@@ -132,20 +139,35 @@ Post the contract change on the pull request, not just the code diff: the
 promises added, removed, or reworded, in words; which side moved when spec
 and code change together (the old spec judging the new build shows a
 behavior change, the new spec judging old traces shows a contract change);
-and an exact, runnable replay of every failure. Fail the build when a
-public operation has no spec, when a rule in the spec never runs, or when
-a test asserts on responses itself instead of leaving that to the spec.
+and an exact, runnable replay of every failure. The promises added,
+removed, or reworded are the change's **own** diff against the commit it
+was built on (its target branch, or the ref it was pushed over), not
+against the last release: a change that touches neither spec nor code
+reads *unchanged*, a promise an earlier merged change added does not
+reappear here, and only a release compares against the release before it.
+The compatibility verdict (the last release's contract still accepts the
+build) stays against the last release. Fail the build when a public
+operation has no spec, when a rule in the spec never runs, or when a test
+asserts on responses itself instead of leaving that to the spec.
 
-Post from a separate job that never runs the pull request's code. The job
-that checks the pull request keeps a read-only token (fork pull requests
-get nothing else) and uploads its verdict as data. A workflow triggered by
-that run's completion (`workflow_run` on GitHub) holds the write token,
-never checks out the pull request, validates the verdict as untrusted
-input, and posts only if it describes the pull request's current head, so
-a late run can't overwrite a newer one. GitHub runs that workflow only
-from the default branch: the pull request that adds it can't exercise it,
-and the first real post comes on the next pull request. Runs triggered by
-a push have no pull request, so the job skips them.
+The verdict is a check, not a comment. The job that checks the pull
+request runs its code with a read-only token (fork pull requests get
+nothing else) and reports the label as the check's name and status, so the
+gate needs no write token and branch protection keys on it. A comment is a
+projection of that check, posted only where a human reads it, from a
+separate job that never runs the pull request's code: a workflow triggered
+by the check run's completion (`workflow_run` on GitHub) holds the write
+token, never checks out the pull request, validates the verdict as
+untrusted input, and posts by marker (update or create one comment per
+pull request), so a retry or a force-push edits the same comment instead
+of stacking. Post, and report the check, only if the verdict describes
+both the pull request's current head and the base it was diffed against;
+recompute the verdict against the actual merge base in the merge-queue
+run, so a base that moved under a busy queue re-runs the label the way a
+moved head does. GitHub runs that workflow only from the default branch:
+the pull request that adds it can't exercise it, and the first real post
+comes on the next pull request. Runs triggered by a push have no pull
+request, so the job skips them.
 
 Start with the labels as information only. Let "contract unchanged" merge
 on green alone after the specs have caught real bugs: a spec that only
