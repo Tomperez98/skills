@@ -21,10 +21,10 @@ return Expect.That(r => r.IsSuccess && r.Data!.Status == JobStatus.Pending,
            transition: next => next.Jobs[jobId].Status = JobStatus.Completed));
 ```
 
-(Short-form `Expect` because this is a class-based operation — SPEC.md rule 4.)
+(Short-form `Expect` because this is a class-based operation — SPEC.md rule 5.)
 When the server picks the job ID, the step function can't name it up
 front. Use the response overload after a response-aware `ThenState` that
-captures the ID (SPEC.md rule 8):
+captures the ID (SPEC.md rule 9):
 
 ```csharp
 .Triggers(resp => AsyncOperation.Create<AppState>(

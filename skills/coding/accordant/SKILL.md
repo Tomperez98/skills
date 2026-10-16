@@ -1,13 +1,13 @@
 ---
 name: accordant
 description: >
-  Test any stateful system — any language, any transport — with Accordant
-  specs. One rule: write the contract once, in the spec, and let it judge
-  every response. Use when the user models a system, generates or runs
-  tests, validates traces from another language, hunts race conditions,
-  models async jobs, polling, timeouts, retries, checks backward
-  compatibility, or changes or debugs a spec — even if they
-  never say "model-based testing" or "oracle".
+  Specify and test any stateful system — any language, any transport —
+  with Accordant. One rule: write the contract once, in the spec, and let
+  it judge every response. Use when the user models a system, generates or
+  runs tests, validates traces from another language, hunts races, models
+  async jobs, polling, timeouts, retries, checks backward compatibility,
+  or changes or debugs a spec — even if they never say "model-based
+  testing" or "oracle".
 ---
 
 # Accordant
@@ -28,6 +28,12 @@ system at all, the system records a trace in its own language and the spec
 validates it afterwards (ORACLE.md). Never tell a user Accordant is only for
 .NET code or only for HTTP APIs.
 
+Writing a spec is not writing the system again. The system decides _how_
+to produce one response; the spec decides _which_ responses are correct,
+and is simpler than the system so it can be checked by reading it against
+the contract. Its rules come from the contract — docs, tickets, whoever
+owns the behavior — not from the code, or it agrees with every bug.
+
 Everything in this skill follows from one rule:
 
 > **Write the contract once, in the spec — and let it judge every response.**
@@ -38,8 +44,9 @@ Identify which situation you're in — from the user's prompt, the code in
 front of you, or by asking if the user is around:
 
 - **"Model this system / write a spec / add an operation"** →
-  [SPEC.md](SPEC.md). Minimal state, guards in implementation order, strong
-  predicates, one outcome per branch.
+  [SPEC.md](SPEC.md). The contract, not a second implementation: minimal
+  state, guards in the contract's order, strong predicates, one outcome per
+  branch.
 - **"Generate tests / run them against my API / bind the client"** →
   [GENERATE.md](GENERATE.md). Bind, reset, pick inputs, bound the graph,
   look at it, run.

@@ -59,13 +59,13 @@ different bug.
 The usual causes, in order of frequency:
 
 - Indexing a dictionary before checking it exists — use `TryGetValue` and
-  return a refusal outcome (SPEC.md rule 3).
+  return a refusal outcome (SPEC.md rule 4).
 - An `isTerminal` predicate that assumes the resource still exists
   (ASYNC.md rule 1).
 - `StateFrozenException` — `Apply` mutated the `state` argument instead of
-  the clone inside `ThenState` (SPEC.md rule 6).
+  the clone inside `ThenState` (SPEC.md rule 7).
 - `ArgumentNullException` for `mock` — a response-aware `ThenState` passed
-  `mock: null`; give it a plausible response (SPEC.md rule 8). Leaving
+  `mock: null`; give it a plausible response (SPEC.md rule 9). Leaving
   `mock` out entirely doesn't compile (`CS1593`).
 
 A generation-only test (`spec.GenerateTests(…)` asserting a non-empty
@@ -108,8 +108,8 @@ Verify the reset once by reading back an empty system.
 
 | Symptom | Cause |
 |---------|-------|
-| `CS0411: The type arguments for method 'Expect.That<TResponse>(…)' cannot be inferred` | Short-form `Expect.That(r => …)` in an inline `spec.Operation` lambda — use `Expect.That<TResp>` and `.ThenState<TState>` (SPEC.md rule 4) |
-| `[State]` generator diagnostics (`STATE0xx`) | Class not `partial`, nested, abstract, a record/struct; or a property that's a `HashSet`, interface-typed, a field, `init`, getter-only of a mutable type, `required`, or a multidimensional array (SPEC.md rule 2) |
+| `CS0411: The type arguments for method 'Expect.That<TResponse>(…)' cannot be inferred` | Short-form `Expect.That(r => …)` in an inline `spec.Operation` lambda — use `Expect.That<TResp>` and `.ThenState<TState>` (SPEC.md rule 5) |
+| `[State]` generator diagnostics (`STATE0xx`) | Class not `partial`, nested, abstract, a record/struct; or a property that's a `HashSet`, interface-typed, a field, `init`, getter-only of a mutable type, `required`, or a multidimensional array (SPEC.md rule 3) |
 | `STATE003` unsupported type on a nested property | The nested class has no `[State]` of its own |
 | `Execute not implemented for operation 'X'` | `X` has no binding |
 | `SpecException: No operation with name X has been registered` | A binding or `GetOperation` names an operation that doesn't exist — usually a typo |

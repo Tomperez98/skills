@@ -374,7 +374,7 @@ directly: run the suite against the system with small bugs planted in it
 — Stryker.NET for .NET, or the mutation tool of the system's language —
 and read each surviving mutant. It is one of three gaps: an input that
 never reaches the code (rule 4), a change no read observes (rule 4), or a
-predicate that doesn't check the field (SPEC.md rule 7). TRACES.md rule 7
+predicate that doesn't check the field (SPEC.md rule 8). TRACES.md rule 7
 does the same for the spec. Run it on the cluster you just specified, not
 the whole system, and on a schedule rather than every push — it reruns
 the suite once per mutant.
