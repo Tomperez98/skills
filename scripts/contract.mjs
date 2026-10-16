@@ -10,9 +10,10 @@
 // install: skill names, guide files, each skill's one rule, every numbered
 // rule's heading, and each description (the trigger). The change gets one
 // label — unchanged, additive, changed, breaking — and a list of the promises
-// added and removed, printed, written to .contract-report/ (label, summary.md)
-// and, on CI, to the job summary. contract-label.yml puts the label on the
-// pull request.
+// added and removed, printed, written to .contract-report/ (label, base,
+// summary.md) and, on CI, to the job summary. contract-label.yml puts the
+// label on the pull request, and applies it only while both the pull request's
+// head and the base recorded here still match (CI.md rule 10).
 //
 // It reports and never blocks: a reviewer decides whether a changed promise
 // is right (CI.md rule 10, labels as information first). Exits 1 only when it
@@ -105,6 +106,9 @@ if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMM
 const report = join(REPO_ROOT, ".contract-report");
 mkdirSync(report, { recursive: true });
 writeFileSync(join(report, "label"), `${label}\n`);
+// The commit the verdict was diffed against: contract-label.yml checks it
+// still matches the pull request's base before labeling (CI.md rule 10).
+writeFileSync(join(report, "base"), `${base}\n`);
 writeFileSync(join(report, "summary.md"), summary);
 
 const level = { breaking: "warning", changed: "notice" }[label];
