@@ -2,8 +2,10 @@
 # commit SHA and the `# vX.Y.Z` comment together, so the pins stay immutable
 # between updates. PRs run the same `ci` gate as any other change.
 #
-# There is nothing else to watch: no package.json, lockfile, Dockerfile, or
-# mise-managed tool. If the repo gains one, add its ecosystem here.
+# There is nothing else for Dependabot to watch: no package.json, lockfile,
+# or Dockerfile. mise.toml pins rumdl, but Dependabot has no mise ecosystem,
+# so that update stays manual. If the repo gains a watchable ecosystem, add
+# it here.
 version: 2
 updates:
   - package-ecosystem: github-actions
