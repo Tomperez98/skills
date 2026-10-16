@@ -150,24 +150,23 @@ build) stays against the last release. Fail the build when a public
 operation has no spec, when a rule in the spec never runs, or when a test
 asserts on responses itself instead of leaving that to the spec.
 
-The verdict is a check, not a comment. The job that checks the pull
-request runs its code with a read-only token (fork pull requests get
-nothing else) and reports the label as the check's name and status, so the
-gate needs no write token and branch protection keys on it. A comment is a
-projection of that check, posted only where a human reads it, from a
-separate job that never runs the pull request's code: a workflow triggered
-by the check run's completion (`workflow_run` on GitHub) holds the write
-token, never checks out the pull request, validates the verdict as
-untrusted input, and posts by marker (update or create one comment per
-pull request), so a retry or a force-push edits the same comment instead
-of stacking. Post, and report the check, only if the verdict describes
-both the pull request's current head and the base it was diffed against;
-recompute the verdict against the actual merge base in the merge-queue
-run, so a base that moved under a busy queue re-runs the label the way a
-moved head does. GitHub runs that workflow only from the default branch:
-the pull request that adds it can't exercise it, and the first real post
-comes on the next pull request. Runs triggered by a push have no pull
-request, so the job skips them.
+Post from a separate job that never runs the pull request's code. The job
+that checks the pull request keeps a read-only token (fork pull requests
+get nothing else) and uploads its verdict as data. A workflow triggered by
+that run's completion (`workflow_run` on GitHub) holds the write token,
+never checks out the pull request, validates the verdict as untrusted
+input, and applies the verdict as a machine-readable marker, not a
+comment: a label to route the review, a check to gate the merge. Apply it
+idempotently (the label set to the verdict with the others removed; one
+check per commit), so a retry or a force-push updates the marker instead
+of stacking. Apply it only if the verdict describes both the pull
+request's current head and the base it was diffed against; recompute the
+verdict against the actual merge base in the merge-queue run, so a base
+that moved under a busy queue re-runs the marker the way a moved head
+does. GitHub runs that workflow only from the default branch: the pull
+request that adds it can't exercise it, and the first real verdict lands
+on the next pull request. Runs triggered by a push have no pull request,
+so the job skips them.
 
 Start with the labels as information only. Let "contract unchanged" merge
 on green alone after the specs have caught real bugs: a spec that only
