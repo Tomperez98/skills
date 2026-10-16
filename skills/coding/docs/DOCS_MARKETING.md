@@ -17,15 +17,15 @@ answer to it.
 
 A developer shares a page when it stands alone: the context, the example,
 and the result are all on the page, so a link is enough to make sense of it.
-Pages that require clicking through five others never get shared. Every page
-should read like a blog post someone would send to a colleague.
+Write every page so it reads like a blog post someone would send to a
+colleague.
 
 ## 3. The example is the ad
 
-Your copy-paste example is the single most persuasive thing you ship. Make
-it complete (runs as pasted), real (a task the reader actually has), and
-short enough to fit in one screen. A reader who pastes it and it works has
-just had your best sales conversation — with zero sales.
+Your copy-paste example is the single most persuasive thing you ship. Build it
+to [README.md](README.md) rule 5, then make it real (a task the reader actually
+has) and short enough to fit in one screen. A reader who pastes it and it works
+has just had your best sales conversation — with zero sales.
 
 ## 4. Convert at the moment of success
 
@@ -36,12 +36,11 @@ step in their task, not a pitch.
 
 ## 5. Rank on the tasks you want to own
 
-Target the task queries where your docs genuinely win — the ones your
-product does unusually well. Don't chase generic terms where you'd lose; own
-the long tail of "how do I do X with Y" where your example is the answer.
-Write it to be the best answer, and the rank follows — never clickbait to
-get there: the title's promise must be delivered in the first scroll, so a
-visitor who lands on a search hit gets what they clicked for.
+Target the task queries where your docs genuinely win — the ones your product
+does unusually well. Own the long tail of "how do I do X with Y" where your
+example is the answer. Write it to be the best answer, and the rank follows: the
+title's promise is delivered in the first scroll, so a visitor who lands on a
+search hit gets what they clicked for.
 
 ## 6. Measure what resonates
 
@@ -67,3 +66,5 @@ task.
 - The example runs as pasted and fits on one screen (rule 3).
 - A next step in the reader's task sits right after the example, not in a
   banner (rule 4).
+- Each page targets a task query your product wins, and its reads, copies,
+  and signups are tracked (rules 5-6).

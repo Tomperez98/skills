@@ -36,8 +36,8 @@ the fast tier is the one budget you can't spend that way.
 If the schema is generated from code, regenerate it in CI and fail on a
 diff (CI.md rule 9), or the check compares two stale files.
 
-Never reuse a removed identifier: an enum value, a field number, an event
-type, an operation name. Reserve it. An old caller or an old message still
+Reserve a removed identifier (an enum value, a field number, an event
+type, an operation name) for good. An old caller or an old message still
 means the old thing by it.
 
 ## 3. Write behavior down as an executable spec
@@ -51,10 +51,10 @@ tool with "accordant" and follow its SPEC.md, then its BASELINE.md to run
 the baseline against the new build.
 
 The spec sees the system only through its API: requests in, responses and
-published events out. It checks what a caller can observe, never tables,
-internal calls, or private state. That boundary is what makes it a
-compatibility check: callers depend on the API, so the API is what must
-not change underneath them.
+published events out. It checks what a caller can observe; tables, internal
+calls, and private state stay out of it. That boundary is what makes it a
+compatibility check: callers depend on the API, so the API is what must not
+change underneath them.
 
 The spec and the sequences it generates are deterministic and replayable by
 construction: the same build and the same inputs give the same verdict
@@ -82,12 +82,12 @@ before the release did.
 
 On every pull request that can change behavior, run the last release's
 suite (its spec, its sequences, its client) against the new build. Judge
-the responses with the old spec, never by comparing them to recorded
-responses byte for byte: IDs, timestamps, and ordering legitimately change,
-and an exact match fails on all of them. The spec knows which fields must
+the responses with the old spec: IDs, timestamps, and ordering
+legitimately change, so a byte-for-byte match against recorded responses
+fails on all of them. The spec knows which fields must
 match and which only have to exist.
 
-Decide "can change behavior" mechanically, never by running the suite to
+Decide "can change behavior" mechanically, without running the suite to
 find out. A pull request can change behavior only if it touches the API
 surface or any code the spec's requests can reach, read from the ownership
 map (CI.md rule 10); every other pull request skips the suite. That filter
@@ -117,9 +117,9 @@ build (CI.md rule 7). To write the entry, call the Skill tool with "docs"
 and follow its CHANGELOG.md. After the major release ships, its contract
 becomes the new baseline.
 
-Declaring a break is the user's call, never the agent's. A declared break
-forces a major version on everyone downstream. Show the failing check and
-the proposed changelog entry, then wait for a yes. Fixing the change so the
+Declaring a break is the user's call. A declared break forces a major version on
+everyone downstream, so the agent stops and asks: it shows the failing check and
+the proposed changelog entry, then waits for a yes. Fixing the change so the
 check passes again needs no permission.
 
 Only that undeclared break is an error. Give every other result its own
@@ -151,10 +151,10 @@ For each change, report one line:
   check)
 End with the overall level, the highest one found. Under 300 words.
 Report what the evidence shows. Where no check covers a change, say
-"unchecked"; never guess.
+"unchecked".
 ```
 
-Report its lines as written, under the overall level. Don't re-rank them.
+Report its lines as written, under the overall level.
 
 ## 7. Run the slow suites on a schedule, not on every pull request
 
@@ -228,6 +228,8 @@ once no N-1 code is left.
   (rule 5).
 - Every failure is fixed or declared. A declared break has the user's yes,
   a breaking changelog entry, and a migration note (rule 6).
+- The release ships the schema, spec, and sequences, listed in its
+  manifest (rule 4).
 - With several services: both directions and the rollout order ran green
   (rules 9–10).
 

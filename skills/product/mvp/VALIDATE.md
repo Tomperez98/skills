@@ -5,14 +5,13 @@ person's verdict, not your own. Apply the rules in order.
 
 ## 1. Put it in front of someone real
 
-Hand the MVP to a classmate, a friend, anyone who isn't you. Your own
-excitement is not evidence. The only test is whether a real person reaches
-the aha.
+Hand the MVP to a classmate, a friend, anyone who isn't you. The only test is
+whether a real person reaches the aha.
 
 ## 2. Watch, don't demo
 
-Let them drive. Don't explain the thing first or click for them — if you
-have to narrate, the journey is broken. Their unguided path to the aha is
+Let them drive, in silence from you — if you have to narrate, the journey is
+broken. Their unguided path to the aha is
 the data.
 
 ## 3. Time it to the aha
@@ -35,7 +34,7 @@ it's the reset.
 Write each session down in the same shape, so sessions compare:
 
 ```text
-Who:      <who they are to you>, never you
+Who:      <who they are to you>, not you
 Aha:      reached at <m:ss> | stalled at <step> after <m:ss>
 After:    <what they did unprompted: kept using it, asked again, handed it back>
 Verdict:  build the next feature | fix the journey at <step> | rethink the aha

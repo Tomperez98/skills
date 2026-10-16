@@ -9,9 +9,7 @@ with something that runs. Apply the rules in order.
 
 You have ten seconds, and the reader may never read a paragraph. The hero
 must carry the whole pitch on its own: one line of what the reader can *do*,
-plus one snippet, image, or benchmark that proves it. Not a logo wall, not a
-feature list, not "X is a powerful, flexible, robust..." — the task, then the
-proof.
+plus one snippet, image, or benchmark that proves it. The task, then the proof.
 
 ```
 # retry
@@ -31,8 +29,7 @@ An amazing README is one you can understand without reading any of the
 prose: read only the TL;DR, the first image, the headings, and the code
 blocks, and the story should still hold together. Structure for the skimmer —
 every heading is a mini-claim, every code block a proof, the TL;DR a
-one-line summary up top. If the page only makes sense when you read the
-paragraphs, rewrite until it doesn't.
+one-line summary up top. Rewrite until the page holds without its paragraphs.
 
 ## 3. Say what it is, in one concrete sentence
 
@@ -48,7 +45,7 @@ callers don't change.
 
 ## 4. Install, copy-paste
 
-Give the exact command(s), no ceremony. One block, runnable as written.
+Give the exact command(s) in one block, runnable as written.
 
 ```
 # (package manager command)
@@ -57,23 +54,17 @@ Give the exact command(s), no ceremony. One block, runnable as written.
 ## 5. One complete working example
 
 The example must run as pasted — imports, setup, expected output. It is the
-strongest thing on the page; don't truncate it with `...` in the interesting
-part. To keep it that way, cut it from a file CI runs (ship skill, CI.md):
+strongest thing on the page, so keep the interesting part complete, with no
+`...`. To keep it that way, cut it from a file CI runs (ship skill, CI.md):
 call the Skill tool with "ship" and follow its CI.md to wire that up.
 
 ```
 // complete, self-contained, with the output shown
 ```
 
-A reader who pastes it and sees output is now evaluating you on merit, not
-on prose. A reader who hits an import error closes the tab.
-
-**If you can't run it, don't claim it runs.** The example is the page's
-proof, and inventing an API you have not seen breaks the second half of the
-rule — never mislead. When you don't have the source, either build the
-example from a file you can actually execute, or make it explicitly
-illustrative and mark the parts a reader must fill in. Never present an
-invented signature and output as something that works as pasted.
+**Claim only what you ran.** The example is the page's proof. When you don't
+have the source, either build the example from a file you can execute, or
+make it explicitly illustrative and mark the parts a reader must fill in.
 
 ## 6. Show numbers, not just words
 
@@ -92,24 +83,20 @@ the "should I care" answer.
 
 ## 8. Badges only when they answer a question
 
-A build/coverage/version badge answers "is this alive and working?" — keep
-those, at most a small row. Delete the rest; a wall of badges is noise that
-pushes the example below the fold.
+Keep the build/coverage/version badges that answer "is this alive and
+working?", as one small row, so the example stays above the fold.
 
 ## 9. Cut the noise — and never mislead
 
-Delete company history, "world's first", lists of adjectives, and every
-claim you can't show. No clickbait, no "blazingly fast" unless the benchmark
-backs it, no overselling — a developer who tries it on a false promise
-leaves angry. If the project does something, the example shows it; if you
-have to say it, you haven't shown it. Think hard about why it genuinely
-matters, and say only that.
+Apply the never-mislead rule in [SKILL.md](SKILL.md). For a README:
+"blazingly fast" appears only beside its benchmark, and company history and
+"world's first" go. If the project does something, the example shows it.
 
 ## 10. The top of the file is the whole pitch
 
-Most readers never scroll. Assume they read the hero, the example, and the
-install — and decide there. Put your three strongest beats in those first
-lines, in that order: what it does, proof it works, how to get it.
+Most readers decide after the hero, the example, and the install. Put your three
+strongest beats in those first lines, in that order: what it does, proof it
+works, how to get it.
 
 ## Done when
 
@@ -122,3 +109,5 @@ lines, in that order: what it does, proof it works, how to get it.
   named (rules 4–5).
 - Every speed, size, or superlative claim has a number on the page behind it;
   the rest is cut (rules 6, 9).
+- Configuration, advanced usage, and the full API are links, and badges are
+  one row of the "is it alive" kind (rules 7-8).

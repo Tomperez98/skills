@@ -25,10 +25,9 @@ discovers a missing dependency at step 4 resents you at step 4.
 
 ## 3. Every step is copy-paste and observable
 
-Each step is a command or snippet the reader runs, and produces something
-they can see (output, a running server, a test passing). No step should say
-"now understand this" — the reader builds, and understanding follows from
-building.
+Each step is a command or snippet the reader runs, and produces something they
+can see (output, a running server, a test passing). The reader builds, and
+understanding follows from building.
 
 ```
 Run:
@@ -52,11 +51,10 @@ catch up — link to the complete code at each checkpoint. A reader who fell
 behind at step 3 should be able to jump to step 4 without redoing steps 1–3
 by hand.
 
-## 6. Don't wander
+## 6. Stay on the line
 
-Every step must serve the one outcome. Resist the urge to explain
-unrelated features ("while we're here, let's also..."). A tutorial is a
-line, not a tour. Put the tour in a separate page.
+Every step serves the one outcome. A tutorial is a line, not a tour; put
+unrelated features ("while we're here, let's also...") on a separate page.
 
 ## 7. End with the result and the next step
 
@@ -68,7 +66,7 @@ the guides. Leave them mid-momentum, not at a dead end.
 
 Run your own tutorial from scratch, in a clean environment, pasting each
 command exactly as written. Any step that doesn't produce the stated output
-is a bug in the tutorial, not the reader. Fix the text, not the reader.
+is a bug in the tutorial, not the reader.
 
 ## Done when
 
@@ -77,6 +75,7 @@ is a bug in the tutorial, not the reader. Fix the text, not the reader.
 - Every command shows its expected output and at least one common failure
   with its fix (rules 3–4).
 - Each checkpoint links to the complete code so far (rule 5).
+- Every step serves the one outcome (rule 6).
 - It ends with the finished result and one concrete next step (rule 7).
 - You ran it from scratch in a clean environment, pasting each command as
   written, and every output matched the page (rule 8).

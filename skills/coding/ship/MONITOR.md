@@ -17,8 +17,8 @@ releasing a commit, check that these runs are green for it.
 ## 2. Track the numbers users would notice
 
 Record a few key measurements on every merge to main: build time, artifact
-size, performance, memory use, whatever users would feel. Measure the build
-you ship, not a debug build. Watch the trend rather than any single run.
+size, performance, memory use, whatever users would feel. Measure the shipped
+build. Watch the trend rather than any single run.
 When a number jumps, it might be a regression or a deliberate trade-off,
 and either way a person should decide which before users run into it.
 Looking at these numbers belongs on the release checklist (RELEASE.md).

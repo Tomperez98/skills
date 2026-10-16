@@ -1,16 +1,18 @@
 # skills
 
 One rule per skill, branch guides that turn the rule into procedure, and a
-description that triggers at exactly the right moment. Five skills plus a router
-today, thirty branch guides, 245 numbered rules.
+description that triggers at exactly the right moment. Five skills, a router,
+and a skill for writing skills today, thirty-seven branch guides, 283 numbered
+rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
-| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · PERFORMANCE · REFACTOR · TEST · CRASHONLY · DEPENDENCIES |
+| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · STATE · SHAPE · LOGIC · PERFORMANCE · REFACTOR · TEST · CRASHONLY · CRASH_TESTS · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
 | [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · BASELINE · TRACES · DEBUG |
+| [`writing-skills`](skills/meta/writing-skills/SKILL.md) | Every line earns its place in the agent's context | NEW · EDIT · PRUNE |
 | [`ask`](skills/meta/ask/SKILL.md) | Name one skill and one guide, and read it before you recommend it | — (a router, invoked as `/ask`) |
 
 ## What it is
@@ -40,7 +42,7 @@ Already have the repo? Copy the folders directly — Claude and Codex read
 the same layout (`~/.claude/skills`, `~/.codex/skills`):
 
 ```bash
-cp -r skills/coding/code skills/coding/docs skills/coding/ship skills/coding/accordant skills/product/mvp skills/meta/ask ~/.pi/agent/skills/
+cp -r skills/coding/code skills/coding/docs skills/coding/ship skills/coding/accordant skills/product/mvp skills/meta/ask skills/meta/writing-skills ~/.pi/agent/skills/
 ```
 
 ## How it works
@@ -52,10 +54,9 @@ name: code
 description: >
   Write code that fails fast and tests well. One rule: bugs panic, expected
   failures return values. Use when the user writes, tests, or refactors code,
-  finds it hard to test, designs an API or config, adds a dependency, or asks
-  about mocking, error handling, assertions, naming, conditionals,
-  performance, env vars, crash-only design, retry, idempotency, cancellation,
-  or timeouts — even if they never say "testability" or "fail fast".
+  finds it hard to test, designs an API or config, adds a dependency, or
+  asks about error handling, performance, or crash safety — even if they
+  never say "testability" or "fail fast".
 ```
 
 When a task matches, the agent reads the branch that fits the situation and
@@ -63,11 +64,15 @@ follows its rules in order:
 
 | Situation | Branch guide | What it does |
 |-----------|--------------|--------------|
-| "Write this feature / design this API" | [`code/WRITE.md`](skills/coding/code/WRITE.md) | Panic on broken invariants, return values for expected failures, parse at the edge, configure explicitly at the edge, one error vocabulary per boundary |
+| "Write this feature / design this API" | [`code/WRITE.md`](skills/coding/code/WRITE.md) | Panic on broken invariants, return values for expected failures, parse at the edge, one error vocabulary per boundary, state the contract, bound everything |
+| "Read config / env vars / a cache / a schema" | [`code/STATE.md`](skills/coding/code/STATE.md) | Tame globals, configure explicitly at the edge, load only the state you need, pass identity, let the store enforce invariants |
+| "Design an interface / name things / split a function" | [`code/SHAPE.md`](skills/coding/code/SHAPE.md) | A small named surface, seams only where a second implementation is real, few branches at the call site, the type holds the guarantee |
+| "Simplify a condition / a multi-input decision" | [`code/LOGIC.md`](skills/coding/code/LOGIC.md) | Conditions as logic, one rewrite per step, decisions as complete tables |
 | "Make this faster / optimize this hot path" | [`code/PERFORMANCE.md`](skills/coding/code/PERFORMANCE.md) | Sketch costs before you build, keep the hot path free of indirection, split the control plane from the data plane |
 | "This code is hard to test / simplify this conditional" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
 | "Write tests for this" | [`code/TEST.md`](skills/coding/code/TEST.md) | Assert the shape before the payload, one test per error variant, test short-circuiting |
 | "Make this crash-safe / recover fast / crash-only" | [`code/CRASHONLY.md`](skills/coding/code/CRASHONLY.md) | Stop = crash, start = recover: make the panic safe and the recovery cheap |
+| "Test crash recovery / idempotency / cancellation" | [`code/CRASH_TESTS.md`](skills/coding/code/CRASH_TESTS.md) | Kill mid-write and restart, double-apply, ack before release |
 | "Add / update this dependency" | [`code/DEPENDENCIES.md`](skills/coding/code/DEPENDENCIES.md) | Own every dependency, pin it, update on purpose, review in proportion to risk |
 | "Write / fix the README" | [`docs/README.md`](skills/coding/docs/README.md) | Win the 10-second skim: hero, what-it-is, install, one working example, link onward |
 | "Write / fix API docs" | [`docs/API.md`](skills/coding/docs/API.md) | Signature first, name the fault model, one example per operation |
@@ -94,6 +99,9 @@ follows its rules in order:
 | "Is the new version backward compatible" | [`accordant/BASELINE.md`](skills/coding/accordant/BASELINE.md) | The release's suite and sequences, unchanged, run against the new build through a strict client; closed sets don't grow silently; the upgrade runs over existing data; every service's spec judges both directions and the rollout |
 | "I changed the spec — is it still right" | [`accordant/TRACES.md`](skills/coding/accordant/TRACES.md) | Replay a trace database on every spec change, mutate traces the spec must reject, exercise every outcome, post the spec diff as a contract change |
 | "My spec crashes / tests fail" | [`accordant/DEBUG.md`](skills/coding/accordant/DEBUG.md) | Name the failure first: spec crash, spec rejection, or setup — then fix the right one |
+| "Write a new skill or instruction file" | [`writing-skills/NEW.md`](skills/meta/writing-skills/NEW.md) | Packaging by who must reach it, one rule, a description that triggers, pointers with triggers, checkable ends |
+| "Change what a skill does" | [`writing-skills/EDIT.md`](skills/meta/writing-skills/EDIT.md) | Find the layer that caused it, edit the one source of truth, keep citations true, label the change |
+| "A skill is too long or ignored" | [`writing-skills/PRUNE.md`](skills/meta/writing-skills/PRUNE.md) | Measure, remove duplicates and no-ops, positive phrasing, split by situation, sharpen the ends |
 
 ## Flows
 

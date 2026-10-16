@@ -11,11 +11,10 @@ carries the product forward instead of you pushing it uphill. Start by
 listing trends you can actually observe: a tool everyone is adopting, a
 behavior that is shifting, a platform that just opened up.
 
-A hunch is not evidence. If the trend is something you *feel* rather than
-something you can show, hand the question to a deep-research skill before
-you spec — it returns a cited brief naming the trend, the incumbents, and
-the gap. Research de-risks the premise; it never proves the value (see
-[RESEARCH.md](RESEARCH.md)).
+If the trend is something you *feel* rather than something you can show, hand
+the question to a deep-research skill before you spec — it returns a cited brief
+naming the trend, the incumbents, and the gap, per
+[RESEARCH.md](RESEARCH.md) rule 1.
 
 ## 2. State the idea as one sentence
 
@@ -37,8 +36,8 @@ takes an hour to reach is the wrong idea, however clever.
 
 ## 4. One idea at a time
 
-Don't collect ideas. Pick one, spec it, and validate it before reaching for
-the next. A folder of half-spec'd ideas is a folder of nothing.
+Pick one, spec it, and validate it before reaching for the next; park the
+rest.
 
 ## Done when
 

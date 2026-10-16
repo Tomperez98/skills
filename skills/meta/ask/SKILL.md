@@ -2,7 +2,7 @@
 name: ask
 description: >
   Ask which skill and branch guide fit the situation. A router over the
-  code, docs, ship, mvp, and accordant skills. Invoked by name only.
+  code, docs, ship, mvp, accordant, and writing-skills skills. Invoked by name only.
 disable-model-invocation: true
 ---
 
@@ -15,12 +15,10 @@ where the work goes after. Everything here follows from one rule:
 > **Name one skill and one guide, and read it before you recommend it.**
 
 The map below is for orientation only. A guide's summary drifts from the
-guide; the guide doesn't. Never say what a guide does, or that a step can be
-skipped, from this page alone.
+guide; the guide doesn't. Describe a guide, or say a step can be skipped,
+only after reading it.
 
-## The one rule
-
-**Name one skill and one guide, and read it before you recommend it.**
+## Route
 
 1. **Say the situation back in one line**, in the user's words. If two
    situations fit and the answer changes the route, ask one question; if the
@@ -69,9 +67,15 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 
 ### Standalone
 
+- **Writing, trimming, or changing a skill or an AGENTS.md** →
+  writing-skills: NEW, EDIT, PRUNE.
 - **Too slow** → code: PERFORMANCE.
+- **Config, env vars, globals, caches, or a schema** → code: STATE.
+- **Designing an interface, naming, or splitting a function** → code: SHAPE.
+- **A tangled condition or multi-input decision** → code: LOGIC.
 - **Crash safety, retries, timeouts** → code: CRASHONLY; against a remote
-  system that may or may not have acted, accordant: FAULTS.
+  system that may or may not have acted, accordant: FAULTS. Testing
+  recovery, idempotency, or cancellation → code: CRASH_TESTS.
 - **Races and background jobs** → accordant: CONCURRENCY and ASYNC.
 - **Traces or tests from a non-.NET system** → accordant: ORACLE.
 - **Landing copy, or docs that should acquire users** → docs: LANDING,

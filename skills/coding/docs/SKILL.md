@@ -4,9 +4,9 @@ description: >
   Write docs and developer-marketing copy that meets a developer at their
   task. One rule: lead with the reader's task, win the 10-second skim,
   never mislead. Use when the user writes or fixes a README, API docs, a
-  tutorial or quickstart, a changelog or release notes, landing-page or
-  blog copy, or asks about docs-driven growth, developer marketing, or
-  ranking in search — even if they never say "documentation" or "marketing".
+  tutorial, a changelog, landing-page or blog copy, or asks about docs-driven
+  growth or search ranking — even if they never say "documentation" or
+  "marketing".
 ---
 
 # Docs & Developer Marketing
@@ -16,13 +16,10 @@ their task. Everything in this skill follows from one rule:
 
 > **Lead with the reader's task — win the 10-second skim — and never mislead.**
 
-Documentation and developer marketing are the same craft seen from two
-angles: a developer arrives trying to *do something*, and your writing either
-gets them to a working result (documentation) or convinces them your thing is
-the way to that result (marketing). The best technical solution doesn't win —
-the best-communicated one does. Both fail the same way: leading with
-features, jargon, or a list of what *you* did, instead of what the reader can
-do. Every branch in this skill is that rule applied to one artifact.
+Documentation and developer marketing are the same craft: a developer arrives
+trying to *do something*, and your writing gets them to a working result
+(documentation) or shows your thing is the way to it (marketing). Every
+branch is that rule applied to one artifact.
 
 ## Pick a branch
 
@@ -45,16 +42,8 @@ surrounding context, or by asking if the user is around:
   [DOCS_MARKETING.md](DOCS_MARKETING.md). Docs-as-marketing: findability,
   shareability, and examples that sell.
 
-Getting the branch wrong wastes the work — a changelog written like a landing
-page hides the breaking change, and a landing page written like an API
-reference loses the visitor. If it's genuinely ambiguous and the user isn't
-reachable, default to the artifact named in the request, and state the
-assumption at the top.
-
-Before you write, read what the repo already decided: AGENTS.md or CONTRIBUTING,
-and its changelog format, house style, and docs layout. If they're missing,
-carry on without them. Where they exist, the repo's conventions decide the
-mechanics. They never override the one rule.
+When the artifact is ambiguous and the user isn't reachable, default to the
+one the request names and state the assumption at the top.
 
 ## The one rule
 
@@ -72,12 +61,12 @@ mechanics. They never override the one rule.
   read only through its headings, code blocks, and images, it's right; if it
   needs the prose, it isn't done. Something that runs proves more than a
   paragraph — it *is* the proof, and it's what gets shared.
-- **Never mislead.** No clickbait, no "world's fastest" you can't show, no
-  overselling. Think hard about why the thing genuinely matters to the
-  reader, and say that — honestly. A claim you can't back up is noise; a
-  claim you can back up is proof. Delete the company history, the adjective
-  pile-ups, the "powerful, flexible, robust," and every sentence that
-  doesn't serve the reader's task.
+- **Never mislead.** (The guides cite this rule instead of restating it.) No
+  clickbait, no "world's fastest" you can't show, no overselling. Think hard
+  about why the thing genuinely matters to the reader, and say that — honestly.
+  A claim you can't back up is noise; a claim you can back up is proof. Delete
+  the company history, the adjective pile-ups, the "powerful, flexible, robust,"
+  and every sentence that doesn't serve the reader's task.
 
 ## Hand off
 

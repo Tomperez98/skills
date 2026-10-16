@@ -12,7 +12,7 @@ Accordant tests *sequences*, so start with two to four operations that
 share state — Create, Get, Delete for one resource — not one operation, and
 not the whole API. Read the controllers or service interface for the shape,
 and ask about the rules you can't see: does deleting a user cascade to their
-todos? Does a second Create conflict or overwrite? Don't assume HTTP; an
+todos? Does a second Create conflict or overwrite? Any transport works; an
 in-process library is just as testable.
 
 ## 2. Write the contract, not a second implementation
@@ -32,10 +32,9 @@ them apart, or the spec agrees with every bug.
   wording — the predicate accepts every choice, not the one today's code
   makes. Pinning the current choice is implementation bias: the spec
   fails the first correct refactor.
-- **Don't copy the algorithm.** Compute expected values from the spec's own
-  simpler state: a cart's total is the sum of the prices the spec
-  recorded, not a call into the system's pricing code or a copy of it. A
-  model that mirrors the implementation shares its bugs.
+- **Derive expected values from the spec's own simpler state.** a cart's total
+  is the sum of the prices the spec recorded; a call into the system's pricing
+  code, or a copy of it, shares its bugs.
 - **Keep it simpler than the system.** An `Apply` should be short enough to
   check by reading against the contract. One that reads like the handler
   it judges has become a second implementation; cut it back to what the
@@ -83,8 +82,8 @@ nameof(ContentFingerprint))]` property instead: it's copied by reference,
 and the fingerprint — a method taking the property's value, or a string
 property, returning a deterministic `string` — stands in for it in
 equality. A `[State]`-typed shared property can omit it; its own string
-form is used. Never
-mutate a shared value — every clone sees the change.
+form is used. Treat
+a shared value as immutable — every clone sees a change.
 
 ## 4. One guard per refusal, in the contract's order
 
@@ -94,7 +93,7 @@ contract: if "user exists" is checked before "todo exists", so it is in
 the spec, or a request that fails both gets a different answer from each.
 When the contract doesn't say, take the order from the code — the one
 thing to take from it (rule 2) — and ask the owner whether that order is a
-promise. Use `TryGetValue`; never index a dictionary you haven't checked.
+promise. Read dictionaries with `TryGetValue`.
 
 ```csharp
 spec.Operation<Todo, ApiResult<Todo>>("CreateTodo", (request, state) =>
@@ -171,9 +170,8 @@ failure. A `void`/`Task` operation responds with `Unit`: declare
 ## 7. Change state only inside `ThenState`
 
 `ThenState` clones the current state and hands you the clone. Compute
-values from `state` up front, write them to `next`, and never mutate
-`state` itself — it's frozen, and mutating it would corrupt every other
-branch that shares it.
+values from `state` up front and write only to `next`; `state` is frozen
+and shared by every other branch.
 
 ```csharp
 var newBalance = balance - request.Amount;          // read from state
@@ -205,7 +203,7 @@ by a wrong rule.
 ## 8. Predicates check the payload, and explain themselves
 
 `r => r.IsSuccess` passes when the wrong user comes back. Check every field
-the spec knows: IDs, names, counts, balances. Always pass the explanation
+the spec knows: IDs, names, counts, balances. Pass an explanation
 string — it's the failure message in generated tests and trace validation.
 Write it as `"<situation> → <outcome>"` (`"Todo 'x' already exists → 409"`).
 Read in a row, the strings are the contract in words, so a diff of them
@@ -232,8 +230,8 @@ Judge<ApiResult<User>>($"User '{id}' exists → 200 with its name", r =>
         : ValidationResult.Valid())
 ```
 
-Passing the string as a second argument to the `ValidationResult` form
-does not compile; the `bool` form `Expect.That<T>(r => …, "why")` does.
+The `ValidationResult` form takes no second argument; the `bool` form
+`Expect.That<T>(r => …, "why")` does.
 
 ## 9. Capture what you can't predict, then hold it stable
 
@@ -307,8 +305,8 @@ its clock.
 ## Done when
 
 - Every rule traces to the contract, not the code; every predicate accepts
-  each response the contract allows; and no `Apply` copies the system's
-  algorithm (rule 2).
+  each response the contract allows; and each `Apply` is short enough to check
+  against the contract by reading (rule 2).
 - Every refusal is its own early return, in the contract's order (rule 4),
   and every refusal and read ends in `.SameState()` (rule 6).
 - Every predicate checks each field the spec knows and carries a

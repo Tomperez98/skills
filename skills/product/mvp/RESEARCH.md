@@ -8,9 +8,9 @@ aha. Apply the rules in order.
 ## 1. Research the premise, not the value
 
 Ask research whether the trend is real, who's already shipping on it, and
-where the gap is. Never ask "will people use this?" — that's a question only
-a real person can answer (see [VALIDATE.md](VALIDATE.md)). If you catch
-yourself researching the value, you're stalling; go get a verdict instead.
+where the gap is. Take "will people use this?" to a real person (see
+[VALIDATE.md](VALIDATE.md)); researching the value is stalling, so go get a
+verdict instead.
 
 ## 2. State the question before you run it
 
@@ -26,9 +26,8 @@ Read the record it returns, not its transcript.
 
 ## 3. Keep the brief bounded
 
-Take the cited brief as a means, not an end. Extract the trend, the
-incumbents, and the gap, then stop reading. A brief that costs more time
-than your idea's five-minute value window is the wrong tool for this stage.
+Extract the trend, the incumbents, and the gap, then stop reading. Keep the
+research shorter than your idea's five-minute value window.
 
 ```text
 Question:    <the question from rule 2>
@@ -43,19 +42,17 @@ The useful finding isn't "it's popular" — it's "here's what existing
 solutions do slowly or not at all." That gap is your five-minute opening; it
 feeds [AHA.md](AHA.md).
 
-## 5. Research feeds PICK and SPEC, never VALIDATE
+## 5. Research feeds PICK and SPEC, not VALIDATE
 
 Research confirms the premise ([PICK.md](PICK.md)) and borrows interface
-patterns and pain points from incumbents ([SPEC.md](SPEC.md)). It never
-replaces the stopwatch and a stranger. Once the premise is confirmed, spec
-it and hand it to a real person.
+patterns and pain points from incumbents ([SPEC.md](SPEC.md)). The stopwatch
+and a stranger do the validating. Once the premise is confirmed, spec it and
+hand it to a real person.
 
 ## 6. The report is still your excitement
 
-A cited brief is your own excitement with footnotes. The rule is "get a real
-person to their aha in five minutes" — research de-risks the idea; it never
-proves it. The moment you've confirmed the premise, stop researching and
-start validating.
+A cited brief is your own excitement with footnotes. Once the premise is
+confirmed, stop (rule 1) and start validating.
 
 ## Done when
 
@@ -63,5 +60,5 @@ start validating.
 - The brief is reduced to its record: trend, incumbents, and gap (rule 3).
 - The gap names what incumbents do slowly or not at all, not that the space
   is popular (rule 4).
-- No question asked whether people will use it, and the next step is SPEC
-  or VALIDATE, not more research (rules 1, 5–6).
+- Every question asks about the trend, incumbents, or gap, and the next step
+  is SPEC or VALIDATE (rules 1, 5–6).

@@ -15,7 +15,7 @@ recovery: for each way a release can fail (a publish that stopped partway,
 a bug in the validation, a bad release), write down what to do and how to
 run it again.
 
-## 2. Never rush a change into a release
+## 2. Let every change land at its own pace
 
 If someone wants to land a change just to get it into a release, let it
 land at its normal pace and release it later. If you're unsure whether a
@@ -43,7 +43,7 @@ last changelog entry (patch + 1) rather than typing it; the human's job is
 to verify it, not produce it.
 
 Versions only go up. A number that was published, or burned by a failed
-attempt, is never used again. Pick a scheme users can understand, such as
+attempt, is retired for good. Pick a scheme users can understand, such as
 SemVer, and stick to it. Under SemVer, the compatibility checks pick the
 kind of bump, not a guess: a check that failed and was declared a break
 means major (COMPAT.md rule 6).
@@ -63,21 +63,19 @@ the last published version see everything that changed.
 ## 5. Freeze a tested commit on main
 
 Choose a specific commit on main that has passed CI and the post-merge
-checks (MONITOR.md), and release exactly that commit, never whatever a
-branch happens to point at when the job starts. Create the tag with a
-script that resolves the remote main to a SHA and tags that, never your
-working copy: a local checkout can hold commits, including ones your tools
-made, that main never had.
+checks (MONITOR.md), and release exactly that commit, fixed by SHA
+before the job starts. Create the tag with a script that resolves the
+remote main to a SHA and tags that: a local checkout can hold commits,
+including ones your tools made, that main never had.
 
 ## 6. Confirm green before you publish
 
-If you have long tests (soak runs, property tests, a full matrix), run
-them against the frozen commit before publishing. Right before publishing,
-confirm that CI, the post-merge checks, the compatibility checks against
-the last release, and the rollout test (COMPAT.md rule 10) are still green
-for that commit,
-that open failures are triaged, and that metric changes are explained. If
-not, skip this release (rule 2).
+If you have long tests (soak runs, property tests, a full matrix), run them
+against the frozen commit before publishing. Right before publishing, confirm
+that CI, the post-merge checks, the compatibility checks against the last
+release, and the rollout test (COMPAT.md rule 10) are still green for that
+commit, that open failures are triaged, and that metric changes are explained.
+If not, skip this release (rule 2).
 
 When an agent runs the release, this is the one point where it stops and
 asks. It shows the frozen commit, the version, and the changelog entry,
@@ -87,9 +85,10 @@ undone (rule 7).
 
 ## 7. Published versions are immutable; fix forward
 
-Never overwrite, re-tag, or re-publish an existing version. Users and
-caches have already pulled it. If a release is bad, ship a new version with
-the fix, through the same process. Keep that process fast enough to run
+Treat a published version as final: users and caches have already pulled
+it. If a release is bad, ship a new version with the fix, through the same
+process. If the fix seems to need an overwrite, re-tag, or re-publish of
+that version, stop and ask. Keep that process fast enough to run
 several times in one day, so fixing forward is never the slow option. With
 services in lockstep this isn't optional: a fix to one service is a release
 of all of them. When

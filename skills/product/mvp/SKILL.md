@@ -16,11 +16,8 @@ one rule:
 
 > **Get a real person to their "aha" in five minutes.**
 
-The rule is a test. Either a user can reach real value in about five
-minutes — the "aha" moment where the thing pays off — or the idea isn't an
-MVP yet; it's still a pile of features waiting to find its one use case. A
-consumer gives a new app about five minutes before they leave, so the whole
-job is to win those five minutes.
+The rule is a test: either a user reaches real value in about five minutes
+or the idea isn't an MVP yet.
 
 ## Pick a branch
 
@@ -40,13 +37,11 @@ user is around:
   Put it in front of a real person and get their verdict.
 
 The four core branches run in order — pick, spec, focus, validate — with
-RESEARCH as a side-step you take when the premise is a hunch rather than
-evidence. You rarely do all four at once. Getting the branch wrong wastes
-the work, so if
-it's genuinely ambiguous and the user isn't reachable, default to the stage
+RESEARCH as a side-step for a premise that is a hunch rather than evidence.
+When the stage is ambiguous and the user isn't reachable, default to the one
 the prompt names (a blank slate → PICK; a feature pile or a "trim it" ask →
-AHA; a built thing or a "will anyone use this" ask → VALIDATE) and state
-the assumption at the top.
+AHA; a built thing or a "will anyone use this" ask → VALIDATE) and state the
+assumption at the top.
 
 ## The one rule
 
@@ -61,11 +56,6 @@ the assumption at the top.
 - **Five minutes, not fifty.** A consumer gives a new app about five
   minutes of attention before they leave. If the value doesn't land inside
   that window, the journey is too long and the scope is too big.
-
-The branches turn the rule into procedure: PICK finds an idea worth the
-test, RESEARCH de-risks the premise before you commit, SPEC writes it down
-specifically enough to build, AHA strips it to the one use case that can win
-five minutes, and VALIDATE gets the real person's verdict — then you loop.
 
 ## Hand off
 

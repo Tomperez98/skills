@@ -13,9 +13,8 @@ storage, memory, compute — each with two textures: bandwidth and latency.
 Roughly right beats precisely wrong, and the sketch tells you which rule in
 this file actually matters for this system.
 
-Do this before you touch rule 2 or 3: a sketch tells you whether the
-bottleneck is indirection, batching, both, or neither — chasing the wrong
-one wastes the work.
+Sketch before rule 2 or 3: it tells you whether the bottleneck is
+indirection, batching, both, or neither.
 
 ## 2. Keep the hot path free of indirection
 
@@ -29,8 +28,8 @@ pattern and remove indirection from it.
   not by fetching rows and branching in a loop.
 - **Do checks once, outside the loop.** Split a mixed collection by kind
   before iterating, instead of branching per element.
-- **Measure, don't assume.** These are constant-factor wins with identical
-  big-O. Profile first; a cold path may show no difference.
+- **Measure first.** These are constant-factor wins with identical big-O;
+  a cold path may show no difference.
 
 *CPU-bound translation: "indirection" becomes cache misses and blocked
 vectorization. The unit is the cache line — the smallest chunk moved between
@@ -54,8 +53,8 @@ RAM and the CPU — so the goal is more useful data per line, read in order:*
 
 Batch work so decisions run once per batch, and let the hot loop sprint
 through data without branching. Checks, assertions, and validation live in
-the control plane — amortized across the batch — while the data plane stays
-a tight loop the CPU can vectorize.
+the control plane, amortized across the batch; the data plane stays a
+tight loop the CPU can vectorize.
 
 ```
 // Control plane: one check, one decision
@@ -65,10 +64,9 @@ if !batch_is_valid(batch): return Err(InvalidBatch)
 for item in batch { process(item) }
 ```
 
-An assertion costs almost nothing once per batch; the same assert per item
-would dominate the data plane. This is where fail-fast and performance
-agree: the control plane can afford to be paranoid — WRITE.md's assertions
-(rule 1) belong in the control plane, not repeated inside the hot loop.
+An assertion costs almost nothing once per batch. Fail-fast and
+performance agree here: the control plane can afford to be paranoid, so
+WRITE.md's assertions (rule 1) live there.
 
 ## Done when
 
@@ -76,8 +74,8 @@ agree: the control plane can afford to be paranoid — WRITE.md's assertions
   or compute, and whether bandwidth or latency (rule 1).
 - A profile or timing, before and after, shows the change sped up the path
   the sketch named (rules 1–2).
-- The hot loop makes no per-item query and runs no per-item check or
-  assertion; validation runs once per batch (rules 2–3).
+- The hot loop holds only the per-item work: queries are batched and
+  validation runs once per batch (rules 2–3).
 
 ---
 

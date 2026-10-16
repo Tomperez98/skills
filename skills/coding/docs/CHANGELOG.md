@@ -22,8 +22,8 @@ release to its compare/diff.
 ## 2. Lead with what breaks
 
 Breaking changes go first and loudest, each with a migration note: what to
-change and what happens if you don't. A breaking change buried at the bottom
-is a breaking change your users discover in production.
+change and what happens if you don't. Placing them first lets users find them
+before production does.
 
 ```
 ### Changed (breaking)
@@ -39,20 +39,20 @@ jitter, so stampedes don't recur" says what the reader gets.
 
 ## 4. One entry, one change
 
-Don't bundle. Each bullet is a single, complete change a reader can act on.
+Each bullet is a single, complete change a reader can act on.
 A bullet that needs "and" twice is two bullets.
 
 ## 5. Skip the noise
 
-Don't log internal refactors, dependency bumps, or typo fixes unless they
-change user-visible behavior. A changelog people trust is one where every
-entry matters; a changelog full of noise teaches people to ignore it.
+Log only changes that alter user-visible behavior; leave out internal
+refactors, dependency bumps, and typo fixes. Every entry then matters, and
+readers keep reading.
 
 ## 6. Write it as you go, not at release time
 
 The changelog is a running document, updated in the same commit as the
-change. A changelog reconstructed at release time from the git log is a list
-of commits with extra steps — and it will be wrong.
+change. Reconstructing it from the git log at release time yields commits with
+extra steps, and it will be wrong.
 
 Write each entry in its own file, not into one shared section: a single
 "Unreleased" block that a hundred pull requests a day all edit is the most
@@ -75,4 +75,7 @@ LANDING.md for the pitch craft.
 - Every breaking change comes first, with a migration note (rule 2).
 - Each entry is one user-visible change, stated as its impact; no refactors,
   bumps, or typo fixes (rules 3–5).
-- Each entry landed in the same commit as its change (rule 6).
+- Each entry landed in the same commit as its change, as its own fragment
+  file (rule 6).
+- Release notes lead with the headline change and a before/after example
+  (rule 7).

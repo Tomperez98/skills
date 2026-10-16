@@ -16,9 +16,8 @@ the rules in order.
 
 ## 1. Keep the released suite runnable
 
-No suite in the last release? Write the spec on main and run it against
-the last release's published artifact first. If it's green, that spec
-describes what shipped: tag it as the baseline and carry on from here.
+No suite in the last release? Make one and freeze it as the baseline
+(ship skill, COMPAT.md rule 4).
 
 Expect the first runs to find the spec wrong more often than the system:
 guards in a different order, edge rules nobody told you. Read the API's
@@ -136,9 +135,8 @@ predicate checks that field, the break passes.
 
 The failure message is the old rule the new build violated ("User 'ghost'
 doesn't exist → 404", but the build answered 200). Either the new behavior
-is a regression (fix the system) or it's a deliberate break (declare it in
-the changelog and bump the major version — ship skill, COMPAT.md rule 6;
-call the Skill tool with "ship" and follow its COMPAT.md to declare it).
+is a regression (fix the system) or it's a deliberate break (declare it:
+call the Skill tool with "ship" and follow its COMPAT.md rule 6).
 Never edit the baseline spec to make it pass: the baseline is what users
 were promised, and changing it hides the break instead of declaring it.
 
@@ -159,8 +157,8 @@ already sitting in a queue will still be accepted after the deploy.
 
 A baseline that rejects every new field turns every additive change into a
 false break. Check the fields the contract promised and say nothing about
-the rest (SPEC.md rule 10): no "exactly these keys", no "list has exactly
-three entries" unless three is the promise. A new optional field or a new
+the rest (SPEC.md rule 10); assert a list's length only when three is the
+promise, and leave "exactly these keys" out. A new optional field or a new
 operation should leave the baseline green.
 
 A value from a closed set is the exception. A new enum member, a new
@@ -213,9 +211,9 @@ this before every release, and on a schedule with faults on (rule 8).
 
 Concurrent cases (CONCURRENCY.md) and fault-injected runs (FAULTS.md) cost
 too much for every pull request. Run them on main on a schedule, repeatedly,
-with both main's spec and the baseline's, and once more against the commit
-you're about to release. A concurrent case that fails once in ten runs is a
-race; keep it red until it's fixed. Keep the traces of passing runs in the
+with both main's spec and the baseline's (ship skill, COMPAT.md rule 7).
+A concurrent case that fails once in ten runs is a race; keep it red until
+it's fixed. Keep the traces of passing runs in the
 trace database (TRACES.md rule 4): these suites hit the rare branches —
 lost responses, interleavings — that no per-PR run ever records.
 
@@ -224,23 +222,19 @@ lost responses, interleavings — that no per-PR run ever records.
 Rules 9–11 apply only when several services, each with its own spec, ship
 together (ship skill, COMPAT.md rule 8). A single package stops at rule 8.
 
-Each service keeps its own spec, and the check runs all of them. Backward:
-every service's baseline suite runs against the new build (rule 2).
-Forward: every service's suite on main runs against the last released
-build, so a new consumer doesn't depend on behavior an old provider lacks.
-A pull request that changes both sides of a contract passes at HEAD; only
-these two runs show whether N-1 and N work side by side.
+Each service keeps its own spec, and the check runs all of them, both
+directions (ship skill, COMPAT.md rule 9). Backward: every service's
+baseline suite runs against the new build (rule 2). Forward: every
+service's suite on main runs against the last released build.
 
 ## 10. Test the rollout with every spec judging
 
-Rule 7, across services: start every service at the last release, then
-upgrade them one at a time in the scripted deploy order, with traffic
-running throughout. Traffic doesn't stop for an upgrade, so drive this
-one yourself: each service gets its own `Check` helper and profile
-(ORACLE.md rule 2), and every profile carries across every upgrade — its
-own and its neighbors'. Between two upgrades, N-1 and N run side by side
-for real. A call in flight while a service restarts can have taken effect
-or not: declare it as an indefinite failure (FAULTS.md rule 2).
+Rule 7, across services, in the scripted deploy order (ship skill, COMPAT.md
+rule 10). Drive this one yourself: each service gets its own `Check` helper and
+profile (ORACLE.md rule 2), and every profile carries across every upgrade — its
+own and its neighbors'. Between two upgrades, N-1 and N run side by side for
+real. A call in flight while a service restarts can have taken effect or not:
+declare it as an indefinite failure (FAULTS.md rule 2).
 
 ## 11. Consumers check their fakes against the provider's spec
 
@@ -258,8 +252,8 @@ the provider's CI runs them and a failure names who would break.
 - The baseline suite is checked out at the last release tag, matched with
   prereleases excluded, not copied onto main (rule 1).
 - The release's exported sequences ran unchanged against the new build,
-  and every rejection is a fix to the system or a declared break, never an
-  edit to the baseline spec (rule 2, rule 4).
+  and every rejection ended as a fix to the system or a declared break, with
+  the baseline spec unedited (rule 2, rule 4).
 - The baseline's deserializer rejects a dropped field and an unknown enum
   value (rule 3).
 - An upgrade case runs the last release and then the new build on the same

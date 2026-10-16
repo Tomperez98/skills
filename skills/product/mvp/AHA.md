@@ -11,10 +11,9 @@ haven't found it yet; keep looking.
 
 ## 2. Cut the feature list
 
-Don't add a bunch of features. Everything that isn't the core use case is
-scope creep until the core one is validated. If a feature doesn't serve the
-one use case, delete it for now — you can bring it back after someone real
-hits the aha.
+Everything that isn't the core use case is scope creep until the core one is
+validated. Delete each feature that doesn't serve it for now, and bring it
+back after someone real hits the aha.
 
 ## 3. Define the core experience
 
@@ -25,9 +24,9 @@ lands. "A photo that comes back with lines on it" is a core experience;
 
 ## 4. Draw the five-minute journey
 
-Consumers have almost no attention span — they'll give a new app about five
-minutes. Map the journey from open to value, and cut anything that pushes
-the aha past that window. Every extra step before the payoff costs users.
+Consumers give a new app about five minutes. Map the journey from open to value,
+and cut anything that pushes the aha past that window. Every extra step before
+the payoff costs users.
 
 ```text
 Use case:  <the one sentence from rule 1>
@@ -43,14 +42,15 @@ Once a user can reach it, you have an MVP; everything else waits.
 
 ## 6. One journey, not a tour
 
-Resist adding a second use case "while you're here." The MVP is a line, not
-a tour. The tour comes after the first use case is validated (see
+The MVP is a line, not a tour: one use case until it's validated. The tour comes
+after the first use case is validated (see
 [VALIDATE.md](VALIDATE.md)).
 
 ## Done when
 
 - The one core use case is written as one sentence (rule 1).
+- The core experience is named as a single moment (rule 3).
 - Every feature that doesn't serve it is cut (rule 2).
 - The journey is written step by step from open to the aha, and fits in five
   minutes (rules 3–4).
-- No second use case is in the MVP (rule 6).
+- Only one use case is in the MVP (rule 6).

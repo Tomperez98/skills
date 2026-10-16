@@ -3,7 +3,8 @@
 This repo is a collection of skills for AI coding assistants, installable
 with `npx skills add Tomperez98/skills`. Five skills live here, `code`,
 `docs`, `ship`, `mvp`, and `accordant`, plus `ask`, a user-invoked router
-over them. Everything in this repo — new skills, edits, examples — follows
+over them, and `writing-skills`, which says how to write, change, and trim
+them. Everything in this repo — new skills, edits, examples — follows
 their one rules:
 
 - **code** — bugs panic, expected failures return values.
@@ -13,13 +14,16 @@ their one rules:
 - **mvp** — get a real person to their "aha" in five minutes.
 - **accordant** — write the contract once, in the spec, and let it judge
   every response.
+- **writing-skills** — every line earns its place in the agent's context.
 
 ## The full rules live in the branch guides
 
 Read the matching guide before you write or edit anything here; this file
 does not restate them.
 
-- `skills/coding/code/WRITE.md` · `REFACTOR.md` · `TEST.md`
+- `skills/meta/writing-skills/` — NEW, EDIT, PRUNE. Start here for any
+  change to this repo's skills or this file.
+- `skills/coding/code/` — WRITE, STATE, SHAPE, LOGIC, REFACTOR, TEST
 - `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING,
   DOCS_MARKETING
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH, COMPAT
@@ -27,7 +31,7 @@ does not restate them.
 - `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC,
   FAULTS, BASELINE, TRACES, DEBUG
 - `skills/meta/ask/SKILL.md` — the router; no branch guides. Add a new
-  skill or guide to its map.
+  skill or guide to its map (situation → skill and guide names only).
 
 ## Skill format
 
@@ -47,7 +51,14 @@ does not restate them.
   otherwise miss it. One trigger per branch: collapse synonyms that rename
   a single situation.
 - One rule per skill, stated once up top; the branches turn it into
-  procedure, applied in order.
+  procedure, applied in order. Each meaning lives in one file: a `SKILL.md`
+  doesn't restate a guide, and a pointer holds a trigger and a link, with
+  no summary of the target.
+- Split a guide by the situation that triggers each rule, not by length: a
+  guide the agent must read whole to use one rule gets cut, with a pointer
+  to each part. Write instructions positively ("validate once at the edge"
+  beats "don't re-validate"), and keep a prohibition for an irreversible
+  step.
 - A guide whose work has an end state closes with an unnumbered
   `## Done when`: three to five checkable items, each citing the rule it
   checks. Leave it unnumbered so rule citations don't shift. Where a guide
@@ -62,9 +73,10 @@ does not restate them.
 ## Working here
 
 - To change a skill's behavior, edit its branch guide and keep the one
-  rule intact.
-- To add a skill, copy the shape of an existing one (README → "Adding a
-  skill").
+  rule intact: call the Skill tool with "writing-skills" and follow its
+  EDIT.md.
+- To add a skill, call the Skill tool with "writing-skills" and follow its
+  NEW.md. To trim one, follow its PRUNE.md.
 - Keep the README's skill table (name, one rule, branches) in sync.
 - **State the scale a rule assumes.** A rule that silently breaks at a
   hundred pulls a day — one shared file every pull request edits, a full
@@ -90,7 +102,7 @@ checksums in `mise.lock`; `mise install` fetches it.
   configured in `.rumdl.toml`). Prose wraps at 80 columns; code blocks are
   exempt. `mise run fmt` fixes what it reports, in place.
 - `mise run links` — full tier: every internal link resolves, every cited
-  rule exists ("CI.md rule 7", "code skill, WRITE.md rule 25") and is still
+  rule exists ("CI.md rule 7", "code skill, WRITE.md rule 10") and is still
   the rule it meant on main, every Skill tool call (`call the Skill tool
   with "ship" and follow its CI.md`) names a skill that exists and guides
   that skill has, and no page under `skills/` is orphaned.

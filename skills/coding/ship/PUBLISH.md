@@ -90,14 +90,13 @@ fn publish_to(registry, artifact) -> Result<(), Error> {
 ```
 
 Order the steps so that a partial failure never leaves users on a broken
-release. Stage first: a draft release or a staging repository. Publish to
-each registry. Make it visible last: the public release page, the `latest`
-tag, the announcement. Put steps users don't need to install the release,
-such as rebuilding the docs site, after it's visible, so their failure
-can't block it. After a failure, fix the cause and run the whole thing
-again, and no version is burned. Retry network calls a bounded number of
-times, then fail with a clear error (CRASHONLY.md: make retryable effects
-idempotent).
+release. Stage first: a draft release or a staging repository. Publish to each
+registry. Make it visible last: the public release page, the `latest` tag, the
+announcement. Put steps users don't need to install the release, such as
+rebuilding the docs site, after it's visible, so their failure can't block it.
+After a failure, fix the cause and run the whole thing again, and no version is
+burned. Retry network calls with bounds (code skill, CRASHONLY.md rules 4 and
+10), then fail with a clear error.
 
 ## 5. Protect the credentials
 
@@ -109,15 +108,15 @@ idempotent).
   Building and testing install third-party tools (test runners, linters,
   build plugins), so run them in a job without the credential and hand the
   tested artifact across. That also makes rule 2 true by construction.
-- Release jobs restore no caches. Another branch can write a cache that
-  the release would then trust.
+- Release jobs build from a clean cache. Another branch can write a cache
+  that the release would then trust.
 - Prefer short-lived credentials (OIDC or trusted publishing) over
   long-lived tokens. When you do need a token, use one per registry or
   target repository, scope it narrowly, give it an expiry, and write down
   how to rotate it.
-- Never print a secret. Run no `set -x` in the job that holds one, mask
-  it in the CI log, and when a step fails, report the registry and the
-  status, never the request headers.
+- Keep secrets out of output. Leave `set -x` off in the job that holds
+  one, mask it in the CI log, and when a step fails, report the registry
+  and the status only.
 - Only one release runs at a time, and a running release isn't cancelled
   partway through. Validation (rule 6) shares that lock, so it never
   checks a release that's still being published.
@@ -142,8 +141,7 @@ job check it the way a user would:
    points to this release.
 
 Registries serve through caches, so a new release can take minutes to
-appear. Poll for it with a time limit, then fail; don't fail on the first
-miss or sleep for a fixed time.
+appear. Poll for it with a time limit, then fail.
 
 Run the validation code from main against the latest released tag, not
 the copy that shipped with the release. Then a bug in the validation is

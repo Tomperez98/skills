@@ -62,8 +62,8 @@ system outside .NET records the same shape itself.
 Two gaps in what the hook sees:
 
 - **Polls after a concurrent group** run without the hook, so the trace
-  misses them and replays to a different profile. Don't keep traces from
-  concurrent cases whose group starts background work.
+  misses them and replays to a different profile. Keep only traces from
+  concurrent cases whose group starts no background work.
 - **Retries** (FAULTS.md rule 8) fire the hook once per attempt, but the
   runner judges each attempt from the profile before the first (in a
   concurrent batch, only the retried calls rerun, from the profile after
@@ -74,10 +74,10 @@ Two gaps in what the hook sees:
 
 ## 3. Store traces outside the repo; commit a manifest
 
-Never commit the traces: they grow with every run, and git keeps every version
-forever. Store them outside the repo — attached to the release with the rest of
-the contract (ship skill, COMPAT.md rule 4), or in an artifact store keyed by
-release — and commit only a manifest: one line per trace with its location,
+Commit a manifest and keep the traces out of the repo: they grow with every run,
+and git keeps every version forever. Store them — attached to the release with
+the rest of the contract (ship skill, COMPAT.md rule 4), or in an artifact store
+keyed by release. The manifest has one line per trace with its location,
 checksum, header, coverage tags (rule 4), and the candidate count its first
 replay ended with (rule 6). CI fetches what the manifest names, checks every
 checksum, and replays; a trace that's missing or doesn't match its checksum
@@ -102,7 +102,7 @@ Keep the set small rather than the storage cheap: a prefix of an accepted
 trace is still accepted, so cut each trace after the last step that adds
 coverage, and drop a trace whose tags another one already covers.
 
-## 5. Replay on every spec change; never overwrite a rare branch
+## 5. Replay on every spec change; keep the rare branch
 
 Replay the whole database in CI on every change to the spec. When a trace
 fails because the behavior changed on purpose, re-record only the traces
@@ -114,12 +114,11 @@ A trace that no longer deserializes into the spec's types is a changed
 request or response type, not a rejection — a shape break to declare
 (BASELINE.md rule 4), not a rule to loosen.
 
-Bound the replay so the fast tier stays fast. On a pull request, replay only
-the traces whose coverage tags (rule 4) the changed operations or outcomes
-can touch, under a wall-clock budget; run the full database replay on main
-and on a schedule, the way the slow suites move off the pull request (ship
-skill, COMPAT.md rule 7). A spec change to one operation never needs every
-trace replayed to be trusted.
+Bound the replay so the fast tier stays fast. On a pull request, replay only the
+traces whose coverage tags (rule 4) the changed operations or outcomes can
+touch, under a wall-clock budget; run the full database replay on main and on a
+schedule (ship skill, COMPAT.md rule 7). A change to one operation is trusted on
+the subset its tags select.
 
 ## 6. Bound the ambiguity
 
@@ -194,7 +193,7 @@ For each changed promise, report one line:
   <explanation string> | added, removed, tightened, or loosened |
   intended? yes, no, or ask | the evidence (diff line or replay result)
 End with the replay results, both sides as given. Under 300 words.
-Mark "ask" wherever the evidence can't tell intent; never guess.
+Mark "ask" wherever the evidence can't tell intent.
 ```
 
 Post its lines as written beside the four pieces. An "ask" goes to the

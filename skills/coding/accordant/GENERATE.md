@@ -70,7 +70,7 @@ context.Register(new TodoApiClient(factory.CreateClient()));
 ```
 
 Call `spec.WithJsonPrinters()` when you build the spec so requests and
-responses print as JSON in failure logs — unless an operation declares
+responses print as JSON in failure logs. Skip it when an operation declares
 `Expect.Throws`: the printer can't serialize the exception, and the throw
 fails a test that passed.
 
@@ -115,12 +115,11 @@ var inputs = new InputSet
 };
 ```
 
-A `Unit`-request operation takes just a label: `pop.With("Pop")`. That
-overload is `With(string label)`, so on a `string`-request operation
-always pass both — `getUser.With("alice")` builds a `Unit` request and
-fails at execution. Five or
-six inputs routinely yield dozens of sequences; add inputs only when a
-branch isn't covered.
+A `Unit`-request operation takes just a label: `pop.With("Pop")`. That overload
+is `With(string label)`, so on a `string`-request operation pass both request
+and label — `getUser.With("alice")` builds a `Unit` request and fails at
+execution. Five or six inputs routinely yield dozens of sequences; add inputs
+only when a branch isn't covered.
 
 When a request has several independent fields or flags, pick values so
 every pair of them appears in some input (a pairwise tool such as PICT
@@ -224,7 +223,7 @@ For big graphs, pass `new VisualizationOptions { NodeLabelLambda = … }` or
   edge twice; far more cases than `StateCoverage`.
 - `SequentialTestCaseAlgorithms.CreateRandomWalk(numberOfWalks: 200,
 maxWalkLength: 8, seed: 42)` — sampling for graphs too large to cover;
-  also never takes an edge twice. Always pass a seed so failures
+  also never takes an edge twice. Pass a seed so failures
   reproduce.
 
 All three use an input many times in one case (deposit, deposit,

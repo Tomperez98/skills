@@ -35,7 +35,7 @@ service that uses it. Main and the release run everything.
 A branch that passes on its own can still break main once merged. Test the
 result of merging into current main, with a merge queue or by requiring the
 branch to be up to date, and only let main move to commits that passed.
-Nobody merges past a red check.
+Every merge waits for green.
 
 Cancel superseded runs on pull requests only. Every commit on main keeps
 its own result, so a release (RELEASE.md rule 5) and a regression hunt
@@ -64,14 +64,12 @@ The same commit should give the same result today and next month.
 
 A failure you can't reproduce is noise. When a test uses randomness, log
 the seed and print the command that replays it. Treat a flaky test as a
-bug: fix it or quarantine it with an owner. Don't retry it until it passes,
-because that hides real failures. A concurrency check that fails now and
-then is not flaky: it's the race it exists to find, so keep it red until
-the race is fixed (COMPAT.md rule 7). A contract check that gates every
-pull request is the one check you can't quarantine: a flaky gate teaches
-people to merge past red. Make it deterministic and replayable by
-construction (COMPAT.md rule 3), and treat a flaky one as a bug to fix
-now, not a test to retry or quarantine.
+bug: fix it, or quarantine it with an owner; a retry-until-green hides
+real failures. A concurrency check that fails now and then is not flaky:
+it's the race it exists to find, so keep it red until the race is fixed
+(COMPAT.md rule 7). A contract check that gates every pull request never goes
+to quarantine: make it deterministic and replayable (COMPAT.md rule 3) and
+fix a flaky one now.
 
 ## 6. Make failures easy to read
 
@@ -84,20 +82,18 @@ flaking.
 ## 7. Automate the review checklist
 
 If reviewers keep catching the same kind of problem, make it a check:
-formatting, lint rules, banned APIs (with the replacement in the error
-message), leftover debug code, and generated files that weren't
-regenerated. Reviewers should be spending their time on design.
-The same goes for breaking changes: diff the schema and run the last
-release's contract against the build (COMPAT.md), and fail when a break
-lands without a breaking changelog entry. A pull request that changes a
-contract between services also gets a reviewer whose only question is
-whether N-1 and N still work side by side. Who else reviews, and whether
-a pull request can merge on green alone, follows from what it does to the
-contract (rule 10).
+formatting, lint rules, banned APIs (with the replacement in the error message),
+leftover debug code, and generated files that weren't regenerated. The same goes
+for breaking changes: diff the schema and run the last release's contract
+against the build (COMPAT.md), and fail when a break lands without a breaking
+changelog entry. A pull request that changes a contract between services also
+gets a reviewer whose only question is whether N-1 and N still work side by
+side. Who else reviews, and whether a pull request can merge on green alone,
+follows from what it does to the contract (rule 10).
 
 Run the compiler, type checker, and static analyzers at their strictest
 settings and treat every warning as an error, so the warning count stays at
-zero (code skill, WRITE.md rule 25). If CI allows one warning, the rest
+zero (code skill, WRITE.md rule 10). If CI allows one warning, the rest
 follow, and a real problem ends up buried among them.
 
 ## 8. Exercise the release path on every merge
@@ -150,11 +146,11 @@ build) stays against the last release. Fail the build when a public
 operation has no spec, when a rule in the spec never runs, or when a test
 asserts on responses itself instead of leaving that to the spec.
 
-Post from a separate job that never runs the pull request's code. The job
+Post from a separate job that runs none of the pull request's code. The job
 that checks the pull request keeps a read-only token (fork pull requests
 get nothing else) and uploads its verdict as data. A workflow triggered by
 that run's completion (`workflow_run` on GitHub) holds the write token,
-never checks out the pull request, validates the verdict as untrusted
+checks out only the base, validates the verdict as untrusted
 input, and applies the verdict as a machine-readable marker, not a
 comment: a label to route the review, a check to gate the merge. Apply it
 idempotently (the label set to the verdict with the others removed; one
@@ -185,6 +181,8 @@ check can tell.
 - A failing step names the command that failed and how to replay it
   locally, seed included (rule 5, rule 6).
 - The release build runs in dry-run mode on every merge (rule 8).
+- Every pull request carries a contract label, posted by a job that runs
+  none of its code (rule 10).
 
 ---
 

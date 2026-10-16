@@ -78,7 +78,7 @@ exploration can skip states within it.
 
 Read the explanation string against the actual response, then ask whoever
 owns the behavior which one is correct. If the system is wrong, you found
-the bug the spec exists to find; leave the spec alone. If the spec is wrong,
+the bug the spec exists to find; keep the spec as it is. If the spec is wrong,
 fix the rule — and say in the commit which rule changed and why. Common
 spec-side causes: guards in a different order from the implementation, a
 `.SameState()` where the operation actually changes state, a field the
@@ -94,8 +94,8 @@ profile (ASYNC.md rule 3).
 End with one verdict: **system wrong**, **spec wrong**, or **undecided**.
 Undecided is where you stop when nobody who owns the behavior is around.
 Report the explanation string, the actual response, and what each reading
-would mean, then ask. Picking the reading that turns the test green is a
-guess, and it rewrites the contract.
+would mean, then ask; the reading that turns the test green is a guess that
+rewrites the contract.
 
 ## 5. Tests that pass alone and fail together are a reset problem
 
@@ -157,7 +157,8 @@ finds them all when you take them out.
 - The failing case is a short hand-written sequence that now passes, and it
   stays in the suite as a regression test (rule 2).
 - A rejection has its verdict (rule 4). A spec fix's commit names the rule
-  that changed and why; no predicate was loosened just to pass.
+  that changed and why, and every changed predicate traces to a "spec
+  wrong" verdict.
 - A grep for your debug tag finds nothing (rule 8).
 
 ---
