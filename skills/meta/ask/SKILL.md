@@ -72,6 +72,8 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 - **Too slow** → code: PERFORMANCE.
 - **Config, env vars, globals, caches, or a schema** → code: STATE.
 - **Designing an interface, naming, or splitting a function** → code: SHAPE.
+- **Designing an HTTP API, choosing REST/GraphQL/RPC, pagination,
+  versioning, or auth** → code: HTTP_API.
 - **A tangled condition or multi-input decision** → code: LOGIC.
 - **Crash safety, retries, timeouts** → code: CRASHONLY; against a remote
   system that may or may not have acted, accordant: FAULTS. Testing

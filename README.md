@@ -2,12 +2,12 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Five skills, a router,
-and a skill for writing skills today, thirty-seven branch guides, 283 numbered
-rules.
+and a skill for writing skills today, thirty-eight branch guides, 292
+numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
-| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · STATE · SHAPE · LOGIC · PERFORMANCE · REFACTOR · TEST · CRASHONLY · CRASH_TESTS · DEPENDENCIES |
+| [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · STATE · SHAPE · HTTP_API · LOGIC · PERFORMANCE · REFACTOR · TEST · CRASHONLY · CRASH_TESTS · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
@@ -67,6 +67,7 @@ follows its rules in order:
 | "Write this feature / design this API" | [`code/WRITE.md`](skills/coding/code/WRITE.md) | Panic on broken invariants, return values for expected failures, parse at the edge, one error vocabulary per boundary, state the contract, bound everything |
 | "Read config / env vars / a cache / a schema" | [`code/STATE.md`](skills/coding/code/STATE.md) | Tame globals, configure explicitly at the edge, load only the state you need, pass identity, let the store enforce invariants |
 | "Design an interface / name things / split a function" | [`code/SHAPE.md`](skills/coding/code/SHAPE.md) | A small named surface, seams only where a second implementation is real, few branches at the call site, the type holds the guarantee |
+| "Design an HTTP API / choose REST vs GraphQL vs RPC" | [`code/HTTP_API.md`](skills/coding/code/HTTP_API.md) | Protocol by caller, resources and methods, stateless requests, safe retries, pagination, one error envelope, versioning, auth and rate limits |
 | "Simplify a condition / a multi-input decision" | [`code/LOGIC.md`](skills/coding/code/LOGIC.md) | Conditions as logic, one rewrite per step, decisions as complete tables |
 | "Make this faster / optimize this hot path" | [`code/PERFORMANCE.md`](skills/coding/code/PERFORMANCE.md) | Sketch costs before you build, keep the hot path free of indirection, split the control plane from the data plane |
 | "This code is hard to test / simplify this conditional" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |

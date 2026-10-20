@@ -42,8 +42,10 @@ parentheses and state the assumption at the top of your work.
   component) → [WRITE.md](WRITE.md).
 - **Read config, env vars, globals, caches, or a schema** →
   [STATE.md](STATE.md).
-- **Design an API, name things, add an abstraction, split a function** →
-  [SHAPE.md](SHAPE.md).
+- **Design an in-process interface, name things, add an abstraction, split
+  a function** → [SHAPE.md](SHAPE.md).
+- **Design an HTTP or network API** (REST, GraphQL, RPC, pagination,
+  versioning, auth) → [HTTP_API.md](HTTP_API.md).
 - **Simplify a conditional or a multi-input decision** →
   [LOGIC.md](LOGIC.md).
 - **Too slow, or a scaling question** → [PERFORMANCE.md](PERFORMANCE.md).
