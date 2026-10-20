@@ -91,10 +91,9 @@ gets a reviewer whose only question is whether N-1 and N still work side by
 side. Who else reviews, and whether a pull request can merge on green alone,
 follows from what it does to the contract (rule 10).
 
-Run the compiler, type checker, and static analyzers at their strictest
-settings and treat every warning as an error, so the warning count stays at
-zero (code skill, WRITE.md rule 10). If CI allows one warning, the rest
-follow, and a real problem ends up buried among them.
+Gate the build on the strict settings in code's WRITE.md rule 10. If CI
+allows one warning, the rest follow, and a real problem ends up buried
+among them.
 
 ## 8. Exercise the release path on every merge
 
@@ -169,6 +168,13 @@ on green alone after the specs have caught real bugs: a spec that only
 checks `success` passes every coverage check and judges nothing, and no
 check can tell.
 
+---
+
+CI is the gate: it runs locally, it's reproducible, it's clear when it fails,
+and it sends people only the decisions that need them. MONITOR.md covers what
+the gate is too slow to run, and PUBLISH.md turns the dry-run build into a real
+release.
+
 ## Done when
 
 - One command runs the whole suite on a laptop and in CI, and the CI config
@@ -180,13 +186,6 @@ check can tell.
   by default (rule 4).
 - A failing step names the command that failed and how to replay it
   locally, seed included (rule 5, rule 6).
-- The release build runs in dry-run mode on every merge (rule 8).
-- Every pull request carries a contract label, posted by a job that runs
-  none of its code (rule 10).
-
----
-
-CI is the gate: it runs locally, it's reproducible, it's clear when it fails,
-and it sends people only the decisions that need them. MONITOR.md covers what
-the gate is too slow to run, and PUBLISH.md turns the dry-run build into a real
-release.
+- The release build runs in dry-run mode on every merge, and every pull
+  request carries a contract label posted by a job that runs none of its
+  code (rules 8 and 10).

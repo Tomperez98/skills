@@ -2,7 +2,7 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Five skills, a router,
-and a skill for writing skills today, thirty-eight branch guides, 292
+and a skill for writing skills today, thirty-nine branch guides, 292
 numbered rules.
 
 | Skill | The one rule | Branch guides |
@@ -42,7 +42,7 @@ Already have the repo? Copy the folders directly — Claude and Codex read
 the same layout (`~/.claude/skills`, `~/.codex/skills`):
 
 ```bash
-cp -r skills/coding/code skills/coding/docs skills/coding/ship skills/coding/accordant skills/product/mvp skills/meta/ask skills/meta/writing-skills ~/.pi/agent/skills/
+cp -r skills/*/* ~/.pi/agent/skills/
 ```
 
 ## How it works
@@ -54,9 +54,10 @@ name: code
 description: >
   Write code that fails fast and tests well. One rule: bugs panic, expected
   failures return values. Use when the user writes, tests, or refactors code,
-  finds it hard to test, designs an API or config, adds a dependency, or
-  asks about error handling, performance, or crash safety — even if they
-  never say "testability" or "fail fast".
+  finds it hard to test, designs an API, reads config, env vars, a cache, or a
+  schema, names or splits a function, simplifies a condition, adds a
+  dependency, or asks about error handling, performance, or crash safety —
+  even if they never say "testability" or "fail fast".
 ```
 
 When a task matches, the agent reads the branch that fits the situation and
@@ -70,7 +71,7 @@ follows its rules in order:
 | "Design an HTTP API / choose REST vs GraphQL vs RPC" | [`code/HTTP_API.md`](skills/coding/code/HTTP_API.md) | Protocol by caller, resources and methods, stateless requests, safe retries, pagination, one error envelope, versioning, auth and rate limits |
 | "Simplify a condition / a multi-input decision" | [`code/LOGIC.md`](skills/coding/code/LOGIC.md) | Conditions as logic, one rewrite per step, decisions as complete tables |
 | "Make this faster / optimize this hot path" | [`code/PERFORMANCE.md`](skills/coding/code/PERFORMANCE.md) | Sketch costs before you build, keep the hot path free of indirection, split the control plane from the data plane |
-| "This code is hard to test / simplify this conditional" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
+| "This code is hard to test / a refactor fights back" | [`code/REFACTOR.md`](skills/coding/code/REFACTOR.md) | Diagnose which principle the code violates, fix that first — then the tests write themselves |
 | "Write tests for this" | [`code/TEST.md`](skills/coding/code/TEST.md) | Assert the shape before the payload, one test per error variant, test short-circuiting |
 | "Make this crash-safe / recover fast / crash-only" | [`code/CRASHONLY.md`](skills/coding/code/CRASHONLY.md) | Stop = crash, start = recover: make the panic safe and the recovery cheap |
 | "Test crash recovery / idempotency / cancellation" | [`code/CRASH_TESTS.md`](skills/coding/code/CRASH_TESTS.md) | Kill mid-write and restart, double-apply, ack before release |
@@ -139,5 +140,5 @@ surrounding code and state the assumption at the top.
 
 A new skill is three things: a one-sentence rule, a `description` that
 triggers at the right moment, and branch guides that tell the agent exactly
-what to do. Copy the shape of the existing skills; keep the rule honest and
-the examples runnable.
+what to do. Read [`writing-skills/NEW.md`](skills/meta/writing-skills/NEW.md)
+before you start; keep the rule honest and the examples runnable.

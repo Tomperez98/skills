@@ -220,6 +220,12 @@ as expand, migrate, contract, spread over at least two releases: add the
 new shape and write both, move readers over, then remove the old shape
 once no N-1 code is left.
 
+---
+
+COMPAT keeps "releasable" true for the people downstream and for the
+services next door: CI runs the checks, MONITOR runs the slow ones, and
+RELEASE turns the result into the version number and the rollout.
+
 ## Done when
 
 - The shape diff against the last release ran and its output is read
@@ -232,9 +238,3 @@ once no N-1 code is left.
   manifest (rule 4).
 - With several services: both directions and the rollout order ran green
   (rules 9–10).
-
----
-
-COMPAT keeps "releasable" true for the people downstream and for the
-services next door: CI runs the checks, MONITOR runs the slow ones, and
-RELEASE turns the result into the version number and the rollout.

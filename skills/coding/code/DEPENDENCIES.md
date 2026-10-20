@@ -106,6 +106,13 @@ rules 4–5 affordable: the review can focus on what the tests don't cover.
 When you take an update, a change in behavior fails a test at the line
 where it matters, instead of turning up later in production.
 
+---
+
+A dependency is part of your program, so it follows the same contract as
+the rest of the code. WRITE.md builds the boundary around it, TEST.md pins
+the behavior you rely on, and this branch decides whether the code gets in
+at all and when it's allowed to change.
+
 ## Done when
 
 - The transitive count is known, and the choice to depend, write, or fork
@@ -118,10 +125,3 @@ where it matters, instead of turning up later in production.
   into your own vocabulary (rule 6).
 - Tests against that boundary cover the outputs you parse and the errors
   you map, and they pass (rule 7).
-
----
-
-A dependency is part of your program, so it follows the same contract as
-the rest of the code. WRITE.md builds the boundary around it, TEST.md pins
-the behavior you rely on, and this branch decides whether the code gets in
-at all and when it's allowed to change.

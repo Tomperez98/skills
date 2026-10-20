@@ -30,20 +30,14 @@ Identify which situation you're in, from the user's prompt, the repo, or by
 asking if the user is around:
 
 - **"Set up / fix / speed up CI, flaky or slow checks"** → [CI.md](CI.md).
-  The gate before merge: runnable locally, reproducible, actionable when
-  it fails.
 - **"Catch regressions after merge / scheduled checks / alerts"** →
-  [MONITOR.md](MONITOR.md). Keep testing and measuring main after the
-  gate, and put a person on every failure.
+  [MONITOR.md](MONITOR.md).
 - **"Plan the release process / versioning / changelog / bad release"** →
-  [RELEASE.md](RELEASE.md). The human side: what ships, what it's called,
-  and what happens when it's wrong.
+  [RELEASE.md](RELEASE.md).
 - **"Write / fix the release script, publish packages, handle secrets"** →
-  [PUBLISH.md](PUBLISH.md). The machine side: build, publish safely, then
-  check what actually shipped.
+  [PUBLISH.md](PUBLISH.md).
 - **"Is this a breaking change / backward compatibility / API diff"** →
-  [COMPAT.md](COMPAT.md). Ship the contract with each release and let it
-  judge every new build; a break is declared, never discovered.
+  [COMPAT.md](COMPAT.md).
 
 When the situation is ambiguous and the user isn't reachable, pick by the
 file in front of you (a PR workflow → CI; a scheduled job or dashboard →
@@ -51,10 +45,7 @@ MONITOR; a changelog or release checklist → RELEASE; a publish script →
 PUBLISH; a schema, API diff, or compat baseline → COMPAT) and state the
 assumption at the top.
 
-## The one rule
-
-**Keep main releasable; make every release boring — scripted, re-runnable,
-verified.**
+## What the rule requires
 
 - **Main is releasable.** Nothing lands on main without passing CI, and
   main keeps being tested after it lands. Any commit on main could be

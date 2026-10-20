@@ -378,6 +378,12 @@ does the same for the spec. Run it on the cluster you just specified, not
 the whole system, and on a schedule rather than every push — it reruns
 the suite once per mutant.
 
+---
+
+Once sequential tests pass, CONCURRENCY.md reuses the same spec, inputs,
+and context. When a run goes red, DEBUG.md decides whether the spec or the
+system is wrong.
+
 ## Done when
 
 - Every operation has a binding with its exact name and types, and async
@@ -390,9 +396,3 @@ the suite once per mutant.
   rendered graph has no missing edge or unexpected state (rules 5–6).
 - The real run asserts that no result failed, and a failure reports the
   spec's message (rule 8).
-
----
-
-Once sequential tests pass, CONCURRENCY.md reuses the same spec, inputs,
-and context. When a run goes red, DEBUG.md decides whether the spec or the
-system is wrong.

@@ -92,11 +92,11 @@ Apply the never-mislead rule in [SKILL.md](SKILL.md). For a README:
 "blazingly fast" appears only beside its benchmark, and company history and
 "world's first" go. If the project does something, the example shows it.
 
-## 10. The top of the file is the whole pitch
+## 10. Order the first three beats
 
-Most readers decide after the hero, the example, and the install. Put your three
-strongest beats in those first lines, in that order: what it does, proof it
-works, how to get it.
+Put what it does, proof it works, and how to get it in the first lines, in
+that order. Rules 1, 3, and 4 say what each beat is; this rule fixes their
+order at the top of the file.
 
 ## Done when
 

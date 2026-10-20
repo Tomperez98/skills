@@ -23,7 +23,8 @@ does not restate them.
 
 - `skills/meta/writing-skills/` — NEW, EDIT, PRUNE. Start here for any
   change to this repo's skills or this file.
-- `skills/coding/code/` — WRITE, STATE, SHAPE, LOGIC, REFACTOR, TEST
+- `skills/coding/code/` — WRITE, STATE, SHAPE, HTTP_API, LOGIC, PERFORMANCE,
+  REFACTOR, TEST, CRASHONLY, CRASH_TESTS, DEPENDENCIES
 - `skills/coding/docs/` — README, API, TUTORIAL, CHANGELOG, LANDING,
   DOCS_MARKETING
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH, COMPAT

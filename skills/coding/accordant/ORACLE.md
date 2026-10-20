@@ -191,6 +191,14 @@ each event as an operation whose request is the event and whose response is
 `Unit`. The spec then checks that each event was allowed in the state at
 that point.
 
+---
+
+Traces judged this way are also the evidence for testing the spec itself:
+recording them, replaying them on every spec change, and mutating them is
+TRACES.md. Concurrent groups are the subject of CONCURRENCY.md; traces
+whose responses are ambiguous (timeouts, 500s) need the outcomes in
+FAULTS.md.
+
 ## Done when
 
 - Every `Allows` call takes the profile the previous call returned (rule 1).
@@ -203,11 +211,3 @@ that point.
   (rule 3, TRACES.md rule 7).
 - With concurrent calls: only calls whose time windows overlapped share an
   `AllowsConcurrent` group (rule 4).
-
----
-
-Traces judged this way are also the evidence for testing the spec itself:
-recording them, replaying them on every spec change, and mutating them is
-TRACES.md. Concurrent groups are the subject of CONCURRENCY.md; traces
-whose responses are ambiguous (timeouts, 500s) need the outcomes in
-FAULTS.md.

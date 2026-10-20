@@ -106,6 +106,10 @@ Verify the reset once by reading back an empty system.
 
 ## 6. Compile and wiring errors with known causes
 
+The library is young (0.1.x): some public options do nothing and some APIs
+compile but aren't wired in. The table names the failures seen so far;
+check the source for a new one.
+
 | Symptom | Cause |
 |---------|-------|
 | `CS0411: The type arguments for method 'Expect.That<TResponse>(…)' cannot be inferred` | Short-form `Expect.That(r => …)` in an inline `spec.Operation` lambda — use `Expect.That<TResp>` and `.ThenState<TState>` (SPEC.md rule 5) |
@@ -151,6 +155,12 @@ inside `Apply` with `Logger.Log(…)` when you need to see which branch ran.
 Start each line you add with one tag (`[debug-a4f2]`), so a single grep
 finds them all when you take them out.
 
+---
+
+A fix in the spec is a change to the contract: replay the trace database
+(TRACES.md rule 5) to make sure previously valid behavior is still
+accepted, and post the change for review (TRACES.md rule 9).
+
 ## Done when
 
 - The failure has a name: crash, rejection, or setup (rule 1).
@@ -160,9 +170,3 @@ finds them all when you take them out.
   that changed and why, and every changed predicate traces to a "spec
   wrong" verdict.
 - A grep for your debug tag finds nothing (rule 8).
-
----
-
-A fix in the spec is a change to the contract: replay the trace database
-(TRACES.md rule 5) to make sure previously valid behavior is still
-accepted, and post the change for review (TRACES.md rule 9).

@@ -132,6 +132,13 @@ While a component recovers, keep new work out and let in-flight work wait
 and retry. Brief unavailability becomes raised latency, not errors, and a
 component rebuilding its state sees no fresh flood.
 
+---
+
+Crash-only is the other half of the one rule: a panic is only usable as a
+primary defense if it's cheap. This branch makes it cheap. WRITE.md builds
+the contract, CRASHONLY makes it survive the crash, and CRASH_TESTS.md
+proves the recovery.
+
 ## Done when
 
 - The component has one stop path, crash, and one start path, recovery; a
@@ -144,10 +151,3 @@ component rebuilding its state sees no fresh flood.
   fresh instance needs to resume it (rules 5 and 8).
 - Every call has a timeout, every hold has a lease, and retries are capped,
   backed off, and jittered (rules 6 and 10).
-
----
-
-Crash-only is the other half of the one rule: a panic is only usable as a
-primary defense if it's cheap. This branch makes it cheap. WRITE.md builds
-the contract, CRASHONLY makes it survive the crash, and CRASH_TESTS.md
-proves the recovery.

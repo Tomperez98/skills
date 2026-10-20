@@ -3,9 +3,10 @@ name: code
 description: >
   Write code that fails fast and tests well. One rule: bugs panic, expected
   failures return values. Use when the user writes, tests, or refactors code,
-  finds it hard to test, designs an API or config, adds a dependency, or
-  asks about error handling, performance, or crash safety — even if they
-  never say "testability" or "fail fast".
+  finds it hard to test, designs an API, reads config, env vars, a cache, or a
+  schema, names or splits a function, simplifies a condition, adds a
+  dependency, or asks about error handling, performance, or crash safety —
+  even if they never say "testability" or "fail fast".
 ---
 
 # Code

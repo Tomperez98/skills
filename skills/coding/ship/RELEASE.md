@@ -42,11 +42,13 @@ number is checked before it ships. Derive the next version number from the
 last changelog entry (patch + 1) rather than typing it; the human's job is
 to verify it, not produce it.
 
-Versions only go up. A number that was published, or burned by a failed
-attempt, is retired for good. Pick a scheme users can understand, such as
-SemVer, and stick to it. Under SemVer, the compatibility checks pick the
-kind of bump, not a guess: a check that failed and was declared a break
-means major (COMPAT.md rule 6).
+Versions only go up. A number that was published with different bytes is
+retired for good; a failed attempt that published nothing leaves the
+number reusable, and a partial publish of the same bytes resumes
+(PUBLISH.md rule 3). Pick a scheme users can understand, such as SemVer,
+and stick to it. Under SemVer, the compatibility checks pick the kind of
+bump, not a guess: a check that failed and was declared a break means
+major (COMPAT.md rule 6).
 
 ## 4. Build the changelog from what merged
 
@@ -100,6 +102,11 @@ If a fix can't ship through the normal path, for example when upgrading to
 the new version is itself broken, write the emergency procedure down before
 you need it, not during the incident.
 
+---
+
+RELEASE decides what ships and what it's called. CI.md and MONITOR.md
+decide whether it's ready, and PUBLISH.md does the shipping.
+
 ## Done when
 
 - The checklist is in the repo, with exact commands and a recovery step for
@@ -113,8 +120,3 @@ you need it, not during the incident.
 - An agent running the release stopped once, before the first upload,
   showed the commit, version, and changelog entry, and waited for a "go"
   (rule 6).
-
----
-
-RELEASE decides what ships and what it's called. CI.md and MONITOR.md
-decide whether it's ready, and PUBLISH.md does the shipping.

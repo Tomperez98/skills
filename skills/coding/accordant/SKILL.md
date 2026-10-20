@@ -59,8 +59,7 @@ front of you, or by asking if the user is around:
 - **"I changed the spec — is it still right? / review this spec change /
   would the spec catch a wrong answer?"** → [TRACES.md](TRACES.md).
 - **"The spec crashes / tests fail / generation explodes / it won't compile"**
-  → [DEBUG.md](DEBUG.md). Decide whether the spec or the system is wrong
-  before touching either.
+  → [DEBUG.md](DEBUG.md).
 
 The branches produce very different output, so getting this wrong wastes
 the work. If the situation is genuinely ambiguous and the user isn't
@@ -72,9 +71,7 @@ retry loop or fault proxy → FAULTS; a release tag or baseline suite →
 BASELINE; a spec diff under review or a trace database → TRACES; a red
 test or a stack trace → DEBUG) and state the assumption at the top.
 
-## The one rule
-
-**Write the contract once, in the spec — and let it judge every response.**
+## What the rule requires
 
 - **Once.** Business rules live in `Apply` and nowhere else. A test is just
   a sequence of calls; it carries no assertions about balances, status
@@ -109,9 +106,8 @@ where the system stops needing them:
 
 The judge is only as strict as its predicates, and only as thorough as
 its `InputSet` and `MaxDepth`: an unchecked field or an unreached path is
-untested. The library is young (0.1.x) — some public options do nothing
-and some APIs compile but aren't wired in (DEBUG.md rule 6) — so check a
-surprising behavior against the source before blaming the spec.
+untested (SPEC.md rule 8, GENERATE.md rule 4). Check a surprising behavior
+against the source before blaming the spec (DEBUG.md rule 6).
 
 Start partial: two to four related operations, the happy path and one error
 each, then strengthen. The `code` skill's rule holds inside the spec too: a

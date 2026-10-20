@@ -74,8 +74,8 @@ is a bug in the tutorial, not the reader.
   check each (rules 1–2).
 - Every command shows its expected output and at least one common failure
   with its fix (rules 3–4).
-- Each checkpoint links to the complete code so far (rule 5).
-- Every step serves the one outcome (rule 6).
+- Each checkpoint links to the complete code so far, and every step serves
+  the one outcome (rules 5–6).
 - It ends with the finished result and one concrete next step (rule 7).
 - You ran it from scratch in a clean environment, pasting each command as
   written, and every output matched the page (rule 8).
