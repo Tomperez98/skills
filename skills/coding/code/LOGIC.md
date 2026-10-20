@@ -107,7 +107,7 @@ with fewer inputs is still logic: see rule 1.
 
 ## Done when
 
-- Each rewritten condition is one rule application per step, and a test
-  compares it with the original (rule 1).
+- Each rewritten condition is one rule application per step (rule 1).
+- A test compares each rewritten condition with the original (rule 1).
 - Every multi-input decision has a table that is complete and unambiguous,
   with one test per row (rule 2).

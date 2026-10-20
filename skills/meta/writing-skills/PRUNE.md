@@ -13,7 +13,8 @@ files behind a pointer. Trim the always-loaded ones first: each of their lines
 costs every task.
 
 ```bash
-wc -c <skills-dir>/*/SKILL.md <instruction file>
+find <skills-dir> -name SKILL.md -exec wc -c {} +
+wc -c <instruction file>
 ```
 
 ## 2. Find the duplicates

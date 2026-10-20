@@ -247,6 +247,15 @@ labeled with the consumer's name (`"Billing: cancel shipped order"`), and
 the sequences as manual cases over those labels (GENERATE.md rule 7), so
 the provider's CI runs them and a failure names who would break.
 
+---
+
+The checks reuse everything the other branches built: SPEC.md for the contract,
+GENERATE.md for running it, ORACLE.md for traces and exported plans, TRACES.md
+for the trace database and for reviewing the spec diff that declares a break.
+DEBUG.md still decides whether a red run is the spec's fault — but here the
+baseline spec is fixed, so once setup is ruled out (DEBUG.md rules 5–6), a red
+run is the build's.
+
 ## Done when
 
 - The baseline suite is checked out at the last release tag, matched with
@@ -260,12 +269,3 @@ the provider's CI runs them and a failure names who would break.
   storage, inside one test (rule 7).
 - With several services: every service's baseline ran against the new
   build, and every main suite against the last release (rule 9).
-
----
-
-The checks reuse everything the other branches built: SPEC.md for the contract,
-GENERATE.md for running it, ORACLE.md for traces and exported plans, TRACES.md
-for the trace database and for reviewing the spec diff that declares a break.
-DEBUG.md still decides whether a red run is the spec's fault — but here the
-baseline spec is fixed, so once setup is ruled out (DEBUG.md rules 5–6), a red
-run is the build's.

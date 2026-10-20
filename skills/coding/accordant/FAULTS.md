@@ -181,6 +181,12 @@ breaks only in an exact order: create, archive, restart, create reuses the
 archived number. Plain walks can miss it, so give `Restart` its own
 input and pin a sequence like that as a manual case once found.
 
+---
+
+The same profile mechanics drive ASYNC.md: a pending job is uncertainty
+that resolves over time. CONCURRENCY.md combines with this branch when a
+failed call might still have taken effect.
+
 ## Done when
 
 - Every timeout, reset, and 5xx maps to an indefinite failure the response
@@ -192,9 +198,3 @@ input and pin a sequence like that as a manual case once found.
 - Faults are injected both before sending and after receiving (rule 7).
 - When the system promises durability: `Restart` is an operation with its
   own input (rule 9).
-
----
-
-The same profile mechanics drive ASYNC.md: a pending job is uncertainty
-that resolves over time. CONCURRENCY.md combines with this branch when a
-failed call might still have taken effect.

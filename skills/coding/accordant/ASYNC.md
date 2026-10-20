@@ -185,6 +185,12 @@ profile, so a custom multi-step `TerminatingStepFunction` (Pending →
 Running → Done) returns itself in each `StepResult.StepFunctions` until
 terminal, or polling stops at Running.
 
+---
+
+Server-generated IDs without any background work need only GENERATE.md
+rule 9. Background work combined with timeouts is FAULTS.md territory: the
+trigger itself may or may not have happened.
+
 ## Done when
 
 - Every operation that starts background work declares it with
@@ -198,9 +204,3 @@ terminal, or polling stops at Running.
   system is allowed to take (rules 5–7).
 - At least one input triggers the work `.WithoutPolling()`, followed by a
   call made while the work runs (rule 8).
-
----
-
-Server-generated IDs without any background work need only GENERATE.md
-rule 9. Background work combined with timeouts is FAULTS.md territory: the
-trigger itself may or may not have happened.

@@ -199,6 +199,12 @@ Mark "ask" wherever the evidence can't tell intent.
 Post its lines as written beside the four pieces. An "ask" goes to the
 spec's owner, not back to the author's agent.
 
+---
+
+A trace that fails replay goes through DEBUG.md rule 4 like any other
+rejection. Checking the system, not the spec, against the last release is
+BASELINE.md.
+
 ## Done when
 
 - Only traces from passing runs are kept, each with its header (rule 2)
@@ -211,9 +217,3 @@ spec's owner, not back to the author's agent.
   outside the contract (rule 7).
 - Every outcome in the source matched at least once on a green run
   (rule 8).
-
----
-
-A trace that fails replay goes through DEBUG.md rule 4 like any other
-rejection. Checking the system, not the spec, against the last release is
-BASELINE.md.

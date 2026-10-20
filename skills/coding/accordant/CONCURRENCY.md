@@ -163,6 +163,12 @@ On an in-process counter whose deposit reads, waits, and writes, the
 plain cases all pass and the wrapped ones fail on the read (Accordant
 0b2c0d4). Name the read uniquely; the runner rejects a repeated call name.
 
+---
+
+ORACLE.md rule 4 applies the same check to concurrent traces recorded
+outside .NET. When a failed call might still have taken effect, FAULTS.md
+adds that possibility to the spec.
+
 ## Done when
 
 - The sequential tests pass before any concurrent case runs (rule 1).
@@ -173,9 +179,3 @@ plain cases all pass and the wrapped ones fail on the read (Accordant
   after it (rule 6).
 - The concurrent suite runs repeatedly, in a loop or a scheduled job, not
   once (rule 7).
-
----
-
-ORACLE.md rule 4 applies the same check to concurrent traces recorded
-outside .NET. When a failed call might still have taken effect, FAULTS.md
-adds that possibility to the spec.

@@ -4,9 +4,9 @@ description: >
   Write docs and developer-marketing copy that meets a developer at their
   task. One rule: lead with the reader's task, win the 10-second skim,
   never mislead. Use when the user writes or fixes a README, API docs, a
-  tutorial, a changelog, landing-page or blog copy, or asks about docs-driven
-  growth or search ranking — even if they never say "documentation" or
-  "marketing".
+  tutorial or quickstart, a changelog or release notes, landing-page, blog,
+  or positioning copy, or asks about docs-driven growth or search ranking —
+  even if they never say "documentation" or "marketing".
 ---
 
 # Docs & Developer Marketing
@@ -26,28 +26,20 @@ branch is that rule applied to one artifact.
 Identify which artifact you're writing — from the user's prompt, the
 surrounding context, or by asking if the user is around:
 
-- **"Write / fix the README"** → [README.md](README.md). Win the 10-second
-  skim: hero, what-it-is, install, one working example, link onward.
-- **"Write / fix API docs or guides"** → [API.md](API.md). Reference and
-  concepts: signature, parameters, error vocabulary, one example per
-  operation.
+- **"Write / fix the README"** → [README.md](README.md).
+- **"Write / fix API docs or guides"** → [API.md](API.md).
 - **"Write / fix a tutorial or quickstart"** → [TUTORIAL.md](TUTORIAL.md).
-  One scoped outcome, zero to working, copy-paste steps.
-- **"Write / fix a changelog or release notes"** → [CHANGELOG.md](CHANGELOG.md).
-  Impact first; breaking changes loudest; why an upgrade matters.
-- **"Write / fix landing-page or positioning copy"** → [LANDING.md](LANDING.md).
-  Value proposition, who it's for, why not the alternative, proof, runnable
-  hero.
+- **"Write / fix a changelog or release notes"** →
+  [CHANGELOG.md](CHANGELOG.md).
+- **"Write / fix landing-page or positioning copy"** →
+  [LANDING.md](LANDING.md).
 - **"Make docs acquire / convert / rank"** →
-  [DOCS_MARKETING.md](DOCS_MARKETING.md). Docs-as-marketing: findability,
-  shareability, and examples that sell.
+  [DOCS_MARKETING.md](DOCS_MARKETING.md).
 
 When the artifact is ambiguous and the user isn't reachable, default to the
 one the request names and state the assumption at the top.
 
-## The one rule
-
-**Lead with the reader's task — win the 10-second skim — and never mislead.**
+## What the rule requires
 
 - **Their job, not your feature list.** A developer arrives with a task and a
   mental vocabulary for it ("retry a failed request", "migrate my schema",
@@ -61,12 +53,12 @@ one the request names and state the assumption at the top.
   read only through its headings, code blocks, and images, it's right; if it
   needs the prose, it isn't done. Something that runs proves more than a
   paragraph — it *is* the proof, and it's what gets shared.
-- **Never mislead.** (The guides cite this rule instead of restating it.) No
-  clickbait, no "world's fastest" you can't show, no overselling. Think hard
-  about why the thing genuinely matters to the reader, and say that — honestly.
-  A claim you can't back up is noise; a claim you can back up is proof. Delete
-  the company history, the adjective pile-ups, the "powerful, flexible, robust,"
-  and every sentence that doesn't serve the reader's task.
+- **Never mislead.** No clickbait, no "world's fastest" you can't show, no
+  overselling. Think hard about why the thing genuinely matters to the
+  reader, and say that — honestly. A claim you can't back up is noise; a
+  claim you can back up is proof. Delete the company history, the adjective
+  pile-ups, the "powerful, flexible, robust," and every sentence that
+  doesn't serve the reader's task.
 
 ## Hand off
 

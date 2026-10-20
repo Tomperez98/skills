@@ -68,6 +68,13 @@ An assertion costs almost nothing once per batch. Fail-fast and
 performance agree here: the control plane can afford to be paranoid, so
 WRITE.md's assertions (rule 1) live there.
 
+---
+
+These are constant-factor wins, not new algorithms — pick the right
+algorithm first, then apply these to the one the profiler names. When the
+component also needs to survive a crash mid-batch, CRASHONLY.md covers
+making that recovery cheap.
+
 ## Done when
 
 - A written sketch names the bottleneck: which of network, storage, memory,
@@ -76,10 +83,3 @@ WRITE.md's assertions (rule 1) live there.
   the sketch named (rules 1–2).
 - The hot loop holds only the per-item work: queries are batched and
   validation runs once per batch (rules 2–3).
-
----
-
-These are constant-factor wins, not new algorithms — pick the right
-algorithm first, then apply these to the one the profiler names. When the
-component also needs to survive a crash mid-batch, CRASHONLY.md covers
-making that recovery cheap.

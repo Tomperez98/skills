@@ -302,6 +302,12 @@ the session dies at 60 or after it is a contract question (rule 2). A
 system you can't host in the test needs a test-only endpoint that moves
 its clock.
 
+---
+
+GENERATE.md runs this spec against the system. When an operation can
+legitimately answer in more than one way, FAULTS.md and ASYNC.md extend
+rule 4's single outcome into several.
+
 ## Done when
 
 - Every rule traces to the contract, not the code; every predicate accepts
@@ -317,9 +323,3 @@ its clock.
   `Invariant.Assert` (rule 7, GENERATE.md rule 6).
 - With expiry, leases, or rate limits: "now" is in the state, advancing it
   is an operation, and `Now` is capped (rule 11).
-
----
-
-GENERATE.md runs this spec against the system. When an operation can
-legitimately answer in more than one way, FAULTS.md and ASYNC.md extend
-rule 4's single outcome into several.

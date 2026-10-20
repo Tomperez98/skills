@@ -50,6 +50,12 @@ changing is hot; version it or move it behind a stable boundary, because a
 contract that changes constantly defeats the point of letting most pull
 requests merge on green alone (CI.md rule 10).
 
+---
+
+MONITOR picks up where CI.md stops: slower tests, trends, and the outside
+world. RELEASE.md uses what it reports to decide whether a commit is ready
+to ship.
+
 ## Done when
 
 - The suites too slow for a pull request run on main, on a schedule or
@@ -62,9 +68,3 @@ requests merge on green alone (CI.md rule 10).
 - The gate's own numbers (hot surfaces, flake rate, verdict latency,
   owner-approval time) are watched, and a hot surface is versioned or moved
   behind a stable boundary (rule 4).
-
----
-
-MONITOR picks up where CI.md stops: slower tests, trends, and the outside
-world. RELEASE.md uses what it reports to decide whether a commit is ready
-to ship.

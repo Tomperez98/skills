@@ -47,12 +47,12 @@ The description decides whether the skill fires, and it is always loaded.
   states. The detail goes in the branch guides.
 
 ```yaml
-name: code
+name: invoices
 description: >
-  Write code that fails fast and tests well. One rule: bugs panic, expected
-  failures return values. Use when the user writes, tests, or refactors
-  code, designs an API or config, or asks about error handling — even if
-  they never say "testability" or "fail fast".
+  Reconcile invoices against payments. One rule: every payment matches
+  exactly one invoice line. Use when the user imports a bank statement,
+  matches payments, or asks why a balance disagrees — even if they never
+  say "reconciliation".
 ```
 
 ## 4. Split by situation, one guide per branch

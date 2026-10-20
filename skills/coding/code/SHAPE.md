@@ -219,5 +219,5 @@ s.has([1])                               // false
 - Call sites branch as little as the answer allows, and each variable lives
   in its smallest scope (rule 3).
 - Names follow one convention and carry the mental model (rule 4).
-- Every function fits on a screen and does one named job (rule 6).
-- Each collection's type holds the guarantee its data needs (rule 7).
+- Every function fits on a screen and does one named job, and each
+  collection's type holds the guarantee its data needs (rules 6–7).

@@ -21,14 +21,15 @@ import { baselineCommit, tryGit } from "./baseline.mjs";
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SKILLS_DIR = join(REPO_ROOT, "skills");
 const README = join(REPO_ROOT, "README.md");
+const AGENTS = join(REPO_ROOT, "AGENTS.md");
 
 const MAX_DESCRIPTION = 1024; // pi's hard ceiling
 const DESCRIPTION_BUDGET = 450; // AGENTS.md's "aim for under ~450"
 const MAX_SCAN_DEPTH = 16; // our own tree is bounded; deeper is a tool bug
 const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv", ".contract-report"]);
 const TIER_LABELS = {
-  all: "frontmatter, sections, README sync, router map, links, rule references, Skill calls, orphans",
-  check: "frontmatter, sections, README sync, router map",
+  all: "frontmatter, sections, content rules, README sync, router map, links, rule references, Skill calls, orphans",
+  check: "frontmatter, sections, content rules, README sync, router map",
   links: "links, rule references, Skill calls, orphans",
 };
 
@@ -263,7 +264,184 @@ function branchGuides(skill) {
 }
 
 const HAND_OFF = /^## Hand off$/m;
-const DONE_WHEN = /^## Done when$/m;
+
+/** The lines of a level-two section, from its heading to the next `## ` one. */
+function sectionLines(text, heading) {
+  const lines = text.split(/\r?\n/);
+  const start = lines.findIndex((line) => line.trim() === heading);
+  if (start === -1) return null;
+  let end = start + 1;
+  while (end < lines.length && !/^## /.test(lines[end])) end++;
+  return { lines, start, end };
+}
+
+/**
+ * AGENTS.md: every branch guide closes with an unnumbered `## Done when` of
+ * three to five checkable items, and nothing follows the checklist.
+ */
+function checkDoneWhen(file, text) {
+  const section = sectionLines(text, "## Done when");
+  if (!section) {
+    fail(file, "no `## Done when` section");
+    return;
+  }
+  const { lines, start, end } = section;
+  const body = lines.slice(start + 1, end);
+  const items = body.filter((line) => /^- /.test(line)).length;
+  if (items < 3 || items > 5) {
+    fail(file, `\`## Done when\` has ${items} items; expected 3–5`);
+  }
+  if (end < lines.length) {
+    fail(file, `\`## Done when\` must be the last section; found \`${lines[end].trim()}\``);
+  }
+  for (const line of body) {
+    if (line.trim() === "" || /^- /.test(line) || /^\s{2,}\S/.test(line)) continue;
+    fail(file, `\`## Done when\` must hold only the checklist; found \`${line.trim()}\``);
+    break;
+  }
+}
+
+/**
+ * NEW.md rule 2: the one rule is stated once. The intro blockquote owns it;
+ * a second copy in the body is a summary that can drift.
+ */
+function checkOneRule(file, text) {
+  const match = text.match(/^> \*\*([\s\S]*?)\*\*/m);
+  if (!match) return;
+  const rule = match[1].replace(/\n> ?/g, " ").replace(/\s+/g, " ").trim();
+  if (!rule) return;
+  const body = text.slice(text.indexOf(match[0]) + match[0].length);
+  if (body.includes(rule)) {
+    fail(file, "the one rule is restated in the body; state it once and let the guides carry the procedure");
+  }
+}
+
+/**
+ * NEW.md rule 5: a pointer is a trigger plus a target. In `## Pick a branch`,
+ * every bullet ends at its guide link instead of summarizing the guide.
+ */
+function checkPointerSummaries(file, text) {
+  const section = sectionLines(text, "## Pick a branch");
+  if (!section) return;
+  const { lines, start, end } = section;
+  let bullet = null;
+  const flush = () => {
+    if (!bullet) return;
+    const link = bullet.match(/\]\([^)]*\.md\)/);
+    if (!link) {
+      fail(file, `\`## Pick a branch\` bullet has no guide link: ${bullet.trim().slice(0, 80)}`);
+    } else {
+      const tail = bullet.slice(link.index + link[0].length).trim();
+      if (tail !== "" && tail !== ".") {
+        fail(file, `\`## Pick a branch\` pointer carries a summary after the link: ${tail.slice(0, 80)}`);
+      }
+    }
+    bullet = null;
+  };
+  for (let i = start + 1; i < end; i++) {
+    const line = lines[i];
+    if (/^- /.test(line)) {
+      flush();
+      bullet = line;
+    } else if (bullet && /^\s{2,}\S/.test(line)) {
+      bullet += ` ${line.trim()}`;
+    } else {
+      flush();
+    }
+  }
+  flush();
+}
+
+/**
+ * AGENTS.md's per-skill guide list is an index. It must match the files on
+ * disk, or an agent reading it misses branches.
+ */
+function checkAgentsGuideList(skillFiles) {
+  if (!existsSync(AGENTS)) return;
+  const lines = readFileSync(AGENTS, "utf8").split(/\r?\n/);
+  const listed = new Map();
+  for (let i = 0; i < lines.length; i++) {
+    const match = lines[i].match(/^- `skills\/([^`]+)\/` — (.*)$/);
+    if (!match) continue;
+    let body = match[2];
+    let j = i + 1;
+    while (j < lines.length && /^\s{2,}\S/.test(lines[j])) {
+      body += ` ${lines[j].trim()}`;
+      j++;
+    }
+    listed.set(match[1], body.split(/\.(?:\s|$)/)[0]);
+  }
+  for (const [folder] of listed) {
+    const skill = skillFiles.find(
+      (file) => posix(dirname(file)).replace(/^skills\//, "") === folder,
+    );
+    if (!skill) {
+      fail(AGENTS, `guide list names \`skills/${folder}/\`, which has no SKILL.md`);
+    }
+  }
+  for (const skill of skillFiles) {
+    const guides = branchGuides(skill).map((guide) => basename(guide, ".md"));
+    if (guides.length === 0) continue;
+    const folder = posix(dirname(skill)).replace(/^skills\//, "");
+    const body = listed.get(folder);
+    if (!body) {
+      fail(AGENTS, `guide list has no entry for \`skills/${folder}/\``);
+      continue;
+    }
+    const names = body.split(",").map((name) => name.trim()).filter(Boolean);
+    const missing = guides.filter((guide) => !names.includes(guide));
+    const extra = names.filter((name) => !guides.includes(name));
+    if (missing.length > 0) {
+      fail(AGENTS, `guide list for \`skills/${folder}/\` omits ${missing.join(", ")}`);
+    }
+    if (extra.length > 0) {
+      fail(AGENTS, `guide list for \`skills/${folder}/\` names missing guides ${extra.join(", ")}`);
+    }
+  }
+}
+
+const SMALL_NUMBERS = [
+  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+  "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen",
+];
+const TENS = ["twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+
+/** A README count written as digits or as English below one hundred. */
+function wordToNumber(word) {
+  if (/^\d+$/.test(word)) return Number(word);
+  const parts = word.toLowerCase().split("-");
+  const small = SMALL_NUMBERS.indexOf(parts[0]);
+  if (parts.length === 1 && small !== -1) return small;
+  const tens = TENS.indexOf(parts[0]);
+  if (tens === -1) return undefined;
+  if (parts.length === 1) return (tens + 2) * 10;
+  const ones = SMALL_NUMBERS.indexOf(parts[1]);
+  return ones >= 0 && ones < 10 ? (tens + 2) * 10 + ones : undefined;
+}
+
+/**
+ * The README's "N branch guides, M numbered rules" line is a claim about the
+ * files on disk. Compute the counts instead of trusting the prose.
+ */
+function checkReadmeCounts(readme, text, markdownFiles) {
+  const match = text.match(/([A-Za-z]+(?:-[A-Za-z]+)?|\d+)\s+branch guides,\s+(\d+)\s+numbered rules/);
+  if (!match) {
+    fail(readme, "missing the `N branch guides, M numbered rules` summary");
+    return;
+  }
+  const claimedGuides = wordToNumber(match[1]);
+  const claimedRules = Number(match[2]);
+  const guides = markdownFiles.filter((file) => isUnderSkills(file) && basename(file) !== "SKILL.md");
+  const rules = guides.reduce((total, file) => total + ruleHeadings(readFileSync(file, "utf8")).size, 0);
+  if (!Number.isInteger(claimedGuides)) {
+    fail(readme, `cannot read the branch-guide count \`${match[1]}\``);
+  } else if (claimedGuides !== guides.length) {
+    fail(readme, `says ${claimedGuides} branch guides; found ${guides.length}`);
+  }
+  if (claimedRules !== rules) {
+    fail(readme, `says ${claimedRules} numbered rules; found ${rules}`);
+  }
+}
 
 function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
   const skillFiles = markdownFiles.filter((file) => file.endsWith("SKILL.md"));
@@ -307,11 +485,13 @@ function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
       }
     }
 
-    // AGENTS.md: every SKILL.md names its transitions to other skills, and
-    // every branch guide ends on a checkable completion criterion.
+    // AGENTS.md: every SKILL.md names its transitions to other skills, states
+    // its one rule once, and points without summarizing.
     if (!HAND_OFF.test(text)) fail(skill, "no `## Hand off` section");
+    checkOneRule(skill, text);
+    checkPointerSummaries(skill, text);
     for (const guide of branchGuides(skill)) {
-      if (!DONE_WHEN.test(readFileSync(guide, "utf8"))) fail(guide, "no `## Done when` section");
+      checkDoneWhen(guide, readFileSync(guide, "utf8"));
     }
 
     // README must link the skill and every branch guide in its folder.
@@ -328,6 +508,8 @@ function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
   }
 
   checkReadmeTable(readme, readmeText, skillFiles);
+  checkReadmeCounts(readme, readmeText, markdownFiles);
+  checkAgentsGuideList(skillFiles);
   checkRouterMap(skillFiles);
 }
 
