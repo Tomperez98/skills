@@ -4,9 +4,9 @@ description: >
   Specify and test any stateful system — any language, any transport —
   with Accordant. One rule: write the contract once, in the spec, and let
   it judge every response. Use when the user models a system, generates or
-  runs tests, validates traces, hunts races, models async jobs or faults,
-  checks backward compatibility, or changes or debugs a spec — even if they
-  never say "model-based testing" or "oracle".
+  runs tests, scales one spec into suites, validates traces, hunts races,
+  models async jobs or faults, checks backward compatibility, or changes or
+  debugs a spec — even if they never say "model-based testing" or "oracle".
 ---
 
 # Accordant
@@ -46,6 +46,8 @@ front of you, or by asking if the user is around:
   [SPEC.md](SPEC.md).
 - **"Generate tests / run them against my API / bind the client"** →
   [GENERATE.md](GENERATE.md).
+- **"Many suites / the suite is slow / it OOMs / the case count doubled"** →
+  [SUITES.md](SUITES.md).
 - **"Validate my existing tests / traces / a system that isn't .NET"** →
   [ORACLE.md](ORACLE.md).
 - **"Find race conditions / double booking / lost updates"** →
@@ -87,6 +89,13 @@ test or a stack trace → DEBUG) and state the assumption at the top.
   more than one world is consistent with what was observed, the spec lists
   every one (`Expect.OneOf`, step functions) and lets later observations
   eliminate the impossible ones — it never guesses.
+- **Only.** There is no second contract document. A manifest may index
+  routes, messages, and outcomes; an `API.md` or `CONTRACT.md` that restates
+  behavior is a second source that drifts. A behavior change lands with the
+  spec rule that judges it, in the same change.
+- **Wrong until proven otherwise.** A failure is the service being wrong
+  until DEBUG.md rule 4 gives the verdict. Loosening a predicate to get green
+  is how the spec stops catching anything.
 
 ## Where it pays off, and in what order
 
@@ -98,10 +107,14 @@ where the system stops needing them:
 
 1. **SPEC + GENERATE** on one stateful cluster of operations. This alone
    catches the orderings nobody writes by hand.
-2. **CONCURRENCY, FAULTS, ASYNC** only where races, timeouts, or jobs
+2. **SUITES** once there is more than one cluster: declare each suite once,
+   give it a fixture and a measured budget, and keep its graph from becoming
+   the product. This is where a doubling case count or a nightly OOM is
+   fixed before it becomes a suite nobody runs.
+3. **CONCURRENCY, FAULTS, ASYNC** only where races, timeouts, or jobs
    actually bite. These find bugs hand-written tests almost never reach.
-3. **BASELINE** once something outside the team depends on the behavior.
-4. **TRACES** last, once the spec is long-lived and others rely on it.
+4. **BASELINE** once something outside the team depends on the behavior.
+5. **TRACES** last, once the spec is long-lived and others rely on it.
    Before that, the trace database is ceremony.
 
 The judge is only as strict as its predicates, and only as thorough as
@@ -124,3 +137,5 @@ tool rather than carrying on from memory:
   "code" and follow WRITE.md or REFACTOR.md to fix the system, not the spec.
 - **Running the spec on every merge or against the last release** → call
   the Skill tool with "ship" and follow CI.md or COMPAT.md.
+- **The suite gate and the workflow drift apart** → call the Skill tool with
+  "ship" and follow CI.md.

@@ -47,7 +47,7 @@ Most work runs this path. Enter at the first stop that isn't done yet.
    is in doubt, SPEC to shape it, AHA to cut it to one use case.
 2. **Build it** → code: WRITE, with TEST alongside. A stateful API whose
    behavior should be checked against a model → accordant: SPEC, then
-   GENERATE.
+   GENERATE; once there is more than one cluster, SUITES.
 3. **Put it in front of a person** → mvp: VALIDATE. A "no" goes back to AHA,
    not forward.
 4. **Document it** → docs: README first, then API or TUTORIAL.
@@ -79,6 +79,8 @@ Most work runs this path. Enter at the first stop that isn't done yet.
   system that may or may not have acted, accordant: FAULTS. Testing
   recovery, idempotency, or cancellation → code: CRASH_TESTS.
 - **Races and background jobs** → accordant: CONCURRENCY and ASYNC.
+- **Many suites / a slow suite / a nightly OOM / a doubled case count** →
+  accordant: SUITES.
 - **Traces or tests from a non-.NET system** → accordant: ORACLE.
 - **Landing copy, or docs that should acquire users** → docs: LANDING,
   DOCS_MARKETING.

@@ -59,6 +59,10 @@ replays through `AllowsConcurrent` (ORACLE.md rule 4). Record raw
 requests and responses, with the header ORACLE.md rule 3 describes. A
 system outside .NET records the same shape itself.
 
+Record from a green run only, in this order: run, record, freeze the corpus,
+verify the replay, then replay what you committed (rule 5). A recording from
+a red run is evidence of a bug, not a slot.
+
 Two gaps in what the hook sees:
 
 - **Polls after a concurrent group** run without the hook, so the trace
@@ -83,6 +87,10 @@ replay ended with (rule 6). CI fetches what the manifest names, checks every
 checksum, and replays; a trace that's missing or doesn't match its checksum
 fails the build instead of being skipped.
 
+A suite records through the fixture its plan names (SUITES.md rule 3). A
+missing fixture is a recording failure, not an empty trace: a corpus function
+returns `[]` explicitly only when a suite has no frozen slots.
+
 ## 4. Keep by coverage, not volume
 
 A non-deterministic system doesn't make the database flaky: replay never
@@ -91,7 +99,9 @@ make every trace a sample — a run that saw `Completed` says nothing about
 the spec's `Failed` branch.
 
 Keep at least one trace per operation and outcome, including passing runs
-from the scheduled fault and concurrent suites (BASELINE.md rule 8).
+from the scheduled fault and concurrent suites (BASELINE.md rule 8). Keep
+every corpus slot: when a walk cannot reach an outcome, add a named manual
+case (GENERATE.md rule 7), never widen the walk until it happens to find it.
 `Allows` doesn't report which outcome matched, so tag each trace with the
 generated case it came from (`info.TestCase`; each case is a path through
 the spec's graph) or, for a trace from another language, with each step's
@@ -108,7 +118,10 @@ Replay the whole database in CI on every change to the spec. When a trace
 fails because the behavior changed on purpose, re-record only the traces
 the spec now rejects, move the old ones to a rejected set the spec must
 keep rejecting, and say so in the commit. Re-recording everything trades
-the lost response you saw once for a run that didn't hit it.
+the lost response you saw once for a run that didn't hit it. Review the trace
+id set, not the body diffs: a body is recorded output, and a re-recorded body
+that differs under the same id is noise unless the id entered or left the
+set.
 
 A trace that no longer deserializes into the spec's types is a changed
 request or response type, not a rejection — a shape break to declare
@@ -145,11 +158,13 @@ it, or note why that field is not part of the contract.
 ## 8. Every outcome in the source must run
 
 Record each outcome as it matches, and fail when an outcome in the source
-never matched. Recording where `Apply` builds an outcome over-counts:
-`Expect.OneOf` builds every outcome it lists, so both timeout worlds would
-count as run. Record inside `ThenState` instead, which runs only for a
-matched outcome, and give a `.SameState()` outcome you need to count a
-`ThenState` that changes nothing. `Apply` also runs during generation and when
+never matched. Keep every outcome key in a manifest: fail when a listed
+outcome never runs and when a matched outcome is not listed. Recording where
+`Apply` builds an outcome over-counts: `Expect.OneOf` builds every outcome it
+lists, so both timeout worlds would count as run. Record inside `ThenState`
+instead, which runs only for a matched outcome, and give a `.SameState()`
+outcome you need to count a `ThenState` that changes nothing. `Apply` also
+runs during generation and when
 the runner explains a rejection, so gate the recording with a flag you set only
 around `RunTests` (the `AsyncLocal` pattern of FAULTS.md rule 6) and measure on
 green runs. Check in `AfterAll`, and count only the cases that ran —
@@ -207,12 +222,13 @@ BASELINE.md.
 
 ## Done when
 
-- Only traces from passing runs are kept, each with its header (rule 2)
-  and coverage tags (rule 4).
+- Only green runs record, through the plan's fixture, each with its header
+  (rule 2) and coverage tags (rule 4).
 - The repo holds a manifest, not traces, and CI fails on a trace that is
   missing or doesn't match its checksum (rule 3).
-- CI replays the whole database on every spec change and fails a replay
-  that ends with more candidates than the manifest recorded (rules 5–6).
+- CI replays the whole database on every spec change, fails a replay that
+  ends with more candidates than the manifest recorded, and reviews the id
+  set rather than the bodies (rules 5–6).
 - Every mutated copy of a trace is rejected, or the field is noted as
   outside the contract (rule 7).
 - Every outcome in the source matched at least once on a green run

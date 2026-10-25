@@ -126,6 +126,12 @@ every pair of them appears in some input (a pairwise tool such as PICT
 lists them). Most interaction bugs involve two parameters, and the
 system can branch on a pair the spec never mentions.
 
+A filter or validation matrix belongs to its own `InputSet`; it never rides in
+the shared one, where every value multiplies every sequence. A clock input
+(`Advance`, `Tick`) carries boundaries only — the expiry, the floor, their ±1,
+and the refusals — because every extra clock value multiplies every sequence
+(SPEC.md rule 11).
+
 Two more kinds of input catch what branch-aimed inputs miss:
 
 - **A second entity.** A Delete or Update that also touches a record it
@@ -170,7 +176,9 @@ var gen = new TestGenerationOptions
 `StateConstraint` receives an `IState`, `ShouldApply` receives
 `(OperationInput input, IState state)`, and `ShouldIncludeTransition`
 receives `(IState from, OperationCall call, IState to)`; cast the state to
-your type. Compare states with `GetStateHash()`.
+your type. Compare states with `GetStateHash()`. State `MaxDepth`,
+`MaxOperationApplicationCount`, and `StateConstraint` explicitly in every
+profile; a default is not a decision.
 
 **Bound by state, not by depth, when you need every state.** Exploration
 is depth-first and keeps a state's depth from the first path that reaches
@@ -287,7 +295,10 @@ refusals, an unweighted walk spends nearly every step on self-loops, so a
 rule that needs an issue created, closed, then closed again stays
 untested while the run is green (a 70% bias toward moving edges fixed
 it). Count the generated cases that contain the sequence a rule needs, or
-plant a bug in that rule and see the suite fail (rule 10).
+plant a bug in that rule and see the suite fail (rule 10). Do not raise the
+number of walks or the walk length to make a branch appear; add an aimed
+input (rule 4) or a named manual case. The exhaustive graph, not the walk
+length, is the coverage proof.
 
 The delegate is `(TestingContext context, StateGraphNode root) =>
 IList<SequentialTestCase>`, so a custom walk is a function you write.
@@ -377,6 +388,9 @@ predicate that doesn't check the field (SPEC.md rule 8). TRACES.md rule 7
 does the same for the spec. Run it on the cluster you just specified, not
 the whole system, and on a schedule rather than every push — it reruns
 the suite once per mutant.
+
+A suite is more than its cases: SUITES.md rule 3 declares it once and
+rule 7 budgets it.
 
 ---
 

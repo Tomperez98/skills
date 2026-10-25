@@ -2,7 +2,7 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Five skills, a router,
-and a skill for writing skills today, thirty-nine branch guides, 292
+and a skill for writing skills today, forty branch guides, 302
 numbered rules.
 
 | Skill | The one rule | Branch guides |
@@ -11,7 +11,7 @@ numbered rules.
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT |
 | [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
-| [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · ORACLE · CONCURRENCY · ASYNC · FAULTS · BASELINE · TRACES · DEBUG |
+| [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · SUITES · ORACLE · CONCURRENCY · ASYNC · FAULTS · BASELINE · TRACES · DEBUG |
 | [`writing-skills`](skills/meta/writing-skills/SKILL.md) | Every line earns its place in the agent's context | NEW · EDIT · PRUNE |
 | [`ask`](skills/meta/ask/SKILL.md) | Name one skill and one guide, and read it before you recommend it | — (a router, invoked as `/ask`) |
 
@@ -94,6 +94,7 @@ follows its rules in order:
 | "Is this any good / will people use it" | [`mvp/VALIDATE.md`](skills/product/mvp/VALIDATE.md) | Put it in front of a real person, time it to the aha, act on the verdict |
 | "Model this system / write an Accordant spec" | [`accordant/SPEC.md`](skills/coding/accordant/SPEC.md) | The contract, not a second implementation: minimal state, guards in the contract's order, payload-checking predicates, capture what you can't predict |
 | "Generate tests / run them against my API" | [`accordant/GENERATE.md`](skills/coding/accordant/GENERATE.md) | Bind exact types, reset to the initial state, few branch-aimed inputs, bound and look at the graph, then run |
+| "Many suites / slow suite / OOM / case count doubled" | [`accordant/SUITES.md`](skills/coding/accordant/SUITES.md) | One owner per operation, one plan entry per suite, a fixture per suite, measure then budget, growth is a scoping bug |
 | "Validate my tests / traces / a non-.NET system" | [`accordant/ORACLE.md`](skills/coding/accordant/ORACLE.md) | One `spec.Allows` call threaded through a state profile; traces from any language, concurrent segments, exported plans, events |
 | "Find race conditions" | [`accordant/CONCURRENCY.md`](skills/coding/accordant/CONCURRENCY.md) | Sequential green first, colliding inputs, linearizability does the asserting, pin each race as a case, one green run is not proof |
 | "Background jobs / polling" | [`accordant/ASYNC.md`](skills/coding/accordant/ASYNC.md) | Step functions in the model, polling and derivations in the runner, `MaxRetryCount` as the liveness bound, polling off to act mid-job |
@@ -114,7 +115,7 @@ along one path:
 ```text
 mvp  PICK → RESEARCH → SPEC → AHA → VALIDATE
        ↓ build it
-code WRITE ⇄ TEST        accordant SPEC → GENERATE   (stateful APIs)
+code WRITE ⇄ TEST        accordant SPEC → GENERATE → SUITES   (stateful APIs)
        ↓ document it
 docs README · API · CHANGELOG
        ↓ release it

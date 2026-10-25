@@ -15,6 +15,11 @@ and ask about the rules you can't see: does deleting a user cascade to their
 todos? Does a second Create conflict or overwrite? Any transport works; an
 in-process library is just as testable.
 
+A read-only surface is its own cluster: inside a write graph its reads become
+self-loops and the case count becomes the product of the two surfaces
+(SUITES.md rule 2). Every operation you expose belongs to exactly one cluster
+that owns its coverage.
+
 ## 2. Write the contract, not a second implementation
 
 The spec and the system answer different questions: the system says *how*
@@ -84,6 +89,13 @@ property, returning a deterministic `string` — stands in for it in
 equality. A `[State]`-typed shared property can omit it; its own string
 form is used. Treat
 a shared value as immutable — every clone sees a change.
+
+Model by predicate use, not by database column. A field no `Apply` reads is
+cold data: every transition clones it, every node hashes it, and every trace
+serializes it. Put optional read-model fields in nullable nested `[State]`
+objects, leave them null in the lean fixture, and deep-clone them in every
+clone path; a generated suite starts from the state its operations judge, not
+the richest fixture (SUITES.md rule 5).
 
 ## 4. One guard per refusal, in the contract's order
 
