@@ -29,8 +29,8 @@ does not restate them.
   DOCS_MARKETING
 - `skills/coding/ship/` — CI, MONITOR, RELEASE, PUBLISH, COMPAT
 - `skills/product/mvp/` — PICK, SPEC, RESEARCH, AHA, VALIDATE
-- `skills/coding/accordant/` — SPEC, GENERATE, ORACLE, CONCURRENCY, ASYNC,
-  FAULTS, BASELINE, TRACES, DEBUG
+- `skills/coding/accordant/` — SPEC, GENERATE, SUITES, ORACLE, CONCURRENCY,
+  ASYNC, FAULTS, BASELINE, TRACES, DEBUG
 - `skills/meta/ask/SKILL.md` — the router; no branch guides. Add a new
   skill or guide to its map (situation → skill and guide names only).
 

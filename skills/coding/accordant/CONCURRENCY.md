@@ -163,6 +163,20 @@ On an in-process counter whose deposit reads, waits, and writes, the
 plain cases all pass and the wrapped ones fail on the read (Accordant
 0b2c0d4). Name the read uniquely; the runner rejects a repeated call name.
 
+## 9. Store-level constraints are a backstop, not the contract
+
+Two service instances over one database, a unique index, an exclusion rule:
+the spec judges responses at the API and cannot see the constraint that made
+the second write fail. Test those with the store's own tools — an integration
+test under the language's race detector, two writers on real storage — because
+they prove the backstop the API relies on, not the contract a caller sees.
+
+Keep the two jobs apart. The spec's concurrent cases prove the promised
+behavior under interleavings; the store test proves the database refuses what
+the spec says must conflict. A failing case in either is a bug in the service
+or in the spec (DEBUG.md rule 4); never relax the case, the assertion, or the
+generator to get green.
+
 ---
 
 ORACLE.md rule 4 applies the same check to concurrent traces recorded
@@ -172,10 +186,11 @@ adds that possibility to the spec.
 ## Done when
 
 - The sequential tests pass before any concurrent case runs (rule 1).
-- The inputs put two actors on the same resource, plus a read that shows
-  who won (rule 3).
-- Every concurrent case ends with a read of the whole state (rule 8).
+- The inputs put two actors on the same resource, plus a read that shows who
+  won, and every case ends with a read of the whole state (rules 3, 8).
 - Each race found is a manual case that failed before the fix and passes
   after it (rule 6).
 - The concurrent suite runs repeatedly, in a loop or a scheduled job, not
   once (rule 7).
+- A store-level constraint has its own test under the race detector, and no
+  failing case was relaxed to get green (rule 9).
