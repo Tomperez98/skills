@@ -193,11 +193,8 @@ that point.
 
 ---
 
-Traces judged this way are also the evidence for testing the spec itself:
-recording them, replaying them on every spec change, and mutating them is
-TRACES.md. Concurrent groups are the subject of CONCURRENCY.md; traces
-whose responses are ambiguous (timeouts, 500s) need the outcomes in
-FAULTS.md.
+- **Record, replay, or mutate these traces to test the spec** → TRACES.md.
+- **A trace holds timeouts or 500s** → FAULTS.md.
 
 ## Done when
 

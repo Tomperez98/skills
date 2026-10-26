@@ -72,7 +72,7 @@ context.Register(new TodoApiClient(factory.CreateClient()));
 Call `spec.WithJsonPrinters()` when you build the spec so requests and
 responses print as JSON in failure logs. Skip it when an operation declares
 `Expect.Throws`: the printer can't serialize the exception, and the throw
-fails a test that passed.
+fails a test that passed. It also prints a tuple request as `{}`.
 
 ## 3. Reset the system to the spec's initial state before every test
 
@@ -235,84 +235,9 @@ maxWalkLength: 8, seed: 42)` — sampling for graphs too large to cover;
   reproduce.
 
 All three use an input many times in one case (deposit, deposit,
-deposit), but none goes around a cycle: once a case is back in a state it
-has seen, it can't leave by the same edge again. Create → Delete → Create
-is never generated, and re-creating after a delete is where stale
-tombstones, leftover indexes, and reused IDs break. A custom walk that may
-retake edges covers it. The runner rejects a repeated call name, so clone
-each call and make its name unique, and turn off name simplification,
-which would strip the suffix:
-
-```csharp
-SequentialTestCaseAlgorithm CyclingWalk(int walks, int length, int seed) => (ctx, root) =>
-{
-    var rng = new Random(seed);
-    var cases = new List<SequentialTestCase>();
-    for (var w = 0; w < walks; w++)
-    {
-        var calls = new List<OperationCall>();
-        for (var (node, i) = (root, 0); i < length && node.Edges.Count > 0; i++)
-        {
-            // Reads and refusals are self-loops; favor edges that move, or
-            // most walks never leave the initial state.
-            var moving = node.Edges.Where(e => e.Target != node).ToList();
-            var pool = moving.Count > 0 && rng.NextDouble() < 0.7 ? moving : node.Edges;
-            var edge = pool[rng.Next(pool.Count)];
-            var call = ((OperationCall)edge.Metadata).Clone();
-            call.Name = $"{call.Name} #{i}";
-            calls.Add(call);
-            node = edge.Target;
-        }
-        cases.Add(new SequentialTestCase
-        {
-            Description = TestCaseGenerator.ConstructDescriptionForSequentialTestCase(calls),
-            OperationCalls = calls,
-        });
-    }
-    return cases;
-};
-
-var gen = new TestGenerationOptions
-{
-    MaxDepth = -1,
-    StateConstraint = s => ((AppState)s).Users.Count <= 2,
-    SimplifyOperationCallNames = false,
-    SequentialTestCaseAlgorithm = CyclingWalk(walks: 200, length: 12, seed: 42),
-};
-```
-
-The runner links a derived call to its source by name, so a walk over
-derived requests (rule 9) needs checking against a real run first.
-
-To reach deep states, run it as a swarm: several generations, each with
-a random subset of inputs switched off through `ShouldApply` (`(input,
-state) => enabled.Contains(input.Name)`). Delete keeps a queue from ever
-filling and Cancel keeps a quota from running out; a run without them gets
-there.
-
-Check that walks get deep: in a spec where most inputs are reads or
-refusals, an unweighted walk spends nearly every step on self-loops, so a
-rule that needs an issue created, closed, then closed again stays
-untested while the run is green (a 70% bias toward moving edges fixed
-it). Count the generated cases that contain the sequence a rule needs, or
-plant a bug in that rule and see the suite fail (rule 10). Do not raise the
-number of walks or the walk length to make a branch appear; add an aimed
-input (rule 4) or a named manual case. The exhaustive graph, not the walk
-length, is the coverage proof.
-
-The delegate is `(TestingContext context, StateGraphNode root) =>
-IList<SequentialTestCase>`, so a custom walk is a function you write.
-
-None of these is coverage-guided: they walk the spec's graph before
-anything runs. Use code coverage to audit the inputs instead. Run
-generation under a coverage tool and a branch of `Apply` that never runs
-is an input you're missing (rule 4). A branch of the system that never
-runs is a missing input, or a rule the spec doesn't know.
-
-A system with no state (a parser, a pure function) gives a graph of one
-node with a self-loop per input; `StateCoverage` turns each self-loop
-into a one-call case, so every input runs exactly once and exploration
-adds nothing more.
+deposit), but none goes around a cycle: Create → Delete → Create is never
+generated. To cover a cycle, or a branch the green suite never reaches,
+follow COVERAGE.md.
 
 To run a sequence you chose yourself, name its input labels in order. A
 label can appear only once per case — the runner rejects a repeat — so a
@@ -376,27 +301,12 @@ register in the context, the `AddMember` binding looks both up, and
 Derivations serve the built-in runner only — if you drive the system
 yourself (ORACLE.md), you thread the values through your own code.
 
-## 10. Measure the suite by the bugs it catches
-
-Green says the system agreed with the spec on the sequences you ran, not
-that those sequences would catch a bug. Mutation testing measures that
-directly: run the suite against the system with small bugs planted in it
-— Stryker.NET for .NET, or the mutation tool of the system's language —
-and read each surviving mutant. It is one of three gaps: an input that
-never reaches the code (rule 4), a change no read observes (rule 4), or a
-predicate that doesn't check the field (SPEC.md rule 8). TRACES.md rule 7
-does the same for the spec. Run it on the cluster you just specified, not
-the whole system, and on a schedule rather than every push — it reruns
-the suite once per mutant.
-
-A suite is more than its cases: SUITES.md rule 3 declares it once and
-rule 7 budgets it.
-
 ---
 
-Once sequential tests pass, CONCURRENCY.md reuses the same spec, inputs,
-and context. When a run goes red, DEBUG.md decides whether the spec or the
-system is wrong.
+- **Sequential tests pass and races are next** → CONCURRENCY.md, with the
+  same spec, inputs, and context.
+- **A run goes red** → DEBUG.md.
+- **More than one cluster, or a suite to budget** → SUITES.md.
 
 ## Done when
 
@@ -406,7 +316,8 @@ system is wrong.
   every test (rule 3).
 - Every guard in the spec has an input that fires it, and every write has
   a read that observes it (rule 4).
-- A generation-only run finished with a non-empty, bounded graph, and the
-  rendered graph has no missing edge or unexpected state (rules 5–6).
+- A generation-only run finished with a non-empty, bounded graph, every
+  `Apply` branch is an edge or a self-loop in the rendered graph, and no
+  state in it is unexpected (rules 5–6).
 - The real run asserts that no result failed, and a failure reports the
   spec's message (rule 8).

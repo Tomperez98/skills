@@ -116,10 +116,9 @@ var race = TestCaseGenerator.CreateManualConcurrentTestCase(context, inputs,
 var results = await spec.RunTests(context, initial, [race], options);
 ```
 
-A manual case can't name one input twice, so to race a call against
-itself register the same request under a second label (`"Archive ENG-1"`
-and `"Archive ENG-1 B"`). Run it in a loop (rule 7) — one manual case is
-still one interleaving per run.
+To race a call against itself, register the same request under a second label
+(`"Archive ENG-1"` and `"Archive ENG-1 B"`; GENERATE.md rule 7). Run it in a
+loop (rule 7) — one manual case is still one interleaving per run.
 
 ## 7. One green run is not proof
 
@@ -174,14 +173,13 @@ they prove the backstop the API relies on, not the contract a caller sees.
 Keep the two jobs apart. The spec's concurrent cases prove the promised
 behavior under interleavings; the store test proves the database refuses what
 the spec says must conflict. A failing case in either is a bug in the service
-or in the spec (DEBUG.md rule 4); never relax the case, the assertion, or the
-generator to get green.
+or in the spec, and DEBUG.md rule 4 decides which before the case, the
+assertion, or the generator changes.
 
 ---
 
-ORACLE.md rule 4 applies the same check to concurrent traces recorded
-outside .NET. When a failed call might still have taken effect, FAULTS.md
-adds that possibility to the spec.
+- **Concurrent traces recorded outside .NET** → ORACLE.md rule 4.
+- **A failed call might still have taken effect** → FAULTS.md.
 
 ## Done when
 
@@ -192,5 +190,6 @@ adds that possibility to the spec.
   after it (rule 6).
 - The concurrent suite runs repeatedly, in a loop or a scheduled job, not
   once (rule 7).
-- A store-level constraint has its own test under the race detector, and no
-  failing case was relaxed to get green (rule 9).
+- A store-level constraint has its own test under the race detector, and
+  every case changed after a failure traces to a "spec wrong" verdict
+  (rule 9, DEBUG.md rule 4).

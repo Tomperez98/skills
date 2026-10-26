@@ -15,10 +15,8 @@ and ask about the rules you can't see: does deleting a user cascade to their
 todos? Does a second Create conflict or overwrite? Any transport works; an
 in-process library is just as testable.
 
-A read-only surface is its own cluster: inside a write graph its reads become
-self-loops and the case count becomes the product of the two surfaces
-(SUITES.md rule 2). Every operation you expose belongs to exactly one cluster
-that owns its coverage.
+Before you put a read-only surface in a cluster of writes, or an operation in
+a second cluster, read SUITES.md rule 2.
 
 ## 2. Write the contract, not a second implementation
 
@@ -242,9 +240,6 @@ Judge<ApiResult<User>>($"User '{id}' exists → 200 with its name", r =>
         : ValidationResult.Valid())
 ```
 
-The `ValidationResult` form takes no second argument; the `bool` form
-`Expect.That<T>(r => …, "why")` does.
-
 ## 9. Capture what you can't predict, then hold it stable
 
 Server-generated values (IDs, timestamps, ETags) can't be predicted, so
@@ -316,9 +311,9 @@ its clock.
 
 ---
 
-GENERATE.md runs this spec against the system. When an operation can
-legitimately answer in more than one way, FAULTS.md and ASYNC.md extend
-rule 4's single outcome into several.
+- **Run the spec against the system** → GENERATE.md.
+- **An operation can answer more than one way** (a timeout, a pending job) →
+  FAULTS.md, ASYNC.md.
 
 ## Done when
 

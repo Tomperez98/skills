@@ -3,10 +3,11 @@ name: accordant
 description: >
   Specify and test any stateful system — any language, any transport —
   with Accordant. One rule: write the contract once, in the spec, and let
-  it judge every response. Use when the user models a system, generates or
-  runs tests, scales one spec into suites, validates traces, hunts races,
-  models async jobs or faults, checks backward compatibility, or changes or
-  debugs a spec — even if they never say "model-based testing" or "oracle".
+  it judge every response. Use when the user models a system, generates,
+  runs, or measures tests, scales one spec into suites, validates traces,
+  hunts races, models async jobs or faults, checks backward compatibility,
+  or changes or debugs a spec — even if they never say "model-based
+  testing" or "oracle".
 ---
 
 # Accordant
@@ -24,78 +25,50 @@ How a call reaches the system is whatever the binding does: HTTP, gRPC, a
 message queue, a database, a CLI process, a native library through
 P/Invoke, or a plain in-process method call. If .NET can't reach the
 system at all, the system records a trace in its own language and the spec
-validates it afterwards (ORACLE.md). Never tell a user Accordant is only for
-.NET code or only for HTTP APIs.
-
-Writing a spec is not writing the system again. The system decides _how_
-to produce one response; the spec decides _which_ responses are correct,
-and is simpler than the system so it can be checked by reading it against
-the contract. Its rules come from the contract — docs, tickets, whoever
-owns the behavior — not from the code, or it agrees with every bug.
+validates it afterwards (ORACLE.md). Offer Accordant for any system in any
+language, behind any transport.
 
 Everything in this skill follows from one rule:
 
 > **Write the contract once, in the spec — and let it judge every response.**
 
+The spec is the only contract document. A manifest may index routes,
+messages, and outcomes; an `API.md` or `CONTRACT.md` that restates behavior
+is a second source that drifts. A behavior change lands with the spec rule
+that judges it, in the same change.
+
 ## Pick a branch
 
-Identify which situation you're in — from the user's prompt, the code in
-front of you, or by asking if the user is around:
+Identify the situation from the user's prompt or the code in front of you.
+When it is ambiguous and the user isn't reachable, take the default in
+parentheses and state the assumption at the top.
 
-- **"Model this system / write a spec / add an operation"** →
-  [SPEC.md](SPEC.md).
-- **"Generate tests / run them against my API / bind the client"** →
-  [GENERATE.md](GENERATE.md).
-- **"Many suites / the suite is slow / it OOMs / the case count doubled"** →
-  [SUITES.md](SUITES.md).
-- **"Validate my existing tests / traces / a system that isn't .NET"** →
+- **"Model this system / write a spec / add an operation"** (default: no
+  spec yet, or an `Apply` being edited) → [SPEC.md](SPEC.md).
+- **"Generate tests / run them against my API / bind the client"** (default:
+  a test fixture or an `InputSet`) → [GENERATE.md](GENERATE.md).
+- **"The suite is green — would it catch a bug? / a branch never runs"**
+  (default: a green suite and a coverage report) →
+  [COVERAGE.md](COVERAGE.md).
+- **"Many suites / the suite is slow / it OOMs / the case count doubled"**
+  (default: a suite plan or a case budget) → [SUITES.md](SUITES.md).
+- **"Validate my existing tests / traces / a system that isn't .NET"**
+  (default: a log, a trace file, or a non-.NET service) →
   [ORACLE.md](ORACLE.md).
-- **"Find race conditions / double booking / lost updates"** →
+- **"Find race conditions / double booking / lost updates"** (default: a
+  lock, a transaction, or "sometimes both succeed") →
   [CONCURRENCY.md](CONCURRENCY.md).
 - **"Background jobs / polling / eventual completion / server-generated IDs"**
-  → [ASYNC.md](ASYNC.md).
-- **"Timeouts / 500s / retries / fault injection / did it happen or not"** →
-  [FAULTS.md](FAULTS.md).
+  (default: a `Pending` status or a job table) → [ASYNC.md](ASYNC.md).
+- **"Timeouts / 500s / retries / fault injection / did it happen or not"**
+  (default: a retry loop or a fault proxy) → [FAULTS.md](FAULTS.md).
 - **"Is the new version backward compatible / check against the last release"**
-  → [BASELINE.md](BASELINE.md).
+  (default: a release tag or a baseline suite) → [BASELINE.md](BASELINE.md).
 - **"I changed the spec — is it still right? / review this spec change /
-  would the spec catch a wrong answer?"** → [TRACES.md](TRACES.md).
+  would the spec catch a wrong answer?"** (default: a spec diff under review
+  or a trace database) → [TRACES.md](TRACES.md).
 - **"The spec crashes / tests fail / generation explodes / it won't compile"**
-  → [DEBUG.md](DEBUG.md).
-
-The branches produce very different output, so getting this wrong wastes
-the work. If the situation is genuinely ambiguous and the user isn't
-reachable, default by what's in front of you (no spec yet or an `Apply`
-being edited → SPEC; a test fixture or `InputSet` → GENERATE; a log, trace
-file, or non-.NET service → ORACLE; a lock, transaction, or "sometimes
-both succeed" → CONCURRENCY; a `Pending` status or a job table → ASYNC; a
-retry loop or fault proxy → FAULTS; a release tag or baseline suite →
-BASELINE; a spec diff under review or a trace database → TRACES; a red
-test or a stack trace → DEBUG) and state the assumption at the top.
-
-## What the rule requires
-
-- **Once.** Business rules live in `Apply` and nowhere else. A test is just
-  a sequence of calls; it carries no assertions about balances, status
-  codes, or IDs. When the contract changes, one `Apply` changes and every
-  sequence — generated, hand-written, replayed — is judged by the new rule.
-- **The spec judges.** `Apply` never calls the system and `Execute` never
-  decides correctness. That split is what lets the same spec drive
-  generation (simulate `Apply`), execution (bind `Execute`), and trace
-  validation (`spec.Allows`, no execution at all). A predicate only judges
-  what it checks, so check the payload, not just the status.
-- **Every response.** Errors, exceptions, timeouts, concurrent interleavings,
-  and background completions are all responses the spec must explain. When
-  more than one world is consistent with what was observed, the spec lists
-  every one (`Expect.OneOf`, step functions) and lets later observations
-  eliminate the impossible ones — it never guesses.
-- **Only.** There is no second contract document. A manifest may index
-  routes, messages, and outcomes; an `API.md` or `CONTRACT.md` that restates
-  behavior is a second source that drifts. A behavior change lands with the
-  spec rule that judges it, in the same change.
-- **Wrong until proven otherwise.** A failure is the service being wrong
-  until DEBUG.md rule 4 gives the verdict. Loosening a predicate to get green
-  is how the spec stops catching anything.
+  (default: a red test or a stack trace) → [DEBUG.md](DEBUG.md).
 
 ## Where it pays off, and in what order
 
@@ -106,27 +79,16 @@ have taken effect. Adopt the branches in that order of payoff, and stop
 where the system stops needing them:
 
 1. **SPEC + GENERATE** on one stateful cluster of operations. This alone
-   catches the orderings nobody writes by hand.
+   catches the orderings nobody writes by hand. COVERAGE once it is green.
 2. **SUITES** once there is more than one cluster: declare each suite once,
-   give it a fixture and a measured budget, and keep its graph from becoming
-   the product. This is where a doubling case count or a nightly OOM is
-   fixed before it becomes a suite nobody runs.
+   give it a starting state and a measured budget, and keep its graph from
+   becoming the product. This is where a doubling case count or a nightly
+   OOM is fixed before it becomes a suite nobody runs.
 3. **CONCURRENCY, FAULTS, ASYNC** only where races, timeouts, or jobs
    actually bite. These find bugs hand-written tests almost never reach.
 4. **BASELINE** once something outside the team depends on the behavior.
 5. **TRACES** last, once the spec is long-lived and others rely on it.
    Before that, the trace database is ceremony.
-
-The judge is only as strict as its predicates, and only as thorough as
-its `InputSet` and `MaxDepth`: an unchecked field or an unreached path is
-untested (SPEC.md rule 8, GENERATE.md rule 4). Check a surprising behavior
-against the source before blaming the spec (DEBUG.md rule 6).
-
-Start partial: two to four related operations, the happy path and one error
-each, then strengthen. The `code` skill's rule holds inside the spec too: a
-`KeyNotFoundException` in `Apply` is a bug in the spec, so guard every
-lookup; an expected refusal (404, 409, a thrown domain exception) is an
-outcome you declare, never a crash you tolerate.
 
 ## Hand off
 
@@ -137,5 +99,7 @@ tool rather than carrying on from memory:
   "code" and follow WRITE.md or REFACTOR.md to fix the system, not the spec.
 - **Running the spec on every merge or against the last release** → call
   the Skill tool with "ship" and follow CI.md or COMPAT.md.
+- **Several services rolling out together** → call the Skill tool with
+  "ship" and follow its ROLLOUT.md.
 - **The suite gate and the workflow drift apart** → call the Skill tool with
   "ship" and follow CI.md.

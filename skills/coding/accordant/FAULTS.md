@@ -183,9 +183,8 @@ input and pin a sequence like that as a manual case once found.
 
 ---
 
-The same profile mechanics drive ASYNC.md: a pending job is uncertainty
-that resolves over time. CONCURRENCY.md combines with this branch when a
-failed call might still have taken effect.
+- **Uncertainty that resolves over time** (a pending job) → ASYNC.md.
+- **A failed call races another** → CONCURRENCY.md.
 
 ## Done when
 
