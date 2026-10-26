@@ -72,7 +72,10 @@ checksums in `mise.lock`.
 - `mise run lint` — fast: fails on Markdown format (prose wraps at 80);
   `mise run fmt` fixes it.
 - `mise run links` — full: fails on a broken link, a citation that now
-  points at a different rule, a bad Skill tool call, or an orphaned page.
+  points at a different rule, a bad Skill tool call, an orphaned page, a
+  slash command that isn't a user-invoked skill, or an example that drifted
+  from its skill (an annotation, step, or template field that no longer
+  exists).
 - `mise run contract` — report only: labels the change unchanged /
   additive / changed / breaking. Removing or renaming a skill or guide is
   breaking: say so in the pull request.
