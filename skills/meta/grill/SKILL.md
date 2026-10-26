@@ -1,7 +1,8 @@
 ---
 name: grill
 description: >
-  Interview the user until a plan, idea, or design has no open decision.
+  Interview the user until a plan, idea, design, or architecture has no
+  open decision.
   Use when the user wants a plan stress-tested or a decision made with
   them, says "grill me", or another skill hands over a decision that is
   the user's to make.
@@ -52,5 +53,11 @@ decision.
 
 - **The settled plan is an idea to build** → call the Skill tool with "mvp"
   and follow its SPEC.md.
+- **The settled plan is an interface or module structure** → call the Skill
+  tool with "code" and follow its SHAPE.md; an HTTP API → its HTTP_API.md.
+- **The settled plan is a system to model** → call the Skill tool with
+  "accordant" and follow its SPEC.md.
+- **The settled plan is a release or rollout scheme** → call the Skill tool
+  with "ship" and follow its RELEASE.md or ROLLOUT.md.
 - **The settled plan changes a skill** → call the Skill tool with
   "writing-skills" and follow its EDIT.md.

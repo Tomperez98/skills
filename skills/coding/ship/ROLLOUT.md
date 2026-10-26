@@ -6,7 +6,9 @@ Each service already passes its own compatibility checks (COMPAT.md); these
 rules check the pairs. Adopt them one service at a time, starting with the
 one the most others depend on: each check below costs real infrastructure,
 and it pays first where a break would hurt the most callers. Apply the
-rules in order.
+rules in order. When lockstep or separate versions, or the size of the
+window, is the user's call, call the Skill tool with "grill" before you
+pick.
 
 ## 1. Release the services in lockstep
 
