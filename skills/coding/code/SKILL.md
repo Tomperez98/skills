@@ -11,10 +11,6 @@ description: >
 
 # Code
 
-Write code that crashes the moment an assumption breaks, and returns a value
-for every failure the caller should handle. Everything in this skill follows
-from one rule:
-
 > **Bugs panic, expected failures return values.**
 
 - **Panic** (assert / throw / abort — whatever your language calls a crash)
@@ -27,12 +23,6 @@ from one rule:
   decide what to do — network errors, file I/O, user input that can
   legitimately be rejected, business rules that can refuse.
 
-Failing fast is what makes code testable: a function either returns one of
-its documented failures, or it guarantees its invariants hold — and that
-contract is exactly what a test asserts. The branches build it, recover it,
-prove it, make the panic safe, keep it fast, and hold code you didn't write
-to it.
-
 ## Pick a branch
 
 Identify the situation from the user's prompt or the surrounding code. When
@@ -43,8 +33,12 @@ parentheses and state the assumption at the top of your work.
   component) → [WRITE.md](WRITE.md).
 - **Read config, env vars, globals, caches, or a schema** →
   [STATE.md](STATE.md).
-- **Design an in-process interface, name things, add an abstraction, split
-  a function** → [SHAPE.md](SHAPE.md).
+- **Design an in-process interface or add an abstraction** →
+  [SHAPE.md rules 1, 2, and 5](SHAPE.md).
+- **Name things, split a long function, or narrow a call site's branches**
+  → [SHAPE.md rules 3, 4, and 6](SHAPE.md).
+- **Choose a collection type** (list, set, bag) →
+  [SHAPE.md rule 7](SHAPE.md).
 - **Design an HTTP or network API** (REST, GraphQL, RPC, pagination,
   versioning, auth) → [HTTP_API.md](HTTP_API.md).
 - **Simplify a conditional or a multi-input decision** →

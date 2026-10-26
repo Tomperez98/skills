@@ -47,7 +47,7 @@ With services in lockstep, that one worktree holds every service's
 baseline suite. Where older versions still run (a rollback window,
 on-premises installs), check out one worktree per supported release and run
 each suite in rule 2; remove a worktree when its version leaves the window
-(ship skill, COMPAT.md rule 11).
+(ship skill, ROLLOUT.md rule 4).
 
 Export the release's exact sequences at release time and ship the file
 with the release. The rerun then replays what was tested, not whatever
@@ -182,9 +182,8 @@ span the upgrade:
 
 1. Write one sequence that builds up the state worth keeping, then reads
    all of it back, then writes again — a `CreateManualSequentialTestCase`
-   over labels (GENERATE.md rule 7). A label can appear once per case, so
-   give the post-upgrade reads their own inputs (`"Get alice after
-   upgrade"`).
+   over labels. Give the post-upgrade reads their own inputs (`"Get alice
+   after upgrade"`, GENERATE.md rule 7).
 2. Start the last release, reset it, and run the case with the baseline
    spec. After the last pre-upgrade step, `OnStepExecutedAsync` stops the
    release, starts the new build on the same storage, and registers a
@@ -208,42 +207,33 @@ var options = new TestExecutionOptions
 
 Count only the steps you wrote: a polled input fires the hook again for
 its polling calls, so keep the case unpolled or count by operation. Run
-this before every release, and on a schedule with faults on (rule 8).
+this before every release, and on a schedule with faults on (ship skill,
+COMPAT.md rule 7).
 
-## 8. Run the slow suites on a schedule
+## 8. Keep the traces from the scheduled suites
 
-Concurrent cases (CONCURRENCY.md) and fault-injected runs (FAULTS.md) cost
-too much for every pull request. Run them on main on a schedule, repeatedly,
-with both main's spec and the baseline's (ship skill, COMPAT.md rule 7).
-A concurrent case that fails once in ten runs is a race; keep it red until
-it's fixed. Keep the traces of passing runs in the
-trace database (TRACES.md rule 4): these suites hit the rare branches —
-lost responses, interleavings — that no per-PR run ever records.
+Concurrent (CONCURRENCY.md) and fault-injected (FAULTS.md) suites run on main
+on a schedule, judged by both main's spec and the baseline's (ship skill,
+COMPAT.md rule 7). Keep the traces of their passing runs in the trace
+database (TRACES.md rule 4): these suites hit the rare branches — lost
+responses, interleavings — that no per-PR run ever records.
 
-## 9. Several services: every spec, both directions
+## 9. Several services: every spec judges both directions and the rollout
 
-Rules 9–11 apply only when several services, each with its own spec, ship
-together (ship skill, COMPAT.md rule 8). A single package stops at rule 8.
+When several services, each with its own spec, ship together, call the Skill
+tool with "ship" and follow its ROLLOUT.md for the directions to check and
+the deploy order. A single package stops at rule 8. What Accordant adds:
 
-Each service keeps its own spec, and the check runs all of them, both
-directions (ship skill, COMPAT.md rule 9). Backward: every service's
-baseline suite runs against the new build (rule 2). Forward: every
-service's suite on main runs against the last released build. Run only the
-directions the deploy order can produce (ship skill, COMPAT.md rule 9). A
-forward failure on an operation or field that is new on main means the
-provider must ship first; report it as an ordering requirement, not a
-break in the old build.
+- **Both directions run every service's suite.** Backward runs every
+  service's baseline suite against the new build (rule 2); forward runs every
+  service's suite on main against the last released build.
+- **The rollout is rule 7 across services, and you drive it.** Give each
+  service its own `Check` helper and profile (ORACLE.md rule 2), and carry
+  every profile across every upgrade — its own and its neighbors'. A call in
+  flight while a service restarts is an indefinite failure (FAULTS.md
+  rule 2).
 
-## 10. Test the rollout with every spec judging
-
-Rule 7, across services, in the scripted deploy order (ship skill, COMPAT.md
-rule 10). Drive this one yourself: each service gets its own `Check` helper and
-profile (ORACLE.md rule 2), and every profile carries across every upgrade — its
-own and its neighbors'. Between two upgrades, N-1 and N run side by side for
-real. A call in flight while a service restarts can have taken effect or not:
-declare it as an indefinite failure (FAULTS.md rule 2).
-
-## 11. Consumers check their fakes against the provider's spec
+## 10. Consumers check their fakes against the provider's spec
 
 A consumer's tests usually replace the provider with a hand-written fake,
 and the fake drifts. Run every response the fake returns through the
@@ -253,15 +243,6 @@ Then add the calls the consumer relies on to the provider's `InputSet`,
 labeled with the consumer's name (`"Billing: cancel shipped order"`), and
 the sequences as manual cases over those labels (GENERATE.md rule 7), so
 the provider's CI runs them and a failure names who would break.
-
----
-
-The checks reuse everything the other branches built: SPEC.md for the contract,
-GENERATE.md for running it, ORACLE.md for traces and exported plans, TRACES.md
-for the trace database and for reviewing the spec diff that declares a break.
-DEBUG.md still decides whether a red run is the spec's fault — but here the
-baseline spec is fixed, so once setup is ruled out (DEBUG.md rules 5–6), a red
-run is the build's.
 
 ## Done when
 
@@ -273,6 +254,8 @@ run is the build's.
 - The baseline's deserializer rejects a dropped field and an unknown enum
   value (rule 3).
 - An upgrade case runs the last release and then the new build on the same
-  storage, inside one test (rule 7).
+  storage, inside one test (rule 7), and the scheduled concurrent and fault
+  suites' passing traces are in the trace database (rule 8).
 - With several services: every service's baseline ran against the new
-  build, and every main suite against the last release (rule 9).
+  build, every main suite against the last release, and every consumer's
+  fake passes the provider's spec (rules 9–10).

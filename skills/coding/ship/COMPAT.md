@@ -4,7 +4,8 @@ You're deciding whether a change breaks the people already using the last
 release: a renamed field, a stricter validation, a status code that moved.
 A break nobody declared is a bug users find for you. The fix is mechanical:
 keep the released contract, and let it judge every new build. Apply the
-rules in order.
+rules in order; with several services that talk to each other, continue
+with [ROLLOUT.md](ROLLOUT.md).
 
 ## 1. The contract has two layers; check both
 
@@ -28,8 +29,8 @@ validation with a baseline version (.NET), `japicmp` (Java), `apidiff`
 (Go), `griffe check` (Python). It runs in seconds, so it belongs in the
 fast tier (CI.md rule 2).
 
-Diff only the schemas the pull request touched, read from the ownership map
-(CI.md rule 10), and run the full set on main and the release. Diffing
+Diff only the schema files the pull request touched, and run the full set
+on main and the release. Diffing
 every schema on every pull request spends the whole surface each time, and
 the fast tier is the one budget you can't spend that way.
 
@@ -67,9 +68,7 @@ people route around.
 Put the schema, the spec, and the test sequences it generated into the
 release, and list them in the manifest (PUBLISH.md rule 2). The next
 release's checks then read the contract that actually shipped, not one
-rebuilt from memory or from a tag that was patched later. Reading it from
-the release also means a rewritten history or a shallow clone can't lose
-the baseline.
+rebuilt from memory or from a tag that was patched later.
 
 If the last release shipped no contract, make one: write the spec on main,
 then run it against the last release's published artifact. Green means it
@@ -91,8 +90,11 @@ match and which only have to exist.
 
 Decide "can change behavior" mechanically, without running the suite to
 find out. A pull request can change behavior only if it touches the API
-surface or any code the spec's requests can reach, read from the ownership
-map (CI.md rule 10); every other pull request skips the suite. That filter
+surface or any code the spec's requests can reach; every other pull request
+skips the suite. Read "can reach" from an ownership map: a checked-in file
+mapping each spec to the source paths its operations reach, generated from
+the import graph or kept by hand, and checked in CI like any generated file
+(CI.md rule 9). That filter
 is what keeps the gate cheap enough to run on each of hundreds of pull
 requests a day.
 
@@ -165,90 +167,8 @@ one-at-a-time order explains?), fault injection (timeouts, lost
 responses), and deeper exploration grow fast with every input. Run them
 against main on a schedule and against the frozen commit before a release
 (MONITOR.md rule 1, RELEASE.md rule 6), with the released contract as the
-judge, just like rule 5. One green run proves little; a failure that comes
-and goes is the race you're looking for, not a flaky test (CI.md rule 5).
-
-## 8. Several services: release them in lockstep
-
-Rules 8–12 apply only to a repo with several services or parts that talk
-to each other. A single package stops at rule 7. Adopt them one service at
-a time, starting with the one the most others depend on: each check below
-costs real infrastructure, and it pays first where a break would hurt the
-most callers.
-
-A repo with several services releases them together, under one version
-from the changelog (RELEASE.md rule 3). One version means one baseline,
-and the only pair that ever has to work together is the last release, N-1,
-and the new one, N. Give a service its own version, tag prefix, and
-baseline only when it truly needs its own cadence; every one you split out
-multiplies the pairs to check.
-
-## 9. Green at HEAD proves nothing about the rollout; check N-1 both ways
-
-A pull request that changes a provider and its consumer together passes at
-HEAD, because both sides match there. Production never runs HEAD alone:
-deploys roll out one service at a time, so N-1 and N run side by side for
-minutes or hours. Check both directions on every pull request that touches
-a contract between services:
-
-- **Backward:** N-1's suites, every service's, judge N's build (rule 5).
-- **Forward:** N's suites judge N-1's build, because during the rollout new
-  consumers reach old providers.
-
-Run only the directions your deploy order (rule 10) can produce: when
-providers always upgrade first, new consumers never meet an old provider,
-and backward alone covers it. An order nothing enforces needs both. A
-forward failure on a promise that is new in N (a field or operation N-1
-lacks) is no defect; it is an ordering requirement, so the provider ships
-in an earlier release or step than the code that calls it.
-
-## 10. Test the rollout in the order you deploy
-
-Write the deploy order down and script it, usually providers before
-consumers. Then test exactly that order: start every service at N-1,
-upgrade them one at a time, and keep every spec judging the whole way.
-Run it before each release (RELEASE.md rule 6) and on a schedule with
-faults injected (rule 7), since a restart mid-request is part of every
-real rollout.
-
-## 11. Enforce the window at runtime
-
-The supported window is N-1 to N. Make callers announce their version and
-refuse anyone outside it with a clear "too old" or "too new" error. A
-caller outside the window otherwise gets undefined behavior, and the first
-sign is corrupt data instead of an error.
-
-Where rollbacks or on-premises installs keep older versions running, the
-window is wider than N-1. Keep each shipped contract (rule 4) for every
-version still supported, run rule 5 against each, and delete one when its
-version leaves the window. Each version adds a suite run, so the window's
-width is a cost you choose, not a default.
-
-## 12. Messages and data outlive the deploy
-
-Events already in queues and rows already stored were written by N-1, so N
-must read them. Events are part of the API: replay N-1's recorded events
-through N's specs. Stored data isn't, and the specs can't see it: check it
-by migrating a copy of N-1's data, then reading it back through N's API
-with the specs judging the responses. A schema change to stored data runs
-as expand, migrate, contract, spread over at least two releases: add the
-new shape and write both, move readers over, then remove the old shape
-once no N-1 code is left. The order of the steps matters, and each
-check enforces one:
-
-- **Widen readers before the data narrows or loosens.** Old code that
-  expects a value breaks when a field becomes optional: ship code that
-  accepts both first (the backward check, rule 9).
-- **Add the new shape before the code that uses it.** Code that writes a
-  field in the pull request that adds it breaks on N-1 (the forward
-  check).
-- **Stop reading and writing the old shape before you remove it.**
-
----
-
-COMPAT keeps "releasable" true for the people downstream and for the
-services next door: CI runs the checks, MONITOR runs the slow ones, and
-RELEASE turns the result into the version number and the rollout.
+judge, just like rule 5. One green run proves little; read a failure that
+comes and goes as CI.md rule 5 says.
 
 ## Done when
 
@@ -260,5 +180,3 @@ RELEASE turns the result into the version number and the rollout.
   a breaking changelog entry, and a migration note (rule 6).
 - The release ships the schema, spec, and sequences, listed in its
   manifest (rule 4).
-- With several services: both directions and the rollout order ran green
-  (rules 9–10).

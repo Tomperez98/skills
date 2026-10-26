@@ -8,19 +8,19 @@ pseudocode, as in [WRITE.md](WRITE.md).
 ## 1. Minimize the interface surface; name the fault model
 
 An interface is a contract. Keep its surface small — fewer methods, fewer
-parameters — and document not just what it returns but what it can fail
-with. That fault model is "one error vocabulary per boundary" seen from the
-interface side: the caller handles the named failures and nothing else.
-Every implementation must keep that contract (WRITE.md rule 8).
+parameters — and document not just what it returns but what it can fail with.
+That fault model is WRITE.md rule 5 seen from the interface side: the caller
+handles the named failures and nothing else. Every implementation must keep that
+contract (WRITE.md rule 8).
 
 Shape the surface so a caller can guess it:
 
 - **A few nouns, a few verbs, one pattern.** Name every operation
   `Noun` + `Verb` (`OrderCreate`, `OrderCancel`), so the next operation is
   predictable and a gap or a duplicate stands out.
-- **One operation, one request type, one response type.** No mode flags, no
-  overloads, no call that does different jobs depending on its arguments.
-  Two jobs are two operations (rule 3).
+- **One operation, one request type, one response type.** Give each
+  operation one job, whatever its arguments; two jobs are two operations
+  (rule 3).
 - **Closed enums for lifecycle and outcomes.** A reader sees every state an
   object can be in, and every expected outcome (`created`, `duplicate`,
   `expired`, `absent`) comes back as a named value, not a boolean or a
@@ -29,7 +29,7 @@ Shape the surface so a caller can guess it:
   operation's input carries that request instead of redeclaring its fields,
   so each concept is defined once.
 - **Make misuse hard.** Required parameters over ordered optional ones, distinct
-  types for ids that look alike (STATE.md rule 4), no boolean parameters.
+  types for ids that look alike (STATE.md rule 4), enums instead of booleans.
 - **Hide what callers don't need.** Storage layout and internal states stay
   behind the interface, so they can change without a breaking change
   (WRITE.md rule 8).
@@ -69,14 +69,11 @@ fake_rates = FakeRateSource(pair: Pair("USD", "EUR"), rate: 0.9)
 assert(convert(100, Pair("USD", "EUR"), fake_rates) == Ok(90))
 ```
 
-`convert` doesn't know it's talking to a fake — the seam is one parameter,
-and the fake is a plain value, not a mock library standing in for a method
-call. This is the same boundary DEPENDENCIES.md wraps a vendor behind
-(wrap it behind one boundary); the difference is only which side owns the
-interface. Add the seam only when a second implementation is real (rule
-5: solve the problem before you abstract) — a fake for tests counts — not
-on every internal helper, where it's one more layer between the reader and
-the code that does the work.
+`convert` doesn't know it's talking to a fake — the seam is one parameter, and
+the fake is a plain value, not a mock library standing in for a method call. Add
+the seam only when a second implementation is real (rule 5) — a fake for tests
+counts — not on every internal helper, where it's one more layer between the
+reader and the code that does the work.
 
 ## 3. Minimize branches at the call site
 
@@ -131,7 +128,7 @@ from then on.
   picks the behavior.
 - Add indirection (a function pointer, an interface, a registry) only when
   a *concrete* need shows up: a second real implementation, a test seam
-  (see "Boundaries and seams, judiciously"), a measured cost. "We might
+  (rule 2), a measured cost. "We might
   need it later" is not a concrete need.
 - Keep the abstraction as small as that need. Build only what
   today's problem needs.
@@ -147,11 +144,6 @@ handlers[mode](event)
 Every layer you don't add is one fewer place for a contract to hide. The
 functions that do the work stay in plain view, where their failures are
 easy to see and easy to test.
-
-Simplicity is what keeps progress possible. A small, simple program is easy
-to change and easy to test; every structure you add has to be understood,
-maintained, and tested from then on, and that tax compounds as the program
-grows. When in doubt, delete.
 
 ## 6. Keep functions short
 
@@ -218,6 +210,7 @@ s.has([1])                               // false
 - Seams exist only where a second implementation is real (rules 2 and 5).
 - Call sites branch as little as the answer allows, and each variable lives
   in its smallest scope (rule 3).
-- Names follow one convention and carry the mental model (rule 4).
+- Names follow the codebase's case convention, unabbreviated, with
+  qualifiers after the base name, most significant word first (rule 4).
 - Every function fits on a screen and does one named job, and each
   collection's type holds the guarantee its data needs (rules 6–7).

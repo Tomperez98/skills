@@ -13,7 +13,7 @@ haven't found it yet; keep looking.
 
 Everything that isn't the core use case is scope creep until the core one is
 validated. Delete each feature that doesn't serve it for now, and bring it
-back after someone real hits the aha.
+back after someone real hits the aha ([VALIDATE.md](VALIDATE.md)).
 
 ## 3. Define the core experience
 
@@ -35,22 +35,11 @@ Time:      <m:ss> to the aha, under 5:00
 Cut:       <features and steps removed>
 ```
 
-## 5. The aha is the milestone
-
-The aha — the five-minute value moment — is your MVP, not the feature list.
-Once a user can reach it, you have an MVP; everything else waits.
-
-## 6. One journey, not a tour
-
-The MVP is a line, not a tour: one use case until it's validated. The tour comes
-after the first use case is validated (see
-[VALIDATE.md](VALIDATE.md)).
-
 ## Done when
 
 - The one core use case is written as one sentence (rule 1).
 - The core experience is named as a single moment (rule 3).
-- Every feature that doesn't serve it is cut (rule 2).
+- Every feature that doesn't serve it is cut, and only one use case is in
+  the MVP (rule 2).
 - The journey is written step by step from open to the aha, and fits in five
   minutes (rules 3–4).
-- Only one use case is in the MVP (rule 6).

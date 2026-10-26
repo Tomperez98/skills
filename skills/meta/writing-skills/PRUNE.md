@@ -66,10 +66,8 @@ new guide its own `## Done when`.
 
 ## 7. Sharpen the ends
 
-For each step, ask how the agent knows it is finished. Replace a vague end
-("make sure the tests are good") with a checkable one ("every returned
-failure has a test"). Make the criterion exhaustive where the work is a
-sweep.
+For each step, ask how the agent knows it is finished, and rewrite each
+vague end to meet NEW.md rule 6.
 
 ## 8. Re-run the situation that exposed the problem
 

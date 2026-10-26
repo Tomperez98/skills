@@ -156,12 +156,6 @@ A mismatch here means users are getting something other than what you
 tested, so treat it as a bug and fail loudly with the artifact name and
 both values.
 
----
-
-PUBLISH is the machine side of a boring release: build once, check before
-acting, publish in a way that can be re-run, then verify from the outside.
-RELEASE.md decides when to run it.
-
 ## Done when
 
 - The build runs without secrets and writes every artifact and a manifest

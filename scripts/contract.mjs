@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // What does this change do to the contract users and agents rely on?
-// (ship skill, COMPAT.md and CI.md rule 10, applied to this repo)
+// (ship skill, COMPAT.md and REVIEW.md, applied to this repo)
 //
 //   node scripts/contract.mjs            # compare the working tree with main
 //   CONTRACT_BASE=<ref> node scripts/contract.mjs
@@ -13,10 +13,10 @@
 // added and removed, printed, written to .contract-report/ (label, base,
 // summary.md) and, on CI, to the job summary. contract-label.yml puts the
 // label on the pull request, and applies it only while both the pull request's
-// head and the base recorded here still match (CI.md rule 10).
+// head and the base recorded here still match (REVIEW.md rule 3).
 //
 // It reports and never blocks: a reviewer decides whether a changed promise
-// is right (CI.md rule 10, labels as information first). Exits 1 only when it
+// is right (REVIEW.md rule 4, labels as information first). Exits 1 only when it
 // can't run at all, such as a missing baseline.
 
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -107,7 +107,7 @@ const report = join(REPO_ROOT, ".contract-report");
 mkdirSync(report, { recursive: true });
 writeFileSync(join(report, "label"), `${label}\n`);
 // The commit the verdict was diffed against: contract-label.yml checks it
-// still matches the pull request's base before labeling (CI.md rule 10).
+// still matches the pull request's base before labeling (REVIEW.md rule 3).
 writeFileSync(join(report, "base"), `${base}\n`);
 writeFileSync(join(report, "summary.md"), summary);
 

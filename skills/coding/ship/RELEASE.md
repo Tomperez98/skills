@@ -42,13 +42,10 @@ number is checked before it ships. Derive the next version number from the
 last changelog entry (patch + 1) rather than typing it; the human's job is
 to verify it, not produce it.
 
-Versions only go up. A number that was published with different bytes is
-retired for good; a failed attempt that published nothing leaves the
-number reusable, and a partial publish of the same bytes resumes
-(PUBLISH.md rule 3). Pick a scheme users can understand, such as SemVer,
-and stick to it. Under SemVer, the compatibility checks pick the kind of
-bump, not a guess: a check that failed and was declared a break means
-major (COMPAT.md rule 6).
+Which numbers can be published, reused, or resumed follows PUBLISH.md
+rule 3. Pick a scheme users can understand, such as SemVer, and stick to
+it. Under SemVer, the compatibility checks pick the bump (COMPAT.md
+rule 6).
 
 ## 4. Build the changelog from what merged
 
@@ -75,7 +72,7 @@ including ones your tools made, that main never had.
 If you have long tests (soak runs, property tests, a full matrix), run them
 against the frozen commit before publishing. Right before publishing, confirm
 that CI, the post-merge checks, the compatibility checks against the last
-release, and the rollout test (COMPAT.md rule 10) are still green for that
+release, and the rollout test (ROLLOUT.md rule 3) are still green for that
 commit, that open failures are triaged, and that metric changes are explained.
 If not, skip this release (rule 2).
 
@@ -92,8 +89,8 @@ it. If a release is bad, ship a new version with the fix, through the same
 process. If the fix seems to need an overwrite, re-tag, or re-publish of
 that version, stop and ask. Keep that process fast enough to run
 several times in one day, so fixing forward is never the slow option. With
-services in lockstep this isn't optional: a fix to one service is a release
-of all of them. When
+services in lockstep (ROLLOUT.md rule 1) this isn't optional: a fix to one
+service is a release of all of them. When
 a release is dangerous to keep running, also mark it (yank or deprecate it
 on the registry, and flag it on the release page) and tell users how to
 move off it.
@@ -101,11 +98,6 @@ move off it.
 If a fix can't ship through the normal path, for example when upgrading to
 the new version is itself broken, write the emergency procedure down before
 you need it, not during the incident.
-
----
-
-RELEASE decides what ships and what it's called. CI.md and MONITOR.md
-decide whether it's ready, and PUBLISH.md does the shipping.
 
 ## Done when
 

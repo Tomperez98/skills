@@ -187,9 +187,8 @@ terminal, or polling stops at Running.
 
 ---
 
-Server-generated IDs without any background work need only GENERATE.md
-rule 9. Background work combined with timeouts is FAULTS.md territory: the
-trigger itself may or may not have happened.
+- **Server-generated IDs without background work** → GENERATE.md rule 9.
+- **The trigger itself may have timed out** → FAULTS.md.
 
 ## Done when
 

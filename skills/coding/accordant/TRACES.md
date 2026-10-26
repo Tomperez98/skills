@@ -48,10 +48,9 @@ Each sync hook runs only when its async twin is unset. If the options
 already reset in `BeforeEachAsync` (GENERATE.md rule 3), `BeforeEach`
 never runs, `current` stays null, and every test fails — start the trace
 inside `BeforeEachAsync` instead, and likewise use `OnStepExecutedAsync`
-if it's set. Two serialization traps the `Record` helper covers: default
-options skip fields, so a tuple request records as `{}`; and an
-`Expect.Throws` response is the exception itself, which `System.Text.Json`
-can't serialize — the throw fails a passing test.
+if it's set. The `Record` helper serializes fields, for tuple requests, and
+records an exception by type and message, for `Expect.Throws` responses (the
+trap in GENERATE.md rule 2).
 
 `Trace` and `TraceStep` are your own records. Each `OnStepExecuted` call
 is one segment: a single call, a polling call, or a concurrent batch that
@@ -61,7 +60,7 @@ system outside .NET records the same shape itself.
 
 Record from a green run only, in this order: run, record, freeze the corpus,
 verify the replay, then replay what you committed (rule 5). A recording from
-a red run is evidence of a bug, not a slot.
+a red run is evidence of a bug, not a trace to keep.
 
 Two gaps in what the hook sees:
 
@@ -87,9 +86,9 @@ replay ended with (rule 6). CI fetches what the manifest names, checks every
 checksum, and replays; a trace that's missing or doesn't match its checksum
 fails the build instead of being skipped.
 
-A suite records through the fixture its plan names (SUITES.md rule 3). A
-missing fixture is a recording failure, not an empty trace: a corpus function
-returns `[]` explicitly only when a suite has no frozen slots.
+A suite records from the plan entry that declares it (SUITES.md rule 3). A
+recording that produces nothing fails the build; a suite with no traces to
+keep says so in its plan entry.
 
 ## 4. Keep by coverage, not volume
 
@@ -98,15 +97,13 @@ calls the system, so the same trace always gets the same verdict. It does
 make every trace a sample — a run that saw `Completed` says nothing about
 the spec's `Failed` branch.
 
-Keep at least one trace per operation and outcome, including passing runs
-from the scheduled fault and concurrent suites (BASELINE.md rule 8). Keep
-every corpus slot: when a walk cannot reach an outcome, add a named manual
-case (GENERATE.md rule 7), never widen the walk until it happens to find it.
-`Allows` doesn't report which outcome matched, so tag each trace with the
-generated case it came from (`info.TestCase`; each case is a path through
-the spec's graph) or, for a trace from another language, with each step's
-operation and kind of response (status, error type). Report coverage that
-drops after a change.
+Keep at least one trace per operation and outcome, including passing runs from
+the scheduled fault and concurrent suites (BASELINE.md rule 8). An outcome no
+walk reaches gets a case as COVERAGE.md rule 4 says. `Allows` doesn't report
+which outcome matched, so tag each trace with the generated case it came from
+(`info.TestCase`; each case is a path through the spec's graph) or, for a trace
+from another language, with each step's operation and kind of response (status,
+error type). Report coverage that drops after a change.
 
 Keep the set small rather than the storage cheap: a prefix of an accepted
 trace is still accepted, so cut each trace after the last step that adds
@@ -125,7 +122,7 @@ set.
 
 A trace that no longer deserializes into the spec's types is a changed
 request or response type, not a rejection — a shape break to declare
-(BASELINE.md rule 4), not a rule to loosen.
+(BASELINE.md rule 4); the predicates stay as they are (DEBUG.md rule 4).
 
 Bound the replay so the fast tier stays fast. On a pull request, replay only the
 traces whose coverage tags (rule 4) the changed operations or outcomes can
@@ -173,7 +170,7 @@ input that reaches it (GENERATE.md rule 4) or a rule that should be deleted.
 
 ## 9. Post a spec change as a contract change
 
-The ship skill routes review by contract change (CI.md rule 10). A spec
+The ship skill routes review by contract change (REVIEW.md rule 1). A spec
 change produces each piece:
 
 - **Promises that changed:** the explanation strings are the contract in
@@ -216,13 +213,13 @@ spec's owner, not back to the author's agent.
 
 ---
 
-A trace that fails replay goes through DEBUG.md rule 4 like any other
-rejection. Checking the system, not the spec, against the last release is
-BASELINE.md.
+- **A trace fails replay** → DEBUG.md rule 4, like any other rejection.
+- **Checking the system, not the spec, against the last release** →
+  BASELINE.md.
 
 ## Done when
 
-- Only green runs record, through the plan's fixture, each with its header
+- Only green runs record, from the suite's plan entry, each with its header
   (rule 2) and coverage tags (rule 4).
 - The repo holds a manifest, not traces, and CI fails on a trace that is
   missing or doesn't match its checksum (rule 3).

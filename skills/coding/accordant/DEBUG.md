@@ -2,8 +2,7 @@
 
 Something is red. Before changing anything, decide which of three things
 happened: the spec crashed, the spec rejected a response, or the setup is
-wrong. Each has a different fix, and loosening a predicate fixes none of
-them. Apply the rules in order.
+wrong. Each has a different fix. Apply the rules in order.
 
 ## 1. Name the failure before you touch code
 
@@ -69,10 +68,8 @@ The usual causes, in order of frequency:
   `mock` out entirely doesn't compile (`CS1593`).
 
 A generation-only test (`spec.GenerateTests(…)` asserting a non-empty
-result) finds crashes reachable from your inputs, without a server. It
-finds every one only on a space explored to the end (`MaxDepth = -1`
-under a `StateConstraint`, GENERATE.md rule 5); with a depth bound,
-exploration can skip states within it.
+result) finds crashes reachable from your inputs, without a server. To
+find every one, bound the space by state, as GENERATE.md rule 5 says.
 
 ## 4. A rejection means the spec and the system disagree — find out who's right
 
@@ -92,10 +89,11 @@ reason, the rule is wrong; if they disagree, a read upstream didn't narrow the
 profile (ASYNC.md rule 3).
 
 End with one verdict: **system wrong**, **spec wrong**, or **undecided**.
-Undecided is where you stop when nobody who owns the behavior is around.
-Report the explanation string, the actual response, and what each reading
-would mean, then ask; the reading that turns the test green is a guess that
-rewrites the contract.
+A predicate changes only on a "spec wrong" verdict; every other change that
+turns a run green rewrites the contract to fit the bug. Undecided is where
+you stop when nobody who owns the behavior is around. Report the
+explanation string, the actual response, and what each reading would mean,
+then ask.
 
 ## 5. Tests that pass alone and fail together are a reset problem
 
@@ -133,27 +131,25 @@ with the root as 1, so a case has at most `MaxDepth − 1` calls. Generation nev
 finishes: the graph is too big. Tighten `StateConstraint`, cap reuse with
 `MaxOperationApplicationCount`, narrow derived requests with
 `DerivationSelectors`, generate with fault outcomes off (FAULTS.md rule 6), and
-only then lower `MaxDepth` — it drops states silently, and not only the deepest
-(GENERATE.md rule 5). The graph is finished but yields too many cases: switch
-the algorithm to a seeded `CreateRandomWalk` (GENERATE.md rule 7). It walks the
-finished graph, so it doesn't speed up exploration. Visualize the graph
-(GENERATE.md rule 6) to see which input multiplies the states.
+only then lower `MaxDepth` (GENERATE.md rule 5 says what it costs). The graph is
+finished but yields too many cases: switch the algorithm to a seeded
+`CreateRandomWalk` (GENERATE.md rule 7). It walks the finished graph, so it
+doesn't speed up exploration. Visualize the graph (GENERATE.md rule 6) to see
+which input multiplies the states.
 
 ## 8. Get the evidence into the test output
 
 Every result's `LogFilePath` is the run's log folder (`Logger.OutputDirectory`,
 shared by every test), holding `test-runner.txt` with every step;
-`spec.WithJsonPrinters()` makes requests and responses readable there —
-except that it fails any test whose response is an exception
-(`Expect.Throws`, which `System.Text.Json` can't serialize), and prints
-tuple requests as `{}`. Once you
-replace `Logger.LogLambda`, lines go to your lambda instead. Send logs to the
-test runner with `Logger.LogLambda = line => TestContext.WriteLine(line)` (or
-xUnit's `ITestOutputHelper`), keep runs apart with
+`spec.WithJsonPrinters()` makes requests and responses readable there
+(GENERATE.md rule 2 says when to skip it). Once you replace `Logger.LogLambda`,
+lines go to your lambda instead. Send logs to the test runner with
+`Logger.LogLambda = line => TestContext.WriteLine(line)` (or xUnit's
+`ITestOutputHelper`), keep runs apart with
 `Logger.AsyncLocalOutputDirectory.Value = path`, and add your own lines from
-inside `Apply` with `Logger.Log(…)` when you need to see which branch ran.
-Start each line you add with one tag (`[debug-a4f2]`), so a single grep
-finds them all when you take them out.
+inside `Apply` with `Logger.Log(…)` when you need to see which branch ran. Start
+each line you add with one tag (`[debug-a4f2]`), so a single grep finds them all
+when you take them out.
 
 ---
 

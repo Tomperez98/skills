@@ -1,9 +1,8 @@
 # Researching the premise
 
 You have an idea and a premise about why it works — but you're not sure the
-premise is real. Research can tell you whether the trend is real and who's
-already built on it; it cannot tell you whether a real person will hit the
-aha. Apply the rules in order.
+premise is real. The goal is a cited verdict on the premise and the next
+stop. Apply the rules in order.
 
 ## 1. Research the premise, not the value
 
@@ -42,17 +41,11 @@ The useful finding isn't "it's popular" — it's "here's what existing
 solutions do slowly or not at all." That gap is your five-minute opening; it
 feeds [AHA.md](AHA.md).
 
-## 5. Research feeds PICK and SPEC, not VALIDATE
+## 5. Route on the verdict
 
-Research confirms the premise ([PICK.md](PICK.md)) and borrows interface
-patterns and pain points from incumbents ([SPEC.md](SPEC.md)). The stopwatch
-and a stranger do the validating. Once the premise is confirmed, spec it and
-hand it to a real person.
-
-## 6. The report is still your excitement
-
-A cited brief is your own excitement with footnotes. Once the premise is
-confirmed, stop (rule 1) and start validating.
+- **Premise confirmed** → [SPEC.md](SPEC.md), borrowing the incumbents'
+  interface patterns and pain points.
+- **Premise false** → back to [PICK.md](PICK.md) for another idea.
 
 ## Done when
 
@@ -61,4 +54,4 @@ confirmed, stop (rule 1) and start validating.
 - The gap names what incumbents do slowly or not at all, not that the space
   is popular (rule 4).
 - Every question asks about the trend, incumbents, or gap, and the next step
-  is SPEC or VALIDATE (rules 1, 5–6).
+  is SPEC on a confirmed premise or PICK on a false one (rules 1, 5).

@@ -25,12 +25,12 @@ for compatibility or for a test-only scenario, but it owns no coverage.
 
 - **A read-only surface is its own cluster.** Inside a write graph its reads
   become self-loops, and the case count becomes the product of the two
-  surfaces. Run it at `MaxDepth = 2`: Accordant counts the initial state as
-  depth 1, so depth 1 generates nothing, and a read-only graph yields one
-  case per input.
+  surfaces. Run it at `MaxDepth = 2` (DEBUG.md rule 7 says why 2), which
+  yields one case per input.
 - **A combined compatibility spec is not a module owner.** Hand-written,
-  fault, concurrency, and test-only suites may use it. A generated cluster
-  uses its cluster factory, and a test-only suite sets its coverage bit off.
+  fault, concurrency, and test-only suites may use it. A generated suite
+  builds its own cluster's spec, and a test-only suite's plan entry marks it
+  as owning no coverage.
 - **Fault arms are setup, not operations.** An `Arm*` input enables a fault;
   arms are the only extra a binding may register (rule 4).
 - **The transport registry and the spec must agree both ways.** Parse the
@@ -43,14 +43,14 @@ for compatibility or for a test-only scenario, but it owns no coverage.
 Every generated suite is one entry in a plan: the spec, the state it starts
 from, its inputs, `ShouldApply`, its depth, its measured budget, and whether
 it exports and owns coverage. The generated test, the budget gate, the
-release export, and the trace fixture derive from that entry or assert
+release export, and the trace recording derive from that entry or assert
 against it. None reconstructs its own state, inputs, or depth.
 
 - A plan entry with no generated test is a gap.
 - A test that passes its own state, inputs, or depth is drift, even when its
   case count happens to match.
-- A new suite is one entry plus a test that calls it. Do not add another
-  `--fixture` or `--budget` line to a task file.
+- A new suite is one entry plus a test that calls it. Tests and CI read its
+  state, depth, and budget from that entry.
 
 ## 4. Assert the binding before any case runs
 
@@ -63,21 +63,15 @@ graph the plan never declared.
 
 The plan's state factory is both the spec's initial state and the service
 seed. A generated suite starts from the state that matches its operations,
-not the richest fixture. A smoke that starts somewhere else measures a graph
-the suite never runs.
+not the richest fixture. A run that starts somewhere else measures a graph
+the suite never runs. Keep that state lean (SPEC.md rule 3).
 
-Keep that state lean: a field no `Apply` reads is cold data. Every transition
-clones it, every node hashes it, and every trace serializes it. Put optional
-read-model fields in nullable nested `[State]` objects, leave them null in the
-lean fixture, and deep-clone them in every clone path (SPEC.md rule 3).
-Extract by predicate use, not by database column.
+## 6. Join the cluster that shares your transitions
 
-## 6. Do not fork a cluster to protect a budget
-
-A module that shares transitions with an existing cluster joins that
-cluster's spec and plan entry. A parallel fixture that keeps an old budget is
-a second graph nobody declared. Re-measure the suite and update its budget in
-the same change.
+A module that shares transitions with an existing cluster joins that cluster's
+spec and plan entry, even when its budget grows. A parallel suite that keeps an
+old budget is a second graph nobody declared. Re-measure the suite and update
+its budget in the same change.
 
 Moving an operation between clusters moves its `Apply` body, its explanation
 strings, and its outcome keys verbatim, and shared predicate helpers stay
@@ -90,16 +84,16 @@ Run the exhaustive graph at the suite's own full depth and count the cases.
 Set the budget from that count: measured + 15%, rounded up to the next 100,
 with the measurement in a comment.
 
-- A budget raised without a measured count hides a scoping regression. The
-  guard firing is the expected result, not a reason to add an override.
+- Raise a budget only with a new measured count in its comment; an
+  unmeasured raise hides a scoping regression. The guard firing is the
+  expected result.
 - The budget bounds the **exhaustive** graph, not the pull request's random
   walk. A walk that produces fewer cases than a suite's exhaustive budget is
   a sample, not a regression.
-- Do not add a global `--depth` or a per-entry `--budget` in a task file or
-  CI. Each suite runs at the depth its plan declares.
-- Run the stats, generate, and graph tasks only after their build dependency.
-  Never invoke a smoke binary directly; the dependency is the stale-binary
-  guard.
+- Each suite runs at the depth and budget its plan entry declares; the
+  tests and CI read both from it.
+- Every gate command that runs a suite depends on the build step, so it
+  never runs a stale binary.
 
 ## 8. Growth or slowness is a scoping bug
 
@@ -108,10 +102,7 @@ scoping bug, not a budget problem. In order: split the cluster (rule 1),
 remove cold state (rule 5), trim inputs to those aimed at a branch
 (GENERATE.md rule 4), narrow derivations, then tighten the state space. Raise
 the budget or the heap only after measuring the smaller model, and say why.
-
-Do not widen a random walk to make a rare branch appear; add an aimed input
-or a named manual case (GENERATE.md rule 7). The exhaustive graph, not the
-walk length, is the coverage proof.
+A rare branch that a walk misses is reached as COVERAGE.md rule 4 says.
 
 ## 9. Run the same suite tasks locally and in CI
 
@@ -121,15 +112,11 @@ local gate is a failure, and a narrower local variant is not the gate. When
 the suite becomes the release contract, hand its export and baseline run to
 BASELINE.md.
 
----
-
-A suite that is not declared cannot be reviewed; a suite that is not measured
-cannot tell a regression from a sample.
-
 ## Done when
 
-- Every cluster has one `Spec<State>` and every suite one plan entry, and no
-  test or task file reconstructs its state, inputs, or depth (rules 1, 3).
+- Every cluster has one `Spec<State>` and every suite one plan entry, and
+  every test and CI task reads its state, inputs, and depth from it (rules 1,
+  3).
 - Every exposed operation has one binding and one cluster owner, a read-only
   cluster runs at `MaxDepth = 2`, and a test-only suite owns no coverage
   (rules 2, 4).
@@ -137,5 +124,6 @@ cannot tell a regression from a sample.
   case runs (rules 4–5).
 - The budget is the measured exhaustive count + 15%, rounded to the next 100,
   at the suite's own depth, with no override (rule 7).
-- A suite that grew or slowed was fixed by scoping, and the local gate and CI
-  run the same tasks (rules 8–9).
+- After a change, the re-measured exhaustive count is at or under the budget,
+  any raised budget carries the new measurement in its comment, and the local
+  gate and CI call the same suite tasks (rules 7–9).

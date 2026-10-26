@@ -7,11 +7,6 @@ recover. Before you write any stop path, name which way you're stopping.
 
 Test the claims below → [CRASH_TESTS.md](CRASH_TESTS.md).
 
-A panic message you can read is a panic you can fix fast, so write it for the
-person staring at the log after the crash: name the invariant and the value that
-broke it ([WRITE.md](WRITE.md), rule 1). A specific panic starts recovery with
-the fix.
-
 ## Ways to stop
 
 A component stops in more ways than the one rule names. The wrong shutdown path
@@ -77,8 +72,7 @@ apply_payment(key, amount)   // safe to reissue after a crash
 
 A unit of work must be self-describing: everything a fresh instance needs to
 resume it travels with the request or is re-resolvable from an ID. In-process
-state dies with the crash and can't be rebuilt. (Same shape as
-STATE.md: pass identity, not references; load only the state you need.)
+state dies with the crash and can't be rebuilt (STATE.md rules 3–4).
 
 ## 6. Timeout every interaction; lease every resource
 
@@ -124,20 +118,13 @@ instead of landing at once.
 If crash-recovery is cheap, crash-reboot suspect components *before* they
 fail — on resource-exhaustion symptoms, fail-stutter (slow, then slower), or
 a workload trough. Bounded resource use plus watching for stall symptoms
-(WRITE.md: bound everything) are your rejuvenation triggers.
+(WRITE.md rule 9) are your rejuvenation triggers.
 
 ## 12. Quiesce during recovery
 
 While a component recovers, keep new work out and let in-flight work wait
 and retry. Brief unavailability becomes raised latency, not errors, and a
 component rebuilding its state sees no fresh flood.
-
----
-
-Crash-only is the other half of the one rule: a panic is only usable as a
-primary defense if it's cheap. This branch makes it cheap. WRITE.md builds
-the contract, CRASHONLY makes it survive the crash, and CRASH_TESTS.md
-proves the recovery.
 
 ## Done when
 

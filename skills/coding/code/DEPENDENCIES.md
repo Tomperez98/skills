@@ -1,10 +1,8 @@
 # Managing dependencies
 
-You're adding, updating, or auditing a dependency. You ship a dependency but
-you didn't write it, and the one rule still applies to it. Its documented
-failures come back as values, which you translate at your boundary. When it
-breaks its own contract, that's a bug, and you crash on it. An update is an
-untested change to code you now own. Apply the rules in order.
+You're adding, updating, or auditing a dependency. The goal is a dependency
+you chose on purpose, pinned, behind one boundary, with tests on the behavior
+you rely on. Apply the rules in order.
 
 ## 1. Every dependency is code you own
 
@@ -56,7 +54,7 @@ rather than never.
 
 Judge a change by its contract, not its version number. A new version is
 a safe substitute only if it requires no more and promises no less
-(WRITE.md: state the contract). Tighter input validation, a new error
+(WRITE.md rule 8). Tighter input validation, a new error
 variant, or a removed field is a breaking change, even in a patch release.
 
 Group the volume: at a hundred pulls a day, review capacity, not the
@@ -81,8 +79,8 @@ you need.
 ## 6. Wrap it behind one boundary
 
 One module calls the dependency. That module maps the dependency's
-errors into your own vocabulary, once (WRITE.md: one error vocabulary per
-boundary), and parses its output at the edge (WRITE.md: parse at the edge).
+errors into your own vocabulary, once (WRITE.md rule 5), and parses its
+output at the edge (WRITE.md rule 3).
 Its documented failures come back as your values. If it returns something
 its contract rules out, panic: that's a bug in code you own.
 
@@ -105,13 +103,6 @@ actually use: the outputs you parse and the errors you map. These tests make
 rules 4–5 affordable: the review can focus on what the tests don't cover.
 When you take an update, a change in behavior fails a test at the line
 where it matters, instead of turning up later in production.
-
----
-
-A dependency is part of your program, so it follows the same contract as
-the rest of the code. WRITE.md builds the boundary around it, TEST.md pins
-the behavior you rely on, and this branch decides whether the code gets in
-at all and when it's allowed to change.
 
 ## Done when
 
