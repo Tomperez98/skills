@@ -2,8 +2,8 @@
 name: ask
 description: >
   Ask which skill and branch guide fit the situation. A router over the
-  code, docs, ship, mvp, accordant, and writing-skills skills and the
-  release and diagnose workflows. Invoked by name only.
+  code, docs, ship, mvp, accordant, and writing-skills, and grill skills
+  and the release, diagnose, and retro workflows. Invoked by name only.
 disable-model-invocation: true
 ---
 
@@ -67,7 +67,9 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 ### Standalone
 
 - **Writing, trimming, or changing a skill or an AGENTS.md** →
-  writing-skills: NEW, EDIT, PRUNE.
+  writing-skills: NEW, EDIT, PRUNE. After a session that went sideways →
+  the `retro` workflow.
+- **A plan or decision to stress-test** → grill.
 - **Too slow** → code: PERFORMANCE.
 - **Config, env vars, globals, caches, or a schema** → code: STATE.
 - **Designing an interface, naming, or splitting a function** → code: SHAPE.
@@ -87,5 +89,5 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 ## Hand off
 
 When the user says go, call the Skill tool with the skill the answer named
-and follow its guide. A workflow (`release`, `diagnose`) starts only by
-name: tell the user to type `/release` or `/diagnose`.
+and follow its guide. A workflow (`release`, `diagnose`, `retro`) starts only
+by name: tell the user to type it, such as `/release`.

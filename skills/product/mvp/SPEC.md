@@ -10,7 +10,8 @@ Break the idea down as much as you can into a paragraph with a handful of
 bullets, then stop. The point isn't completeness — it's a target the first
 implementation can be checked against. A paragraph is enough to start. If
 you catch yourself designing a second feature, you've left this branch →
-[AHA.md](AHA.md).
+[AHA.md](AHA.md). When the paragraph hangs on decisions only the user can
+make, call the Skill tool with "grill" before you write it.
 
 ```text
 <One paragraph: who opens it, what they see, what they do, what comes back.>
