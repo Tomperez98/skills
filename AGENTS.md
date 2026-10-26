@@ -3,8 +3,9 @@
 This repo is a collection of skills for AI coding assistants, installable
 with `npx skills add Tomperez98/skills`. Five skills live here, `code`,
 `docs`, `ship`, `mvp`, and `accordant`, plus `ask`, a user-invoked router
-over them, and `writing-skills`, which says how to write, change, and trim
-them. Everything in this repo — new skills, edits, examples — follows
+over them, `release` and `diagnose`, user-invoked workflows that run their
+guides in order, and `writing-skills`, which says how to write, change, and
+trim them. Everything in this repo — new skills, edits, examples — follows
 their one rules:
 
 - **code** — bugs panic, expected failures return values.
@@ -32,6 +33,8 @@ Read the matching guide before you write or edit anything here.
 - `skills/coding/accordant/` — SPEC, GENERATE, SUITES, COVERAGE, ORACLE,
   CONCURRENCY, ASYNC, FAULTS, BASELINE, TRACES, DEBUG
 - `skills/meta/ask/SKILL.md` — the router; no branch guides.
+- `skills/workflows/{release,diagnose}/SKILL.md` — workflows; no branch
+  guides. A new one goes in the router's map.
 
 ## Skill format
 
