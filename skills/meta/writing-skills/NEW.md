@@ -20,6 +20,11 @@ rarely belongs in a skill; a skill that only a person starts by hand belongs
 in the user-invoked form. Reference that two user-invoked skills share goes
 in a plain file both point to, because neither can trigger the other.
 
+A sequence a person starts on purpose (cut a release, chase a bug) is a
+user-invoked **workflow**: a `SKILL.md` with no branch guides whose steps
+each call the Skill tool with the skill that owns the rules. The workflow
+owns only the order and the check between steps; the guides keep the rules.
+
 At the scale of a handful of skills, a model-invoked description per skill
 is cheap. At dozens, each description is a standing tax, so make the rarely
 used ones user-invoked and add a router (rule 7).
@@ -85,6 +90,9 @@ Each step, and each guide, ends in something the agent can check.
 - Make the criterion checkable ("every public function has a test per
   documented failure"), and exhaustive where the work is a sweep ("every
   `catch`, every config read").
+- In a sequence, where each step builds on the last one's output, end each
+  step with a `Done:` line the agent checks before it moves on, so an
+  unfinished step can't pass for finished.
 - Close a guide with an unnumbered `## Done when` of three to five items,
   each citing the rule it checks.
 - Where a guide produces a record or verdict, give its shape as a fenced

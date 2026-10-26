@@ -55,7 +55,9 @@ justifies naming it, and pair it with where the agent stops and asks.
 When a phrase recurs, pick a compact word the model already knows and use it
 everywhere ("crash-only", "idempotent", "linearizable", "SemVer"). An
 existing word carries its meaning for free. Define an invented word once,
-where it first appears, and use it consistently after.
+where it first appears, and use it consistently after. When several guides
+share invented or overloaded words, define them in the `SKILL.md` under
+`## Terms`, and say to use them exactly.
 
 ## 6. Split what only some situations need
 
