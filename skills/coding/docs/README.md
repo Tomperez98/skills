@@ -1,15 +1,15 @@
 # Writing a README (and repo docs)
 
 The README is a landing page for a developer who typed one command too many
-and just wants to know: *what is this, and is it worth my time?* You have
-about ten seconds before they leave. Make the skim tell the whole story —
-with something that runs. Apply the rules in order.
+and just wants to know: *what is this, and is it worth my time?* Apply the
+rules in order.
 
-## 1. Lead with the hero — it's a 10-second skim
+## 1. Lead with the hero, then what it is, then install
 
-You have ten seconds, and the reader may never read a paragraph. The hero
-must carry the whole pitch on its own: one line of what the reader can *do*,
-plus one snippet, image, or benchmark that proves it. The task, then the proof.
+The first lines give what it does, proof it works, and how to get it, in
+that order: the hero, then rules 3 and 4. The hero carries the whole pitch
+on its own: one line of what the reader can *do*, plus one snippet, image,
+or benchmark that proves it.
 
 ```
 # retry
@@ -25,11 +25,8 @@ sentence.
 
 ## 2. Make the skim self-sufficient
 
-An amazing README is one you can understand without reading any of the
-prose: read only the TL;DR, the first image, the headings, and the code
-blocks, and the story should still hold together. Structure for the skimmer —
-every heading is a mini-claim, every code block a proof, the TL;DR a
-one-line summary up top. Rewrite until the page holds without its paragraphs.
+Apply "win the 10-second skim" from [SKILL.md](SKILL.md) to the whole file:
+headings as mini-claims, code blocks as proofs, a one-line TL;DR up top.
 
 ## 3. Say what it is, in one concrete sentence
 
@@ -92,16 +89,10 @@ Apply the never-mislead rule in [SKILL.md](SKILL.md). For a README:
 "blazingly fast" appears only beside its benchmark, and company history and
 "world's first" go. If the project does something, the example shows it.
 
-## 10. Order the first three beats
-
-Put what it does, proof it works, and how to get it in the first lines, in
-that order. Rules 1, 3, and 4 say what each beat is; this rule fixes their
-order at the top of the file.
-
 ## Done when
 
 - The top of the file, read alone, gives what it does, proof it works, and
-  how to get it, in that order (rules 1, 10).
+  how to get it, in that order (rule 1).
 - Reading only the TL;DR, headings, and code blocks still tells the story
   (rule 2).
 - The install command and the example run as pasted and print the output

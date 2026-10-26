@@ -16,11 +16,6 @@ their task. Everything in this skill follows from one rule:
 
 > **Lead with the reader's task — win the 10-second skim — and never mislead.**
 
-Documentation and developer marketing are the same craft: a developer arrives
-trying to *do something*, and your writing gets them to a working result
-(documentation) or shows your thing is the way to it (marketing). Every
-branch is that rule applied to one artifact.
-
 ## Pick a branch
 
 Identify which artifact you're writing — from the user's prompt, the
