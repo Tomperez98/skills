@@ -99,7 +99,7 @@ db = setup()
 
 ## 7. Arrange config by value, not by environment
 
-Config is a value (STATE.md), so tests pass it in. Setting a variable
+Config is a value (STATE.md rule 2), so tests pass it in. Setting a variable
 mutates process-wide state for every test in the process: leaked values make
 tests order-dependent and serialize the run.
 
@@ -150,46 +150,13 @@ drift silently, using your language's compile-time type assertion
 type_assert(register_user, fn(str) -> Result<User, RegisterUserError>)
 ```
 
-## 10. Test a refactor against the original
+## 10. Test the contract as properties
 
-A refactor promises identical behavior, so hold it to that. Keep the old
-implementation as the reference and assert that the new one agrees on every
-input you can generate.
-
-```
-fn old_should_fail(x, y) { return !((x && y) || !x) }
-fn new_should_fail(x, y) { return x && !y }
-
-// Few Boolean inputs: enumerate the whole truth table
-for x in [true, false] {
-    for y in [true, false] {
-        assert(new_should_fail(x, y) == old_should_fail(x, y),
-               "differs at x={x} y={y}")
-    }
-}
-```
-
-- **Small Boolean domain: test every combination.** `n` inputs means `2ⁿ`
-  cases; up to a dozen or so inputs, check them all.
-- **Large domain: generate inputs.** Use a property-testing library to feed
-  both versions random inputs, including empty collections and duplicates,
-  and compare the results (the "oracle" shape in "Test the contract as
-  properties").
-- **Compare effects, not just values.** If the code has side effects,
-  record calls (as in "Test short-circuiting") and assert both versions
-  produce the same sequence. A rewrite that reorders `f() && g()` can pass
-  a value check and still change behavior.
-
-Once the refactor lands, delete the old implementation and its equivalence
-test. They've done their job.
-
-## 11. Test the contract as properties
-
-An example test checks one input. A property test states the contract (WRITE.md:
-state the contract) once, and a library such as Hypothesis, fast-check,
+An example test checks one input. A property test states the contract (WRITE.md
+rule 8) once, and a library such as Hypothesis, fast-check,
 proptest, or QuickCheck checks it against hundreds of generated inputs. Generate
 only inputs that meet the precondition; a precondition violation is a bug, so
-test it in `expect_crash` ("Keep defects separate").
+test it in `expect_crash` (rule 5).
 
 ```
 property(xs: nonempty_list<int>) {
@@ -204,11 +171,10 @@ Shapes that find bugs:
 - **Postcondition or invariant.** For any valid input, the result is `Ok`
   and meets the postcondition, or it is one of the named errors, and it
   returns either way.
-- **Round-trip.** `parse(render(x)) == Ok(x)`, the check for WRITE.md's
-  "parse at the edge".
+- **Round-trip.** `parse(render(x)) == Ok(x)`, the check for parsing at the
+  edge (WRITE.md rule 3).
 - **Oracle.** The result matches a slow but obviously correct version, or
-  the original code during a refactor ("Test a refactor against the
-  original").
+  the original code during a refactor (REFACTOR.md rule 2).
 - **Split and combine.** If `f(xs ++ ys) == combine(f(xs), f(ys))`, then
   `f([])` must be the identity of `combine`. That is why `all([])` is
   `true`, `any([])` is `false`, and `sum([])` is `0`. Assert the empty case
@@ -223,36 +189,7 @@ duplicates, and boundary numbers. When a property fails, keep the shrunk
 counterexample as a plain example test, so it stays pinned. Fix the seed
 in CI, or log it, so a failure can be replayed.
 
-## 12. Test every row of the decision table
-
-A decision table (LOGIC.md: tabulate multi-input decisions) is already a
-test plan. Write one
-case per row, and add one test that proves the table itself is complete and
-unambiguous: enumerate every combination of inputs and assert that exactly
-one row matches.
-
-```
-rows = [
-    ({member: true,  big: ANY,   region: Domestic}, Free),
-    ({member: false, big: true,  region: Domestic}, Free),
-    ({member: false, big: false, region: Domestic}, Flat),
-    ({member: ANY,   big: ANY,   region: Intl},     ByWeight),
-]
-
-for (inputs, expected) in rows {
-    assert(shipping(inputs) == expected)          // one case per row
-}
-
-for combo in product([true, false], [true, false], [Domestic, Intl]) {
-    assert(count(r for r in rows if matches(r, combo)) == 1,
-           "gap or overlap at {combo}")
-}
-```
-
-A gap or an overlap fails at the input that causes it, before a customer
-finds it.
-
-## 13. Prove the test can fail (kill the mutant)
+## 11. Prove the test can fail (kill the mutant)
 
 A suite earns trust once you have watched it go red. A test is
 valuable only if it fails when the code is wrong, so inject a bug on
@@ -292,7 +229,7 @@ Read the result as one of three outcomes, and only the first one is a pass:
   still survives, the property itself may be unfalsifiable — take it to
   someone who can say whether it is a theorem or a typo.
 
-This is rule 11's properties, turned on the suite: a passing property test means
+This is rule 10's properties, turned on the suite: a passing property test means
 nothing until you have seen it fail. Cap the budget — a handful of mutants and
 runs, not an afternoon — and stop when new survivors stop teaching you anything.
 Mutants are ephemeral: revert each one before you commit. They are calibration;
@@ -304,7 +241,8 @@ the test is the artifact.
   variant before the payload (rules 1–2).
 - A workflow's tests show later steps don't run after an early failure, and
   retry tests assert the exact attempt list with zero delay (rules 3–4).
-- A refactor has an equivalence test against the original, and a decision
-  table has one case per row plus a gap-or-overlap check (rules 10 and 12).
+- Each property test's generators include empty, single, duplicate, and
+  boundary inputs, and each shrunk counterexample is kept as an example
+  test (rule 10).
 - The suite went red on at least one injected mutant, and no mutant is left
-  in the code (rule 13).
+  in the code (rule 11).

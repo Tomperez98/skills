@@ -19,9 +19,6 @@ restarted = Store.open(path)     // open IS recover
 assert(restarted.get("a") in [Ok(1), Ok(absent)])   // rebuilt or dropped, never corrupt
 ```
 
-This test exercises exactly what production runs every boot, so recovery
-stays exercised.
-
 ## 2. Test idempotency by double-applying
 
 CRASHONLY.md rule 4 makes a retryable effect idempotent; pin that property.

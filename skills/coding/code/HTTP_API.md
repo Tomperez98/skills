@@ -1,11 +1,9 @@
 # Design an HTTP API
 
 You're defining the contract between clients you don't control and a server
-you do. The skill's one rule applies at this boundary too: a broken
-invariant becomes a 5xx and stops the request, while every expected failure
-comes back as a named 4xx the caller can branch on. Because clients retry
-and old versions stay deployed, the contract must also be guessable,
-repeatable, and safe to change. Apply the rules in order.
+you do. The goal is a contract that is guessable, safe to retry, and safe to
+change: a broken invariant is a 5xx, every expected failure a named 4xx.
+Apply the rules in order.
 
 For an in-process interface, use [SHAPE.md](SHAPE.md) instead.
 
@@ -50,9 +48,6 @@ DELETE /bookings/{id}
   response shape. A caller who has seen one endpoint should be able to
   guess the next.
 
-This is the network-side application of SHAPE.md rule 1: a small surface
-that a caller can guess.
-
 ## 3. Let HTTP carry the meaning
 
 Use the method whose semantics match the operation, and let the status
@@ -73,8 +68,9 @@ code carry the outcome:
   `429` rate limited.
 - **5xx for you**: `500` for an unexpected state, `503` when unavailable.
 
-Never return `200` with `{"success": false}`. A status code that lies makes
-every client write a branch the protocol already defined. A broken
+Put the outcome in the status code, so a failure is never a `200` with an
+error in the body: a status code that lies makes every client write a branch
+the protocol already defined. A broken
 invariant is a 5xx: stop the handler, log it, and return nothing about the
 internals.
 
@@ -136,9 +132,9 @@ GET /events?limit=10&cursor=cmd9atj3p000007ky19w1dpy2
 - **Sort by a unique tiebreaker**, such as id, or pages repeat and drop
   rows at the boundary.
 - **Filter and sort with one query vocabulary**, for example
-  `?status=upcoming&sort=-date`. Allowlist the field names; never pass
-  them through to storage as raw syntax.
-- **Never return an unbounded list.** A limit that the client controls
+  `?status=upcoming&sort=-date`. Allowlist the field names, and map each
+  one to storage yourself.
+- **Cap every limit server-side.** A limit that the client controls
   without a cap is a denial-of-service request from a friendly client.
 
 ## 7. Return one error envelope
@@ -157,14 +153,10 @@ Every failure, on every endpoint, has the same shape:
 - **`code` is stable and machine-readable.** Clients branch on it, so
   treat existing codes as part of the contract. Add codes deliberately;
   a client that doesn't know one falls back to the status class.
-- **`message` is for people and may change.** Never make client logic
-  parse it.
+- **`message` is for people and may change.** Clients branch on `code`
+  only.
 - **The shape is identical for 4xx and 5xx.** No stack traces, SQL, or
-  secrets in either.
-
-This is WRITE.md rule 5 applied to the wire: one error vocabulary per
-boundary, and every expected failure named in it. An unexpected failure is
-the one generic 5xx code.
+  secrets in either. An unexpected failure is the one generic 5xx code.
 
 ## 8. Version the boundary, and break it on purpose
 
@@ -196,8 +188,8 @@ substitute for checking it.
   cancel their own booking and no one else's; that failure is `403`.
   Check ownership or role on the object, server-side.
 - **Use API keys for server-to-server clients and short-lived user
-  sessions or tokens for people.** TLS everywhere; never put a credential
-  in a URL, a query string, or a log.
+  sessions or tokens for people.** TLS everywhere. Credentials travel only
+  in headers, and logs redact them.
 - **Rate limit** per user, per IP for anonymous callers, and per sensitive
   endpoint (booking attempts, password resets). Return `429` with
   `Retry-After`.

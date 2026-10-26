@@ -9,18 +9,6 @@ The examples are pseudocode. `Result<Value, Error>` means "success carries a
 your language calls these — a tagged union, `Either`, `Try`, a nullable, a
 checked error — translate the *shape*, not the syntax.
 
-These ten rules cover every function. Four situations have their own guide;
-read it when you hit the situation:
-
-- Reading config, an environment variable, a global, a cache, or a database
-  schema → [STATE.md](STATE.md).
-- Designing an interface, naming, adding an abstraction, or splitting a
-  function → [SHAPE.md](SHAPE.md).
-- Writing a branchy condition or a decision over several inputs →
-  [LOGIC.md](LOGIC.md).
-- Making a path fast, or a crash safe → [PERFORMANCE.md](PERFORMANCE.md),
-  [CRASHONLY.md](CRASHONLY.md).
-
 ## 1. Panic on broken invariants
 
 A broken invariant is a bug. Crash on it, at the exact line.
@@ -68,14 +56,13 @@ Unsure which camp a failure belongs in? Ask: *"is this a bug, or an expected
 outcome?"* Bugs panic; expected outcomes return.
 
 **Returned means visible in the contract.** A caller must be able to see the
-failure from the signature — a `Result`/`Either`, a tagged union, a nullable,
-or a checked exception — and be made to handle it. A language that checks
-exceptions makes a declared `throws` a returned value; a language that does
-not makes a raised error returned only when its type and the fact that it can
-be raised are part of the documented contract and callers handle it. An error
-that surfaces only at runtime, invisible in every signature between its source
-and the caller, is the implicit-exception violation REFACTOR.md diagnoses —
-not a returned value.
+failure from the signature — a `Result`/`Either`, a tagged union, a nullable, or
+a checked exception — and be made to handle it. A language that checks
+exceptions makes a declared `throws` a returned value; a language that does not
+makes a raised error returned only when its type and the fact that it can be
+raised are part of the documented contract and callers handle it. An error that
+surfaces only at runtime, invisible in every signature between its source and
+the caller, is an implicit exception (REFACTOR.md rule 1), not a returned value.
 
 **Handle every returned failure.** When the caller ignores a returned error,
 the error disappears and the program carries on as if the call worked.
@@ -233,7 +220,7 @@ immutable shapes that have no setters to break.
 
 Where the contract lives: the types first (rule 3 here, SHAPE.md rule 7), then
 asserts at entry and exit, then a comment for anything the types can't hold.
-TEST.md, "Test the contract as properties", proves it.
+TEST.md rule 10 proves it.
 
 ## 9. Bound everything
 
@@ -268,7 +255,7 @@ fn root_of(node: Node) -> Node {
 
 - **Every loop has a named upper bound**: a constant, or the length of the
   collection it walks. A `while true` that waits for a condition gets a
-  counter or a deadline (CRASHONLY.md: timeout every interaction).
+  counter or a deadline (CRASHONLY.md rule 6).
 - **Avoid recursion, or give it an explicit depth limit.** A loop over an
   explicit stack is usually better, because the stack's size is a number
   you can bound and check.

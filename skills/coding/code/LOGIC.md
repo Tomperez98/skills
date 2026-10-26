@@ -73,9 +73,7 @@ Programs are not math. The rules hold only when:
 
 Switch between code and formula as needed; for hard cases, pen and paper
 or a symbolic solver (such as sympy) is faster. Then prove the rewrite
-changed nothing: see TEST.md, "Test a refactor against the original".
-
-*Rule 1 and SHAPE.md rule 7 adapt Hillel Wayne, Logic for Programmers, ch. 3.*
+changed nothing (REFACTOR.md rule 2).
 
 ## 2. Tabulate multi-input decisions
 
@@ -101,13 +99,37 @@ Check the table before you code it:
 - **Unambiguous:** no combination matches two rows with different
   outcomes. An overlap is a contradiction in the requirements.
 
-Then code it from the table, as one branch per row or as a lookup. Each row
-is one test (TEST.md, "Test every row of the decision table"). A condition
-with fewer inputs is still logic: see rule 1.
+Then code it from the table, as one branch per row or as a lookup. A
+condition with fewer inputs is still logic: see rule 1.
+
+The table is already a test plan. Write one case per row, and add one test
+that proves the table itself is complete and unambiguous: enumerate every
+combination of inputs and assert that exactly one row matches.
+
+```
+rows = [
+    ({member: true,  big: ANY,   region: Domestic}, Free),
+    ({member: false, big: true,  region: Domestic}, Free),
+    ({member: false, big: false, region: Domestic}, Flat),
+    ({member: ANY,   big: ANY,   region: Intl},     ByWeight),
+]
+
+for (inputs, expected) in rows {
+    assert(shipping(inputs) == expected)          // one case per row
+}
+
+for combo in product([true, false], [true, false], [Domestic, Intl]) {
+    assert(count(r for r in rows if matches(r, combo)) == 1,
+           "gap or overlap at {combo}")
+}
+```
+
+A gap or an overlap fails at the input that causes it, before a customer
+finds it.
 
 ## Done when
 
 - Each rewritten condition is one rule application per step (rule 1).
 - A test compares each rewritten condition with the original (rule 1).
 - Every multi-input decision has a table that is complete and unambiguous,
-  with one test per row (rule 2).
+  with one test per row and one gap-or-overlap test (rule 2).

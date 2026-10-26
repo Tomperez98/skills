@@ -13,9 +13,6 @@ storage, memory, compute — each with two textures: bandwidth and latency.
 Roughly right beats precisely wrong, and the sketch tells you which rule in
 this file actually matters for this system.
 
-Sketch before rule 2 or 3: it tells you whether the bottleneck is
-indirection, batching, both, or neither.
-
 ## 2. Keep the hot path free of indirection
 
 When something runs many times — a loop, a request path, a query — the
@@ -66,14 +63,7 @@ for item in batch { process(item) }
 
 An assertion costs almost nothing once per batch. Fail-fast and
 performance agree here: the control plane can afford to be paranoid, so
-WRITE.md's assertions (rule 1) live there.
-
----
-
-These are constant-factor wins, not new algorithms — pick the right
-algorithm first, then apply these to the one the profiler names. When the
-component also needs to survive a crash mid-batch, CRASHONLY.md covers
-making that recovery cheap.
+the assertions of WRITE.md rule 1 live there.
 
 ## Done when
 

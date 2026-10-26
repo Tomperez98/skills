@@ -48,15 +48,12 @@ fn connect(url: DbUrl) -> Result<Conn, IOError> { ... }
   Below that line, no `getenv`. Every layer receives the parsed value as an
   argument; the parser takes the environment as a parameter rather than
   reaching into the process, so a test can drive it directly.
-- **Validate into a type at that boundary.** A missing or malformed value
-  is a startup failure that names the offender, not a wrong answer three
-  hours in. A typo'd variable silently falling back to a default is the
-  classic production incident; `getenv` returning null is the bug.
-- **No silent defaults for required config.** A default that is safe in
-  development is a latent bug in production: it turns a typo'd variable
-  name into a wrong answer instead of a crash. An option's default is
-  visible in the type (rule 1); an environment variable's is invisible.
-  Require the value, and let the crash name what is missing.
+- **Require every config value; a missing one fails at startup and names
+  the variable.** Parse it into a type at that boundary, so a malformed
+  value fails there too. A typo'd variable that falls back to a
+  development default is a wrong answer three hours in instead of a crash
+  at boot. An option's default is visible in the type (rule 1); an
+  environment variable's is invisible.
 - **Pass the narrowest slice each component needs** — a `DbUrl`, not the
   whole `Config` (rule 3).
 
@@ -130,11 +127,6 @@ let user = db.get(cache.get("user_id"))   // fresh, or a loud miss
 pointers." The lookup compares the generation and panics on a stale handle —
 same shape: identity plus a staleness check, resolved in one place.*
 
-Once the structure is fail-fast and testable, speed is a separate concern
-with its own branch — see [PERFORMANCE.md](PERFORMANCE.md) for keeping the
-hot path free of indirection, sketching costs before you build, and
-splitting the control plane from the data plane.
-
 ## 5. Let the store enforce data invariants
 
 A check in application code guards one code path. A constraint in the
@@ -166,17 +158,13 @@ CREATE TABLE users (
   your code, and assert the store rejects it. Otherwise nothing proves the
   constraint exists.
 
-*WRITE.md rule 8 and STATE.md rule 5 cover the topics of Logic for Programmers
-chs. 5, 7, and 8 (contracts and subtyping, database theory, decision tables),
-using standard Design by Contract, Liskov substitution, and decision-table
-practice.*
-
 ## Done when
 
 - Global state is an option with a visible default; tests override it
   without touching process-wide state (rule 1).
-- The environment is read once, at the edge, into a typed value, and nothing
-  below calls `getenv` (rule 2).
+- The environment is read once, at the edge, into a typed value; nothing
+  below calls `getenv`, and a missing variable fails at startup by name
+  (rule 2).
 - Every function takes only the state it uses, one hop deep (rule 3).
 - Caches and boundaries hold IDs, and a stale ID fails loudly (rule 4).
 - Every data invariant is a constraint in the store, and a test writes the
