@@ -51,7 +51,7 @@ it names every citation that now points at a different rule.
 ## 5. Re-read the neighbours
 
 Read the guides that cite or hand off to the edited one, and the router's
-entry. Update any summary that no longer matches. Check that the edited
+entry. Replace any summary with a pointer. Check that the edited
 guide's `## Done when` still cites rules that exist.
 
 ## 6. Say what kind of change it is

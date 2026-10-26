@@ -62,10 +62,7 @@ not when the file gets long. Each `SKILL.md` carries a `## Pick a branch`
 list of pointers, and each guide handles one situation start to finish.
 
 Split a guide further only when the cut earns the load it adds: a different
-situation, a different sequence, or a separate skill invocation. A guide
-that mixes rules for several situations makes the agent read all of them to
-use one. Read a long guide's rule headings, group them by the situation that
-triggers each, and move each group behind a pointer.
+situation, a different sequence, or a separate skill invocation.
 
 ## 5. Write every pointer as a trigger plus a target
 
@@ -101,7 +98,8 @@ A user-invoked router names the other skills and when to use each, so the
 person remembers one name. A router can only point; it can't fire a
 model-invoked skill from its description. Keep its map to situation → skill
 and guide names, and have it read the guide before it describes it, so the
-guide stays the one source of truth for what it does.
+guide stays the one source of truth for what it does. When you create a
+skill or guide in a collection with a router, add it to the router's map.
 
 ## 8. Say how one skill hands off to another
 

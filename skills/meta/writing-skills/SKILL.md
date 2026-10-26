@@ -57,5 +57,3 @@ tool rather than carrying on from memory:
   follow its guide for the artifact.
 - **Gating the skill collection on checks in CI** → when a `ship` skill is
   installed, call the Skill tool with "ship" and follow CI.md.
-- **The collection has a router skill** → add the new skill to its map when
-  you create one.
