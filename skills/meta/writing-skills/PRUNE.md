@@ -47,8 +47,8 @@ instead.
 - "Never drop a returned error" → "Handle, propagate, or visibly discard
   every returned error."
 
-Keep a prohibition for an irreversible step, where the cost of the mistake
-justifies naming it, and pair it with where the agent stops and asks.
+Keep a prohibition for a one-way door (NEW.md rule 6), where the cost of the
+mistake justifies naming it, and pair it with where the agent stops and asks.
 
 ## 5. Replace repeated phrases with a leading word
 
@@ -57,7 +57,8 @@ everywhere ("crash-only", "idempotent", "linearizable", "SemVer"). An
 existing word carries its meaning for free. Define an invented word once,
 where it first appears, and use it consistently after. When several guides
 share invented or overloaded words, define them in the `SKILL.md` under
-`## Terms`, and say to use them exactly.
+`## Terms`, and say to use them exactly. Name the synonyms an agent drifts
+into after each term (`_Avoid_: …`), so the near-miss words stay out too.
 
 ## 6. Split what only some situations need
 
@@ -82,7 +83,7 @@ changed the behavior goes back, rewritten rather than restored verbatim.
 - The always-loaded lines are the ones that change behavior, with their
   sizes before and after on record (rules 1 and 3).
 - Each meaning appears once, and each other mention is a pointer (rule 2).
-- Prohibitions read as instructions, except at an irreversible step
+- Prohibitions read as instructions, except at a one-way door
   (rule 4).
 - Every guide serves one situation and ends in checkable items (rules 6
   and 7).

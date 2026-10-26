@@ -79,8 +79,8 @@ If not, skip this release (rule 2).
 When an agent runs the release, this is the one point where it stops and
 asks. It shows the frozen commit, the version, and the changelog entry,
 then waits for a "go" before the first upload. Every step before this one
-can run without asking, because each one can be redone. Publishing can't be
-undone (rule 7).
+is a two-way door and runs without asking. Publishing is a one-way door
+(rule 7).
 
 ## 7. Published versions are immutable; fix forward
 

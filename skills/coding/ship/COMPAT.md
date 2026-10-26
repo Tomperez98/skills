@@ -121,10 +121,10 @@ build (CI.md rule 7). To write the entry, call the Skill tool with "docs"
 and follow its CHANGELOG.md. After the major release ships, its contract
 becomes the new baseline.
 
-Declaring a break is the user's call. A declared break forces a major version on
-everyone downstream, so the agent stops and asks: it shows the failing check and
-the proposed changelog entry, then waits for a yes. Fixing the change so the
-check passes again needs no permission.
+Declaring a break is the user's call and a one-way door: it forces a major
+version on everyone downstream, so the agent stops and asks: it shows the
+failing check and the proposed changelog entry, then waits for a yes. Fixing the
+change so the check passes again needs no permission.
 
 Only that undeclared break is an error. Give every other result its own
 level, so red keeps meaning "stop":

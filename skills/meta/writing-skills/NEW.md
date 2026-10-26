@@ -24,6 +24,8 @@ A sequence a person starts on purpose (cut a release, chase a bug) is a
 user-invoked **workflow**: a `SKILL.md` with no branch guides whose steps
 each call the Skill tool with the skill that owns the rules. The workflow
 owns only the order and the check between steps; the guides keep the rules.
+When a behavior composes from existing guides, it gets a workflow or a
+hand-off, not a new skill.
 
 At the scale of a handful of skills, a model-invoked description per skill
 is cheap. At dozens, each description is a standing tax, so make the rarely
@@ -97,8 +99,9 @@ Each step, and each guide, ends in something the agent can check.
   each citing the rule it checks.
 - Where a guide produces a record or verdict, give its shape as a fenced
   template in the rule that produces it.
-- A step that can't be undone (a publish, a declared break) says the agent
-  stops and asks there, and says the steps before it run without asking.
+- A **one-way door** (a step that can't be undone: a publish, a declared
+  break) says the agent stops and asks there, and says the two-way doors
+  before it run without asking.
 
 ## 7. Add a router when the skills outnumber what a person remembers
 
