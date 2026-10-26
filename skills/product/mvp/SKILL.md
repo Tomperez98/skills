@@ -39,15 +39,12 @@ assumption at the top.
 
 ## What the rule requires
 
-- **A real person, not you.** You are the worst judge of your own idea. The
-  moment of truth is whether someone else — a classmate, a friend, a
-  stranger — reaches the value. Your own excitement is not evidence.
+- **A real person** is anyone who isn't you; your own excitement is not
+  evidence.
 - **An "aha", not a feature.** The aha is the instant the user gets what
   the thing is for and feels the payoff. Features are the means; the aha is
   the end. If you can't name the aha, you don't have an MVP yet.
-- **Five minutes, not fifty.** A consumer gives a new app about five
-  minutes of attention before they leave. If the value doesn't land inside
-  that window, the journey is too long and the scope is too big.
+- **Five minutes** is the attention a new app gets before the user leaves.
 
 ## Hand off
 
