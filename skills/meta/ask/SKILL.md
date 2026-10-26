@@ -14,17 +14,13 @@ where the work goes after. Everything here follows from one rule:
 
 > **Name one skill and one guide, and read it before you recommend it.**
 
-The map below is for orientation only. A guide's summary drifts from the
-guide; the guide doesn't. Describe a guide, or say a step can be skipped,
-only after reading it.
-
 ## Route
 
 1. **Say the situation back in one line**, in the user's words. If two
    situations fit and the answer changes the route, ask one question; if the
    user isn't around, pick by the file in front of you and say so.
 2. **Find it on the map** (below) and read that skill's `SKILL.md`, then the
-   guide its "Pick a branch" names. Route by the guide, not by this page.
+   guide its "Pick a branch" names.
 3. **Answer in this shape**, and nothing longer:
 
    ```text
@@ -34,8 +30,7 @@ only after reading it.
    Then:       <the next stop on the flow, or "done">
    ```
 
-4. **Nothing fits?** Say so. Don't stretch a skill over a situation it
-   doesn't name; that's a gap worth reporting, not routing.
+4. **Nothing fits** → say so and report it as a gap.
 
 ## The map
 
@@ -43,11 +38,11 @@ only after reading it.
 
 Most work runs this path. Enter at the first stop that isn't done yet.
 
-1. **No idea yet, or a vague one** → mvp: PICK, then RESEARCH if the premise
-   is in doubt, SPEC to shape it, AHA to cut it to one use case.
+1. **No idea yet** → mvp: PICK; premise in doubt → RESEARCH; shape it →
+   SPEC; too many features → AHA.
 2. **Build it** → code: WRITE, with TEST alongside. A stateful API whose
    behavior should be checked against a model → accordant: SPEC, then
-   GENERATE; once there is more than one cluster, SUITES.
+   GENERATE; once there is more than one cluster, SUITES; once green, COVERAGE.
 3. **Put it in front of a person** → mvp: VALIDATE. A "no" goes back to AHA,
    not forward.
 4. **Document it** → docs: README first, then API or TUTORIAL.
@@ -61,7 +56,9 @@ Most work runs this path. Enter at the first stop that isn't done yet.
   ship: RELEASE.
 - **"Is this a breaking change?"** → ship: COMPAT. With an accordant spec,
   accordant: BASELINE runs the released spec against the new build.
-- **A spec change under review** → accordant: TRACES.
+  Several services shipping together → ship: ROLLOUT.
+- **A spec change under review** → accordant: TRACES; routing review by
+  contract change → ship: REVIEW.
 - **A regression on main after merge** → ship: MONITOR.
 - **A dependency to add, update, or audit** → code: DEPENDENCIES.
 
@@ -87,12 +84,5 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 
 ## Hand off
 
-The answer is the hand-off. When the user says go, load the skill rather
-than carrying on from this map:
-
-- **The route starts at an idea** → call the Skill tool with "mvp" and
-  follow PICK.md.
-- **The route starts at code** → call the Skill tool with "code" and follow
-  the branch the answer named.
-- **Any other route** → call the Skill tool with the skill the answer named
-  and follow its guide.
+When the user says go, call the Skill tool with the skill the answer named
+and follow its guide.
