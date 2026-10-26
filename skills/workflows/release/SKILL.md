@@ -51,8 +51,8 @@ that SHA.
 ## 4. Stop and ask
 
 Show the frozen SHA, the version, and the changelog entry, and wait for a
-"go". Steps 1–3 run without asking because each can be redone. Step 5
-can't be undone.
+"go". Steps 1–3 are two-way doors and run without asking; step 5 is a
+one-way door.
 
 Done: the user said "go" to this SHA and version.
 

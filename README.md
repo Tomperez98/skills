@@ -2,8 +2,8 @@
 
 One rule per skill, branch guides that turn the rule into procedure, and a
 description that triggers at exactly the right moment. Five skills, a router,
-two workflows, and a skill for writing skills today, forty-three branch guides,
-301 numbered rules.
+three workflows, an interview skill, and a skill for writing skills today,
+forty-three branch guides, 301 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
@@ -15,6 +15,8 @@ two workflows, and a skill for writing skills today, forty-three branch guides,
 | [`writing-skills`](skills/meta/writing-skills/SKILL.md) | Every line earns its place in the agent's context | NEW · EDIT · PRUNE |
 | [`ask`](skills/meta/ask/SKILL.md) | Name one skill and one guide, and read it before you recommend it | — (a router, invoked as `/ask`) |
 | [`release`](skills/workflows/release/SKILL.md) | Ship one frozen, green commit, and ask before the first upload | — (a workflow over ship and docs, invoked as `/release`) |
+| [`retro`](skills/workflows/retro/SKILL.md) | Fix the mistake where the next agent will meet it: a check if a script can see it, a guide line if it takes judgement | — (a workflow over writing-skills and ship, invoked as `/retro`) |
+| [`grill`](skills/meta/grill/SKILL.md) | Settle every decision with the user; look up every fact yourself | — (one procedure, no branch guides) |
 | [`diagnose`](skills/workflows/diagnose/SKILL.md) | Get a red, repeatable signal before you change anything | — (a workflow over code, ship, and accordant, invoked as `/diagnose`) |
 
 ## What it is

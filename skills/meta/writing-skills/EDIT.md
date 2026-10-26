@@ -34,7 +34,8 @@ pointer, so the next change touches one file.
 
 The change turns the rule into better procedure. When the change contradicts
 the rule, the rule is wrong or the change belongs in a different skill; say
-which, and decide before you write.
+which, and decide before you write. When the user must decide, call the
+Skill tool with "grill".
 
 ## 4. Move and renumber without breaking citations
 

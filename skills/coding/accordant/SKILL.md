@@ -94,20 +94,25 @@ where the system stops needing them:
 
 Use these words exactly, in the guides and in what you write for the user.
 
+- **Spec:** the minimal state plus one `Apply` per operation; the only
+  contract document. _Avoid_: model, mock, second implementation.
 - **Outcome:** one response `Apply` allows for a state and request, with its
   state step. Its explanation, `"<situation> → <outcome>"`, is a
-  **promise**: the contract in words.
+  **promise**: the contract in words. _Avoid_: assertion, expected value.
 - **Binding:** the code that turns an operation into a call on the system;
-  the only part that changes between transports.
+  the only part that changes between transports. _Avoid_: client, adapter.
 - **Cluster:** one `Spec<State>` over the operations that share
-  transitions. **Suite:** one exploration of a cluster from one state with
-  one `InputSet`. **Plan entry:** the one declaration of a suite that tests,
-  budgets, and exports derive from.
+  transitions. _Avoid_: module (that's ownership and review). **Suite:**
+  one exploration of a cluster from one state with one `InputSet`; it
+  produces **cases**. _Avoid_: test class. **Plan entry:** the one
+  declaration of a suite that tests, budgets, and exports derive from.
 - **Profile:** the set of states the system could be in, threaded through
-  `Allows` from call to call.
+  `Allows` from call to call. _Avoid_: "the state", when more than one is
+  possible.
 - **Trace:** a recorded sequence of (request, response) pairs from a
-  passing run. **Baseline:** the last release's spec and sequences, run
-  unchanged against the new build.
+  passing run. _Avoid_: log. **Baseline:** the last release's spec and
+  sequences, run unchanged against the new build. _Avoid_: snapshot,
+  golden file.
 
 ## Hand off
 
