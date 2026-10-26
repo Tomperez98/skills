@@ -58,6 +58,22 @@ The `code` skill's rule applies to pipelines too. A broken precondition
 bug: stop loudly.
 A network or registry failure is expected: retry it or report it.
 
+## Terms
+
+Use these words exactly, in the guides and in what you write for the user.
+
+- **Contract:** what users rely on, in two layers: **shape** (schema,
+  signatures) and **behavior** (what the system does with a well-formed
+  call). A **promise** is one behavior rule, written as
+  `"<situation> → <outcome>"`.
+- **Break:** a change to the contract that a caller of the last release can
+  notice. **Declared** means it has a breaking changelog entry and a major
+  bump; anything else is undeclared, and fails the build.
+- **N-1, N:** the last release and the one being built. The **window** is
+  the range of versions that must work together while a deploy rolls out.
+- **Frozen commit:** the SHA, resolved from remote main, that a release
+  ships and nothing else.
+
 ## Hand off
 
 When the task crosses into another skill's ground, load it with the Skill
