@@ -123,13 +123,21 @@ along one path:
 
 ```text
 mvp  PICK → RESEARCH → SPEC → AHA → VALIDATE
+       ↓ settle the decisions
+grill
        ↓ build it
-code WRITE ⇄ TEST        accordant SPEC → GENERATE → SUITES   (stateful APIs)
+/implement  (code WRITE ⇄ TEST ⇄ SHAPE, one slice at a time)
+            accordant SPEC → GENERATE → SUITES   (stateful APIs)
+       ↓ check it
+/review
        ↓ document it
 docs README · API · CHANGELOG
        ↓ release it
-ship CI → RELEASE → PUBLISH   ·   COMPAT (accordant BASELINE runs the old spec)
+ship CI → /release   ·   COMPAT (accordant BASELINE runs the old spec)
 ```
+
+Something red along the way → `/diagnose`; a session that went sideways →
+`/retro`. [examples/](examples/README.md) has mock sessions of each path.
 
 Each `SKILL.md` ends with a **Hand off** section naming the skill that
 picks up next and the guide to follow. A guide that needs another skill
