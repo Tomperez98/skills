@@ -40,7 +40,9 @@ will prove it.
 ## 3. Red: write the slice's test
 
 Call the Skill tool with "code" and follow its TEST.md. Test the slice's
-behavior through its public interface, not its internals, and run it. It
+behavior through its public interface, not its internals. Stub the
+function or module it calls first, so the run can reach the behavior. Run
+it. It
 must fail, and for the reason the slice names, not an import error or a
 typo: a test you never saw red proves nothing (code skill, TEST.md rule
 11).

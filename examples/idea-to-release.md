@@ -208,3 +208,8 @@ low   Slice 1's first red was a missing-module error, not the behavior
 ```
 
 Apply it?
+
+**You:** yes
+
+**Agent:** Applied: `/implement` step 3 now says to stub the function or
+module first, so the first red is the behavior.
