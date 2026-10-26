@@ -2,7 +2,9 @@
 
 You're deciding what ships, what it's called, and what happens when it's
 wrong. Whatever the cadence, the process should be dull enough that anyone
-can run it. Apply the rules in order.
+can run it. Apply the rules in order. When the cadence or the versioning
+scheme is the user's call, call the Skill tool with "grill" before you
+write it down.
 
 ## 1. Write the checklist down
 

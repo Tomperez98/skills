@@ -5,7 +5,9 @@ you do. The goal is a contract that is guessable, safe to retry, and safe to
 change: a broken invariant is a 5xx, every expected failure a named 4xx.
 Apply the rules in order.
 
-For an in-process interface, use [SHAPE.md](SHAPE.md) instead.
+For an in-process interface, use [SHAPE.md](SHAPE.md) instead. When the
+protocol, the versioning scheme, or the auth model is the user's call,
+call the Skill tool with "grill" before you write it.
 
 ## 1. Pick the protocol from the caller, and default to REST
 
