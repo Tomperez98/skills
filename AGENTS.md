@@ -1,14 +1,12 @@
 # AGENTS.md
 
-This repo is a collection of skills for AI coding assistants, installable
-with `npx skills add Tomperez98/skills`. Five skills live here, `code`,
-`docs`, `ship`, `mvp`, and `accordant`, plus `ask`, a user-invoked router
-over them, `grill`, an interview
-other skills hand decisions to, `release`, `diagnose`, and `retro`,
-user-invoked workflows that run their
-guides in order, and `writing-skills`, which says how to write, change, and
-trim them. Everything in this repo — new skills, edits, examples — follows
-their one rules:
+This repo is a collection of skills for AI coding assistants, installable with
+`npx skills add Tomperez98/skills`. Five skills live here, `code`, `docs`,
+`ship`, `mvp`, and `accordant`, plus `ask`, a user-invoked router over them,
+`grill`, an interview other skills hand decisions to, `implement`, `review`,
+`release`, `diagnose`, and `retro`, user-invoked workflows that run their guides
+in order, and `writing-skills`, which says how to write, change, and trim them.
+Everything in this repo — new skills, edits, examples — follows their one rules:
 
 - **code** — bugs panic, expected failures return values.
 - **docs** — lead with the reader's task, win the 10-second skim, never mislead.
@@ -36,8 +34,8 @@ Read the matching guide before you write or edit anything here.
   CONCURRENCY, ASYNC, FAULTS, BASELINE, TRACES, DEBUG
 - `skills/meta/ask/SKILL.md` — the router; no branch guides.
 - `skills/meta/grill/SKILL.md` — one procedure; no branch guides.
-- `skills/workflows/{release,diagnose,retro}/SKILL.md` — workflows; no branch
-  guides. A new one goes in the router's map.
+- `skills/workflows/{implement,review,release,diagnose,retro}/SKILL.md` —
+  workflows; no branch guides. A new one goes in the router's map.
 
 ## Skill format
 

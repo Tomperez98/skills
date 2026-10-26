@@ -3,7 +3,8 @@ name: ask
 description: >
   Ask which skill and branch guide fit the situation. A router over the
   code, docs, ship, mvp, accordant, and writing-skills, and grill skills
-  and the release, diagnose, and retro workflows. Invoked by name only.
+  and the implement, review, release, diagnose, and retro workflows.
+  Invoked by name only.
 disable-model-invocation: true
 ---
 
@@ -41,13 +42,16 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 
 1. **No idea yet** → mvp: PICK; premise in doubt → RESEARCH; shape it →
    SPEC; too many features → AHA.
-2. **Build it** → code: WRITE, with TEST alongside. A stateful API whose
+2. **Settle the plan** → grill, until no decision is open.
+3. **Build it** → the `implement` workflow, which runs code: WRITE, TEST,
+   and SHAPE one slice at a time. Then the `review` workflow before it
+   merges. A stateful API whose
    behavior should be checked against a model → accordant: SPEC, then
    GENERATE; once there is more than one cluster, SUITES; once green, COVERAGE.
-3. **Put it in front of a person** → mvp: VALIDATE. A "no" goes back to AHA,
+4. **Put it in front of a person** → mvp: VALIDATE. A "no" goes back to AHA,
    not forward.
-4. **Document it** → docs: README first, then API or TUTORIAL.
-5. **Release it** → ship: CI before the first merge. Each release after
+5. **Document it** → docs: README first, then API or TUTORIAL.
+6. **Release it** → ship: CI before the first merge. Each release after
    that → the `release` workflow; a release process to set up or fix →
    ship: RELEASE and PUBLISH. The release notes are docs: CHANGELOG.
 
@@ -59,6 +63,7 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 - **"Is this a breaking change?"** → ship: COMPAT. With an accordant spec,
   accordant: BASELINE runs the released spec against the new build.
   Several services shipping together → ship: ROLLOUT.
+- **A diff or pull request to review** → the `review` workflow.
 - **A spec change under review** → accordant: TRACES; routing review by
   contract change → ship: REVIEW.
 - **A regression on main after merge** → ship: MONITOR.
@@ -88,6 +93,6 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 
 ## Hand off
 
-When the user says go, call the Skill tool with the skill the answer named
-and follow its guide. A workflow (`release`, `diagnose`, `retro`) starts only
-by name: tell the user to type it, such as `/release`.
+When the user says go, call the Skill tool with the skill the answer named and
+follow its guide. A workflow (`implement`, `review`, `release`, `diagnose`,
+`retro`) starts only by name: tell the user to type it, such as `/release`.
