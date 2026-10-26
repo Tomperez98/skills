@@ -44,7 +44,10 @@ git worktree add ../baseline "$tag"
 ```
 
 With services in lockstep, that one worktree holds every service's
-baseline suite.
+baseline suite. Where older versions still run (a rollback window,
+on-premises installs), check out one worktree per supported release and run
+each suite in rule 2; remove a worktree when its version leaves the window
+(ship skill, COMPAT.md rule 11).
 
 Export the release's exact sequences at release time and ship the file
 with the release. The rerun then replays what was tested, not whatever
@@ -225,7 +228,11 @@ together (ship skill, COMPAT.md rule 8). A single package stops at rule 8.
 Each service keeps its own spec, and the check runs all of them, both
 directions (ship skill, COMPAT.md rule 9). Backward: every service's
 baseline suite runs against the new build (rule 2). Forward: every
-service's suite on main runs against the last released build.
+service's suite on main runs against the last released build. Run only the
+directions the deploy order can produce (ship skill, COMPAT.md rule 9). A
+forward failure on an operation or field that is new on main means the
+provider must ship first; report it as an ordering requirement, not a
+break in the old build.
 
 ## 10. Test the rollout with every spec judging
 

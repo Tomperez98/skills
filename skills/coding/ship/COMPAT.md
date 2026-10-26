@@ -67,7 +67,9 @@ people route around.
 Put the schema, the spec, and the test sequences it generated into the
 release, and list them in the manifest (PUBLISH.md rule 2). The next
 release's checks then read the contract that actually shipped, not one
-rebuilt from memory or from a tag that was patched later.
+rebuilt from memory or from a tag that was patched later. Reading it from
+the release also means a rewritten history or a shallow clone can't lose
+the baseline.
 
 If the last release shipped no contract, make one: write the spec on main,
 then run it against the last release's published artifact. Green means it
@@ -193,6 +195,13 @@ a contract between services:
 - **Forward:** N's suites judge N-1's build, because during the rollout new
   consumers reach old providers.
 
+Run only the directions your deploy order (rule 10) can produce: when
+providers always upgrade first, new consumers never meet an old provider,
+and backward alone covers it. An order nothing enforces needs both. A
+forward failure on a promise that is new in N (a field or operation N-1
+lacks) is no defect; it is an ordering requirement, so the provider ships
+in an earlier release or step than the code that calls it.
+
 ## 10. Test the rollout in the order you deploy
 
 Write the deploy order down and script it, usually providers before
@@ -209,6 +218,12 @@ refuse anyone outside it with a clear "too old" or "too new" error. A
 caller outside the window otherwise gets undefined behavior, and the first
 sign is corrupt data instead of an error.
 
+Where rollbacks or on-premises installs keep older versions running, the
+window is wider than N-1. Keep each shipped contract (rule 4) for every
+version still supported, run rule 5 against each, and delete one when its
+version leaves the window. Each version adds a suite run, so the window's
+width is a cost you choose, not a default.
+
 ## 12. Messages and data outlive the deploy
 
 Events already in queues and rows already stored were written by N-1, so N
@@ -218,7 +233,16 @@ by migrating a copy of N-1's data, then reading it back through N's API
 with the specs judging the responses. A schema change to stored data runs
 as expand, migrate, contract, spread over at least two releases: add the
 new shape and write both, move readers over, then remove the old shape
-once no N-1 code is left.
+once no N-1 code is left. The order of the steps matters, and each
+check enforces one:
+
+- **Widen readers before the data narrows or loosens.** Old code that
+  expects a value breaks when a field becomes optional: ship code that
+  accepts both first (the backward check, rule 9).
+- **Add the new shape before the code that uses it.** Code that writes a
+  field in the pull request that adds it breaks on N-1 (the forward
+  check).
+- **Stop reading and writing the old shape before you remove it.**
 
 ---
 
