@@ -51,6 +51,8 @@ decision.
 
 ## Hand off
 
+- **The settled plan is ready to build** → tell the user to type
+  `/implement`.
 - **The settled plan is an idea to build** → call the Skill tool with "mvp"
   and follow its SPEC.md.
 - **The settled plan is an interface or module structure** → call the Skill

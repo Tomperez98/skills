@@ -51,7 +51,8 @@ assumption at the top.
 When VALIDATE says build it, the work leaves this skill. Load the next one
 with the Skill tool rather than carrying on from memory:
 
-- **Building the core use case** → call the Skill tool with "code" and
-  follow WRITE.md. The brief is the paragraph from SPEC.md.
+- **Building the core use case** → tell the user to type `/implement`
+  with the paragraph from SPEC.md as the plan; for a one-off change, call
+  the Skill tool with "code" and follow WRITE.md.
 - **The README or landing page the tester reads first** → call the Skill
   tool with "docs" and follow README.md or LANDING.md.

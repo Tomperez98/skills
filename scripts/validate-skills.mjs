@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Validate the skill collection: frontmatter, description budget, README sync,
 // Hand off and Done when sections, the router's map, link resolution, rule
-// references, Skill tool calls, and orphaned pages.
+// references, Skill tool calls, orphaned pages, and the examples.
 //
 // Run the whole suite, or one tier:
 //   node scripts/validate-skills.mjs        # everything
 //   node scripts/validate-skills.mjs check  # fast: frontmatter, sections, README sync, router map
-//   node scripts/validate-skills.mjs links  # links, rule references, Skill calls, orphans
+//   node scripts/validate-skills.mjs links  # links, rule references, Skill calls, orphans, examples
 //
 // Exits 0 when clean, 1 when any check fails, 2 on a usage error. Every
 // message names the file and what to change. Warnings are advisory and do not
@@ -28,9 +28,9 @@ const DESCRIPTION_BUDGET = 450; // AGENTS.md's "aim for under ~450"
 const MAX_SCAN_DEPTH = 16; // our own tree is bounded; deeper is a tool bug
 const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv", ".contract-report"]);
 const TIER_LABELS = {
-  all: "frontmatter, sections, content rules, README sync, router map, links, rule references, Skill calls, orphans",
+  all: "frontmatter, sections, content rules, README sync, router map, links, rule references, Skill calls, orphans, examples",
   check: "frontmatter, sections, content rules, README sync, router map",
-  links: "links, rule references, Skill calls, orphans",
+  links: "links, rule references, Skill calls, orphans, examples",
 };
 
 /**
@@ -757,6 +757,198 @@ function checkCitationMeaning(markdownFiles, headings, cited) {
   }
 }
 
+const EXAMPLES_DIR = join(REPO_ROOT, "examples");
+// "_(mvp: RESEARCH, then SPEC)_", "_(implement)_", "_(code: WRITE, docs: CHANGELOG)_"
+const ANNOTATION = /_\(([^)]+)\)_/g;
+// "**3. Red (slice 1).**", "**3–6.**", "**1.** Base …"
+const STEP_REF = /\*\*(\d+)(?:\s*[–-]\s*(\d+))?\.(?:\s+([^*]+?))?\*\*/g;
+// "Rule:    <skill guide and rule number>", "Verdict: <confirmed | plausible>, …"
+const TEMPLATE_FIELD = /^\s*(?:<[^>]+>\s+)*([A-Z][a-z]+):\s+<([^>]+)>/;
+const FILLED_FIELD = /^\s*(?:\S.*?\s{2,})?([A-Z][a-z]+):\s+(.*)$/;
+
+/** True when `file` lives under `dir`, using path segments (Windows-safe). */
+function isUnder(dir, file) {
+  const rel = relative(dir, file);
+  return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
+}
+
+/** Every skill by name: its folder, page, whether only the user starts it. */
+function skillIndex(markdownFiles) {
+  const index = new Map();
+  for (const file of markdownFiles.filter((f) => isUnderSkills(f) && basename(f) === "SKILL.md")) {
+    const text = readFileSync(file, "utf8");
+    index.set(basename(dirname(file)), {
+      dir: dirname(file),
+      page: file,
+      text,
+      userInvoked: parseFrontmatter(text).fields["disable-model-invocation"] === "true",
+    });
+  }
+  return index;
+}
+
+/**
+ * An annotation's skills and guides: "code: WRITE, docs: CHANGELOG" →
+ * [{ skill: "code", guides: ["WRITE"] }, { skill: "docs", guides: ["CHANGELOG"] }].
+ */
+function parseAnnotation(body) {
+  const parts = [];
+  for (const segment of tidy(body).split(/,\s*/)) {
+    const head = segment.match(/^([a-z][a-z-]*)(?::\s*(.*))?$/);
+    if (head) parts.push({ skill: head[1], guides: [] });
+    const rest = head ? (head[2] ?? "") : segment;
+    if (parts.length) parts.at(-1).guides.push(...(rest.match(/\b[A-Z][A-Z_]+\b/g) ?? []));
+  }
+  return parts;
+}
+
+/** A skill's output templates: each field label, with its options if it has them. */
+function templateFields(text) {
+  const fields = new Map();
+  for (const [, block] of text.matchAll(/```[^\n]*\n([\s\S]*?)```/g)) {
+    for (const line of block.split("\n")) {
+      const m = line.match(TEMPLATE_FIELD);
+      if (!m) continue;
+      const options = m[2].includes("|") ? m[2].split("|").map((o) => o.trim()) : null;
+      fields.set(m[1], options);
+    }
+  }
+  return fields;
+}
+
+/**
+ * A slash command names a skill the user starts by name. "Type `/x`" and a
+ * user turn that opens with `/x` must name one; `/x` that matches a skill the
+ * model starts is a wrong instruction either way.
+ */
+function checkSlashCommands(markdownFiles, skills) {
+  const COMMAND = /(type\s+|\*\*You:\*\*\s+)?`\/([a-z][a-z-]*)`/gi;
+  for (const file of markdownFiles) {
+    for (const [, cue, name] of tidy(readFileSync(file, "utf8")).matchAll(COMMAND)) {
+      const skill = skills.get(name);
+      if (skill && !skill.userInvoked) {
+        fail(file, `\`/${name}\`: ${name} is started by the model, not by name; drop the slash`);
+      } else if (!skill && cue) {
+        fail(file, `\`/${name}\` names no skill`);
+      }
+    }
+  }
+}
+
+/**
+ * The examples are mock sessions, so they can't run, but they can't drift
+ * from the skills either. Every annotation names real skills and guides; a
+ * numbered step names the step it claims; a filled template has every field
+ * of the skill's template, with an allowed value; the index links every page.
+ */
+function checkExamples(markdownFiles) {
+  const skills = skillIndex(markdownFiles);
+  checkSlashCommands(markdownFiles, skills);
+  if (!existsSync(EXAMPLES_DIR)) return;
+  const pages = markdownFiles.filter((file) => isUnder(EXAMPLES_DIR, file));
+  const index = join(EXAMPLES_DIR, "README.md");
+  const linked = existsSync(index)
+    ? new Set(extractLinks(readFileSync(index, "utf8"), index).map((l) => l.resolved))
+    : new Set();
+  for (const page of pages) {
+    if (page !== index && !linked.has(page)) fail(index, `does not link ${relative(REPO_ROOT, page)}`);
+    checkExamplePage(page, skills);
+  }
+}
+
+function checkExamplePage(page, skills) {
+  const lines = readFileSync(page, "utf8").split(/\r?\n/);
+  let context = []; // the parsed annotation the next turns run under
+  let fence = null;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (fence) {
+      if (/^\s*```/.test(line)) {
+        checkFilledTemplate(page, fence, context, skills);
+        fence = null;
+      } else fence.push(line);
+      continue;
+    }
+    if (/^\s*```/.test(line)) {
+      fence = [];
+      continue;
+    }
+    if (/^## /.test(line)) context = [];
+    // A step on the line belongs to the annotation in force before it.
+    for (const [, from, to, title] of line.matchAll(STEP_REF)) {
+      checkStepRef(page, context, skills, Number(from), to && Number(to), title);
+    }
+    // An annotation can wrap; read it with the next line.
+    const joined = `${line} ${lines[i + 1] ?? ""}`;
+    for (const [, body] of joined.matchAll(ANNOTATION)) {
+      if (!line.includes("_(")) continue;
+      context = parseAnnotation(body);
+      for (const { skill, guides } of context) {
+        const entry = skills.get(skill);
+        if (!entry) {
+          fail(page, `annotation \`_(${tidy(body)})_\` names \`${skill}\`, which is not a skill`);
+          continue;
+        }
+        for (const guide of guides) {
+          if (!existsSync(join(entry.dir, `${guide}.md`))) {
+            fail(page, `annotation \`_(${tidy(body)})_\`: ${skill} has no ${guide}.md`);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * "**3. Red …**" under `_(implement)_` claims implement's step 3. The page
+ * whose steps it means is the workflow, or the one guide the annotation names.
+ */
+function checkStepRef(page, context, skills, from, to, title) {
+  if (context.length !== 1) return;
+  const [{ skill, guides }] = context;
+  const entry = skills.get(skill);
+  if (!entry || guides.length > 1) return;
+  const target = guides.length ? join(entry.dir, `${guides[0]}.md`) : entry.page;
+  if (!existsSync(target)) return;
+  const steps = ruleHeadings(readFileSync(target, "utf8"));
+  if (steps.size === 0) return;
+  const name = relative(REPO_ROOT, target);
+  for (const n of to ? [from, to] : [from]) {
+    if (!steps.has(n)) fail(page, `step ${n} under \`${skill}\`: ${name} has no step ${n}`);
+  }
+  const word = title?.match(/[A-Za-z]+/)?.[0].toLowerCase();
+  const heading = steps.get(from);
+  if (word && heading && !heading.toLowerCase().includes(word)) {
+    fail(page, `"**${from}. ${title}**": ${name} step ${from} is "${heading}"`);
+  }
+}
+
+/** A fenced block that fills a skill's template has all its fields, once per item. */
+function checkFilledTemplate(page, block, context, skills) {
+  for (const { skill } of context) {
+    const entry = skills.get(skill);
+    if (!entry) continue;
+    const template = templateFields(entry.text);
+    if (template.size === 0) continue;
+    const counts = new Map([...template.keys()].map((label) => [label, 0]));
+    for (const line of block) {
+      const m = line.match(FILLED_FIELD);
+      if (!m || !template.has(m[1])) continue;
+      counts.set(m[1], counts.get(m[1]) + 1);
+      const options = template.get(m[1]);
+      if (options && !options.some((option) => m[2].trim().startsWith(option))) {
+        fail(page, `${skill} template: \`${m[1]}: ${m[2].trim().slice(0, 40)}\` is not one of ${options.join(", ")}`);
+      }
+    }
+    const used = [...counts.values()].filter((n) => n > 0);
+    if (used.length === 0) continue;
+    const most = Math.max(...used);
+    for (const [label, n] of counts) {
+      if (n < most) fail(page, `${skill} template: \`${label}:\` appears ${n} times, other fields ${most}`);
+    }
+  }
+}
+
 function report(markdownFiles, skillCount, tier) {
   const uniqueErrors = [...new Set(errors)].sort();
   const uniqueWarnings = [...new Set(warnings)].sort();
@@ -794,6 +986,7 @@ if (tier === "all" || tier === "links") {
   runLinks(markdownFiles);
   checkRuleReferences(markdownFiles);
   checkSkillCalls(markdownFiles);
+  checkExamples(markdownFiles);
 }
 
 const skillCount = markdownFiles.filter((file) => file.endsWith("SKILL.md")).length;
