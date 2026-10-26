@@ -2,7 +2,8 @@
 name: ask
 description: >
   Ask which skill and branch guide fit the situation. A router over the
-  code, docs, ship, mvp, accordant, and writing-skills skills. Invoked by name only.
+  code, docs, ship, mvp, accordant, and writing-skills skills and the
+  release and diagnose workflows. Invoked by name only.
 disable-model-invocation: true
 ---
 
@@ -46,14 +47,15 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 3. **Put it in front of a person** → mvp: VALIDATE. A "no" goes back to AHA,
    not forward.
 4. **Document it** → docs: README first, then API or TUTORIAL.
-5. **Release it** → ship: CI before the first merge, then RELEASE and
-   PUBLISH. The release notes are docs: CHANGELOG.
+5. **Release it** → ship: CI before the first merge. Each release after
+   that → the `release` workflow; a release process to set up or fix →
+   ship: RELEASE and PUBLISH. The release notes are docs: CHANGELOG.
 
 ### On-ramps: work that arrives from outside
 
-- **Something's broken** → a red accordant run is accordant: DEBUG; code
-  that's hard to test or change is code: REFACTOR; a failed release is
-  ship: RELEASE.
+- **Something's broken, failing, flaky, or slow** → the `diagnose`
+  workflow; a red accordant run is accordant: DEBUG; code that's hard to
+  test or change is code: REFACTOR; a failed release is ship: RELEASE.
 - **"Is this a breaking change?"** → ship: COMPAT. With an accordant spec,
   accordant: BASELINE runs the released spec against the new build.
   Several services shipping together → ship: ROLLOUT.
@@ -85,4 +87,5 @@ Most work runs this path. Enter at the first stop that isn't done yet.
 ## Hand off
 
 When the user says go, call the Skill tool with the skill the answer named
-and follow its guide.
+and follow its guide. A workflow (`release`, `diagnose`) starts only by
+name: tell the user to type `/release` or `/diagnose`.

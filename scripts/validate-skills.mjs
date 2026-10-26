@@ -514,14 +514,15 @@ function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
 }
 
 /**
- * A router is a user-invoked skill with no branch guides of its own (AGENTS.md:
- * `ask`). Its map must name every other skill and every guide they have, so a
+ * A router is a user-invoked skill with no branch guides and a `## The map`
+ * section (AGENTS.md: `ask`); a workflow has no map. Its map must name every other skill and every guide they have, so a
  * new guide can't land without a route to it.
  */
 function checkRouterMap(skillFiles) {
   const routers = skillFiles.filter(
     (skill) =>
       branchGuides(skill).length === 0 &&
+      /^## The map$/m.test(readFileSync(skill, "utf8")) &&
       parseFrontmatter(readFileSync(skill, "utf8")).fields["disable-model-invocation"] === "true",
   );
   for (const router of routers) {

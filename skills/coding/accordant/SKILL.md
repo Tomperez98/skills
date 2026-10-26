@@ -90,6 +90,25 @@ where the system stops needing them:
 5. **TRACES** last, once the spec is long-lived and others rely on it.
    Before that, the trace database is ceremony.
 
+## Terms
+
+Use these words exactly, in the guides and in what you write for the user.
+
+- **Outcome:** one response `Apply` allows for a state and request, with its
+  state step. Its explanation, `"<situation> → <outcome>"`, is a
+  **promise**: the contract in words.
+- **Binding:** the code that turns an operation into a call on the system;
+  the only part that changes between transports.
+- **Cluster:** one `Spec<State>` over the operations that share
+  transitions. **Suite:** one exploration of a cluster from one state with
+  one `InputSet`. **Plan entry:** the one declaration of a suite that tests,
+  budgets, and exports derive from.
+- **Profile:** the set of states the system could be in, threaded through
+  `Allows` from call to call.
+- **Trace:** a recorded sequence of (request, response) pairs from a
+  passing run. **Baseline:** the last release's spec and sequences, run
+  unchanged against the new build.
+
 ## Hand off
 
 When the task crosses into another skill's ground, load it with the Skill
