@@ -11,8 +11,11 @@ Some tests are too slow for every pull request: a version matrix across the
 runtimes you support, longer property or soak runs, concurrency and
 fault-injection suites judged by the released contract (COMPAT.md rule 7), or a
 full end-to-end suite. Run them on main, continuously or on a schedule, and
-report results per commit so you can tell which change broke things. Before
-releasing a commit, check that these runs are green for it.
+report results per commit so you can tell which change broke things. A
+scheduled run covers every commit since the previous run: report that
+commit range with its result, and when it fails, bisect the range to the
+commit that broke it. Before releasing a commit, check that these runs are
+green for it.
 
 ## 2. Track the numbers users would notice
 
@@ -42,29 +45,13 @@ tracking issue, later failures comment on it, and the first green run
 closes it. A new alert on every run, or a red badge nobody owns, trains
 people to look away.
 
-The gate that routes review fails the same way. Watch the numbers behind
-it: the fraction of pull requests that are additive or breaking rather than
-unchanged, the contract suite's flake rate, how long the verdict takes, and
-how long a spec owner takes to approve. A surface where the same API keeps
-changing is hot; version it or move it behind a stable boundary, because a
-contract that changes constantly defeats the point of letting most pull
-requests merge on green alone (CI.md rule 10).
-
----
-
-MONITOR picks up where CI.md stops: slower tests, trends, and the outside
-world. RELEASE.md uses what it reports to decide whether a commit is ready
-to ship.
-
 ## Done when
 
 - The suites too slow for a pull request run on main, on a schedule or
-  continuously, and report a result per commit (rule 1).
+  continuously, and report a result per commit or commit range, with a
+  failing range bisected to one commit (rule 1).
 - A few numbers users would notice are recorded on every merge, from the
   build you ship (rule 2).
 - Release validation runs on a schedule, not only after a release (rule 3).
 - A failing scheduled job opens one tracking issue, later failures comment
   on it, and the first green run closes it (rule 4).
-- The gate's own numbers (hot surfaces, flake rate, verdict latency,
-  owner-approval time) are watched, and a hot surface is versioned or moved
-  behind a stable boundary (rule 4).

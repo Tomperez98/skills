@@ -636,7 +636,7 @@ function runLinks(markdownFiles) {
 }
 
 const RULE_HEADING = /^## (\d+)\. (.+)$/gm;
-// "COMPAT.md rule 6", "ship skill, COMPAT.md rules 8–12", "(code skill, WRITE.md rule 28)"
+// "COMPAT.md rule 6", "ship skill, ROLLOUT.md rules 1–5", "(code skill, WRITE.md rule 28)"
 const QUALIFIED_RULE_REF = /(?:\b([a-z]+) skill,\s+)?\b([A-Z][A-Z_]*\.md)\s+rules?\s+(\d+)(?:\s*[–-]\s*(\d+))?/gi;
 // "rule 6", "rules 13–14": a rule in the same page
 const LOCAL_RULE_REF = /\brules?\s+(\d+)(?:\s*[–-]\s*(\d+))?/gi;
