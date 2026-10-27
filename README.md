@@ -1,25 +1,15 @@
 # skills
 
 One rule per skill, branch guides that turn the rule into procedure, and a
-description that triggers at exactly the right moment. Five skills, a router,
-five workflows, an interview skill, and a skill for writing skills today,
-forty-three branch guides, 301 numbered rules.
+description that triggers at exactly the right moment. Four skills, 35
+branch guides, 256 numbered rules.
 
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
 | [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · STATE · SHAPE · HTTP_API · LOGIC · PERFORMANCE · REFACTOR · TEST · CRASHONLY · CRASH_TESTS · DEPENDENCIES |
 | [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT · ROLLOUT · REVIEW |
-| [`mvp`](skills/product/mvp/SKILL.md) | Get a real person to their "aha" in five minutes | PICK · SPEC · RESEARCH · AHA · VALIDATE |
 | [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · SUITES · COVERAGE · ORACLE · CONCURRENCY · ASYNC · FAULTS · BASELINE · TRACES · DEBUG |
-| [`writing-skills`](skills/meta/writing-skills/SKILL.md) | Every line earns its place in the agent's context | NEW · EDIT · PRUNE |
-| [`ask`](skills/meta/ask/SKILL.md) | Name one skill and one guide, and read it before you recommend it | — (a router, invoked as `/ask`) |
-| [`release`](skills/workflows/release/SKILL.md) | Ship one frozen, green commit, and ask before the first upload | — (a workflow over ship and docs, invoked as `/release`) |
-| [`retro`](skills/workflows/retro/SKILL.md) | Fix the mistake where the next agent will meet it: a check if a script can see it, a guide line if it takes judgement | — (a workflow over writing-skills and ship, invoked as `/retro`) |
-| [`grill`](skills/meta/grill/SKILL.md) | Settle every decision with the user; look up every fact yourself | — (one procedure, no branch guides) |
-| [`implement`](skills/workflows/implement/SKILL.md) | One thin slice at a time: watch its test fail, make it pass, commit | — (a workflow over grill and code, invoked as `/implement`) |
-| [`review`](skills/workflows/review/SKILL.md) | Report only findings you tried to refute, most severe first | — (a workflow over code and ship, invoked as `/review`) |
-| [`diagnose`](skills/workflows/diagnose/SKILL.md) | Get a red, repeatable signal before you change anything | — (a workflow over code, ship, and accordant, invoked as `/diagnose`) |
 
 ## What it is
 
@@ -50,6 +40,42 @@ the same layout (`~/.claude/skills`, `~/.codex/skills`):
 ```bash
 cp -r skills/*/* ~/.pi/agent/skills/
 ```
+
+## Use with Superpowers
+
+[Superpowers](https://github.com/obra/superpowers) is the process loop —
+brainstorming, planning, test-driven development, verification. These four
+coding skills supply the content rules. Superpowers decides *when and how*
+the work proceeds; `code`, `docs`, `ship`, and `accordant` decide *what the
+output must obey*. Install Superpowers through your agent's plugin system
+(Pi: add `git:github.com/obra/superpowers` to `packages` in
+`~/.pi/agent/settings.json`) alongside the skills above, and the two layers
+cooperate without either owning the other.
+
+### One note routes the overlaps
+
+Superpowers ranks your instruction file above skills. Add this to your
+project `AGENTS.md` — or the global one — so the two sets hand off instead
+of colliding:
+
+```text
+Superpowers drives the process; the coding skills supply the content.
+When a task matches both, run the process skill first, then apply the
+coding skill's guide inside each step:
+
+- Write a feature -> brainstorm, plan, then implement with code WRITE
+- Write tests     -> test-driven-development loop; code TEST owns the shape
+- Fix a bug       -> systematic-debugging finds the cause; code owns the fix
+- Write docs      -> docs (Superpowers has no docs skill)
+- Ship a release  -> ship CI/RELEASE, wrapped in superpowers'
+                     verification-before-completion and
+                     finishing-a-development-branch
+- Model a system  -> accordant (Superpowers has no modelling skill)
+```
+
+Overlap is expected: on "write tests" both `test-driven-development` and
+`code` fire — the note is what puts the loop and the assertions in
+different skills.
 
 ## How it works
 
@@ -95,11 +121,6 @@ follows its rules in order:
 | "Is this a breaking change" | [`ship/COMPAT.md`](skills/coding/ship/COMPAT.md) | Check shape and behavior, the released contract judges every build, declare every break |
 | "Several services ship together / deploy order" | [`ship/ROLLOUT.md`](skills/coding/ship/ROLLOUT.md) | Release in lockstep, test N-1 ⇄ N both ways, test in deploy order, enforce the window at runtime, messages and data outlive the deploy |
 | "Route review by contract change" | [`ship/REVIEW.md`](skills/coding/ship/REVIEW.md) | Label every pull request by its contract effect, post the promise diff from a job that runs none of its code, labels as information first, watch the gate's numbers |
-| "I need an idea / what should I build" | [`mvp/PICK.md`](skills/product/mvp/PICK.md) | Start from a trend, name the idea in one sentence, prefer the shortest path to value |
-| "I have an idea — shape it / spec it" | [`mvp/SPEC.md`](skills/product/mvp/SPEC.md) | One specific paragraph: imagine the interface, bullet the details, react to the first implementation |
-| "Is this premise actually real / research the trend" | [`mvp/RESEARCH.md`](skills/product/mvp/RESEARCH.md) | Evidence for the trend, the incumbents, and the gap — de-risk the premise, never the value |
-| "What's the core use case / cut the feature list" | [`mvp/AHA.md`](skills/product/mvp/AHA.md) | One core use case, cut the feature list, map the five-minute journey to the aha |
-| "Is this any good / will people use it" | [`mvp/VALIDATE.md`](skills/product/mvp/VALIDATE.md) | Put it in front of a real person, time it to the aha, act on the verdict |
 | "Model this system / write an Accordant spec" | [`accordant/SPEC.md`](skills/coding/accordant/SPEC.md) | The contract, not a second implementation: minimal state, guards in the contract's order, payload-checking predicates, capture what you can't predict |
 | "Generate tests / run them against my API" | [`accordant/GENERATE.md`](skills/coding/accordant/GENERATE.md) | Bind exact types, reset to the initial state, few branch-aimed inputs, bound and look at the graph, then run |
 | "Many suites / slow suite / OOM / case count doubled" | [`accordant/SUITES.md`](skills/coding/accordant/SUITES.md) | One owner per operation, one plan entry per suite, measure then budget, growth is a scoping bug |
@@ -111,33 +132,8 @@ follows its rules in order:
 | "Is the new version backward compatible" | [`accordant/BASELINE.md`](skills/coding/accordant/BASELINE.md) | The release's suite and sequences, unchanged, run against the new build through a strict client; closed sets don't grow silently; the upgrade runs over existing data; with several services, each suite runs both directions |
 | "I changed the spec — is it still right" | [`accordant/TRACES.md`](skills/coding/accordant/TRACES.md) | Replay a trace database on every spec change, mutate traces the spec must reject, exercise every outcome, post the spec diff as a contract change |
 | "My spec crashes / tests fail" | [`accordant/DEBUG.md`](skills/coding/accordant/DEBUG.md) | Name the failure first: spec crash, spec rejection, or setup — then fix the right one |
-| "Write a new skill or instruction file" | [`writing-skills/NEW.md`](skills/meta/writing-skills/NEW.md) | Packaging by who must reach it, one rule, a description that triggers, pointers with triggers, checkable ends |
-| "Change what a skill does" | [`writing-skills/EDIT.md`](skills/meta/writing-skills/EDIT.md) | Find the layer that caused it, edit the one source of truth, keep citations true, label the change |
-| "A skill is too long or ignored" | [`writing-skills/PRUNE.md`](skills/meta/writing-skills/PRUNE.md) | Measure, remove duplicates and no-ops, positive phrasing, split by situation, sharpen the ends |
 
-## Flows
-
-The skills hand off to each other. Not sure where you are? Type `/ask`
-and describe it: the router names the skill and guide. Most work runs
-along one path:
-
-```text
-mvp  PICK → RESEARCH → SPEC → AHA → VALIDATE
-       ↓ settle the decisions
-grill
-       ↓ build it
-/implement  (code WRITE ⇄ TEST ⇄ SHAPE, one slice at a time)
-            accordant SPEC → GENERATE → SUITES   (stateful APIs)
-       ↓ check it
-/review
-       ↓ document it
-docs README · API · CHANGELOG
-       ↓ release it
-ship CI → /release   ·   COMPAT (accordant BASELINE runs the old spec)
-```
-
-Something red along the way → `/diagnose`; a session that went sideways →
-`/retro`. [examples/](examples/README.md) has mock sessions of each path.
+## How skills hand off
 
 Each `SKILL.md` ends with a **Hand off** section naming the skill that
 picks up next and the guide to follow. A guide that needs another skill
@@ -158,5 +154,5 @@ surrounding code and state the assumption at the top.
 
 A new skill is three things: a one-sentence rule, a `description` that
 triggers at the right moment, and branch guides that tell the agent exactly
-what to do. Read [`writing-skills/NEW.md`](skills/meta/writing-skills/NEW.md)
-before you start; keep the rule honest and the examples runnable.
+what to do. Write it with Superpowers' writing-skills skill; keep the rule
+honest and the examples runnable.

@@ -5,7 +5,7 @@ splitting a function. The goal is a surface a caller can guess and a body a
 reviewer can read whole. Apply the rules in order. The examples are
 pseudocode, as in [WRITE.md](WRITE.md). When where a seam goes, what an
 interface exposes, or whether an abstraction earns its place is the user's
-call, call the Skill tool with "grill" before you write it.
+call, ask the user before you write it.
 
 ## 1. Minimize the interface surface; name the fault model
 
