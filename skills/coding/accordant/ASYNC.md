@@ -141,8 +141,10 @@ throws a `NullReferenceException` that surfaces as a
 
 A job that stays `Pending` forever isn't wrong, it's stuck — a liveness
 bug. When polling runs out while a candidate is still non-terminal, the
-test fails. Set `WaitTimeInMs × MaxRetryCount` to the longest the system is
-*allowed* to take, not the longest you're willing to wait.
+test fails. Set `WaitTimeInMs × MaxRetryCount` to at least the longest the
+system is *allowed* to take, plus one poll interval, not the longest you're
+willing to wait: the extra interval keeps a legal response that lands on the
+deadline from losing to the next poll.
 
 ## 8. Turn polling off where the test must act while the work runs
 
@@ -199,7 +201,7 @@ terminal, or polling stops at Running.
 - Each read's expectation depends on the job's state, so a read narrows
   the candidates (rule 3).
 - Every trigger has a `PollingSetup`, its poll operation has a null-safe
-  derivation from it, and `WaitTimeInMs × MaxRetryCount` is the longest the
-  system is allowed to take (rules 5–7).
+  derivation from it, and `WaitTimeInMs × MaxRetryCount` is at least the
+  longest the system is allowed to take plus one poll interval (rules 5–7).
 - At least one input triggers the work `.WithoutPolling()`, followed by a
   call made while the work runs (rule 8).

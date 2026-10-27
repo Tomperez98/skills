@@ -47,9 +47,9 @@ Behavior is checkable only when it's written as code that judges responses,
 not asserts scattered across tests. A spec that maps (request, state) to the
 correct responses can judge any build, including one it has never seen
 (accordant skill). Hand-written asserts tied to today's implementation
-can't be pointed at the next release. To write that spec, call the Skill
-tool with "accordant" and follow its SPEC.md, then its BASELINE.md to run
-the baseline against the new build.
+can't be pointed at the next release. To write that spec, load the
+"accordant" skill and follow its SPEC.md, then its BASELINE.md to run the
+baseline against the new build.
 
 The spec sees the system only through its API: requests in, responses and
 published events out. It checks what a caller can observe; tables, internal
@@ -117,9 +117,9 @@ break is deliberate. A deliberate break lands only with a breaking entry,
 and a migration note, in the top changelog entry (docs skill, CHANGELOG.md),
 which makes the next version a major bump (RELEASE.md rule 3). CI enforces
 the pairing: a compatibility failure with no breaking entry fails the
-build (CI.md rule 7). To write the entry, call the Skill tool with "docs"
-and follow its CHANGELOG.md. After the major release ships, its contract
-becomes the new baseline.
+build (CI.md rule 7). To write the entry, load the "docs" skill and follow
+its CHANGELOG.md. After the major release ships, its contract becomes the
+new baseline.
 
 Declaring a break is the user's call and a one-way door: it forces a major
 version on everyone downstream, so the agent stops and asks: it shows the
@@ -139,11 +139,11 @@ Prefer deprecation to removal: keep the old behavior for at least one
 release, warn when it's used, and say in the changelog when it goes away.
 
 When an agent asks "is this a breaking change?" about a change it wrote
-itself, run the review in a subagent. A fresh context judges the diff
-instead of the intent behind it. Before you start it, check that the
-baseline tag resolves and the diff is non-empty, so bad input fails here
-and not inside the subagent. Then paste in everything it can't see for
-itself:
+itself, run the review in a fresh context (a subagent where the harness has
+one). A fresh context judges the diff instead of the intent behind it.
+Before you start it, check that the baseline tag resolves and the diff is
+non-empty, so bad input fails here and not inside the reviewer. Then paste
+in everything it can't see for itself:
 
 ```text
 Classify this change against release <tag>, layer by layer (COMPAT.md

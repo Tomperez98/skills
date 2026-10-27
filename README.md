@@ -7,7 +7,7 @@ branch guides, 256 numbered rules.
 | Skill | The one rule | Branch guides |
 |-------|--------------|---------------|
 | [`code`](skills/coding/code/SKILL.md) | Bugs panic, expected failures return values | WRITE · STATE · SHAPE · HTTP_API · LOGIC · PERFORMANCE · REFACTOR · TEST · CRASHONLY · CRASH_TESTS · DEPENDENCIES |
-| [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
+| [`docs`](skills/coding/docs/SKILL.md) | Lead with the reader's task — win the 10-second skim — and never mislead | README · API · TUTORIAL · CHANGELOG · LANDING · DOCS_MARKETING |
 | [`ship`](skills/coding/ship/SKILL.md) | Keep main releasable; make every release boring — scripted, re-runnable, verified | CI · MONITOR · RELEASE · PUBLISH · COMPAT · ROLLOUT · REVIEW |
 | [`accordant`](skills/coding/accordant/SKILL.md) | Write the contract once, in the spec — and let it judge every response | SPEC · GENERATE · SUITES · COVERAGE · ORACLE · CONCURRENCY · ASYNC · FAULTS · BASELINE · TRACES · DEBUG |
 
@@ -33,6 +33,8 @@ npx skills add Tomperez98/skills -g -a pi
 ```
 
 Preview before installing with `npx skills add Tomperez98/skills --list`.
+Nested category folders such as `skills/<category>/<skill>` need `skills`
+1.5.22 or newer; `npx skills@latest` is enough.
 
 Already have the repo? Copy the folders directly — Claude and Codex read
 the same layout (`~/.claude/skills`, `~/.codex/skills`):
@@ -85,7 +87,7 @@ coding skill's guide inside each step:
 - Write docs      -> docs (the frameworks own the loop, not README/API content)
 - Ship a release  -> ship CI/RELEASE, wrapped in the framework's
                      verification and branch-finishing steps
-- Model a system  -> accordant (the frameworks own the loop, not state and specs)
+- Model a system  -> accordant (the spec runs in .NET; trace replay covers what it can't call)
 ```
 
 Overlap is expected: on "write tests" both the TDD loop and `code` fire —
@@ -127,6 +129,7 @@ follows its rules in order:
 | "Write / fix a tutorial" | [`docs/TUTORIAL.md`](skills/coding/docs/TUTORIAL.md) | One scoped outcome, copy-paste steps, observable output |
 | "Write / fix a changelog" | [`docs/CHANGELOG.md`](skills/coding/docs/CHANGELOG.md) | Impact first, breaking changes loudest, Keep a Changelog + SemVer |
 | "Write landing copy" | [`docs/LANDING.md`](skills/coding/docs/LANDING.md) | Position before you write, hero leads with the job, proof over adjectives |
+| "Write a blog post / launch post" | [`docs/DOCS_MARKETING.md`](skills/coding/docs/DOCS_MARKETING.md) | One search intent, a self-sufficient page, the example as the ad, convert after it works |
 | "Make docs acquire / convert" | [`docs/DOCS_MARKETING.md`](skills/coding/docs/DOCS_MARKETING.md) | One page, one search intent, the example is the ad, convert at the moment of success |
 | "Set up / fix / speed up CI" | [`ship/CI.md`](skills/coding/ship/CI.md) | Runnable locally, fast checks first, test the merged result, reproducible and actionable failures |
 | "Catch regressions after merge" | [`ship/MONITOR.md`](skills/coding/ship/MONITOR.md) | Slow tests and key metrics on main, re-check the outside world, every failure reaches a person |
@@ -151,9 +154,9 @@ follows its rules in order:
 
 Each `SKILL.md` ends with a **Hand off** section naming the skill that
 picks up next and the guide to follow. A guide that needs another skill
-says so as an instruction: `call the Skill tool with "ship" and follow its
-CI.md`. A citation like "ship skill, CI.md rule 7" stays a reference: it
-explains why, and doesn't ask the agent to load anything.
+says so as an instruction: `load the "ship" skill and follow its CI.md`.
+A citation like "ship skill, CI.md rule 7" stays a reference: it explains
+why, and doesn't ask the agent to load anything.
 
 ## Why one rule
 
@@ -169,4 +172,5 @@ surrounding code and state the assumption at the top.
 A new skill is three things: a one-sentence rule, a `description` that
 triggers at the right moment, and branch guides that tell the agent exactly
 what to do. Write it with Superpowers' writing-skills skill; keep the rule
-honest and the examples runnable.
+honest, label pseudocode as pseudocode, and cut any example that claims to
+run from a file CI runs.

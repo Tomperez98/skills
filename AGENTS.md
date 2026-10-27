@@ -6,7 +6,7 @@ This repo is a collection of skills for AI coding assistants, installable with
 process loop — brainstorming, planning, test-driven development, review — is
 [Superpowers](https://github.com/obra/superpowers); these skills supply the
 rules its steps follow. Everything here — new skills, edits, examples —
-follows their one rules:
+follows their one rule:
 
 - **code** — bugs panic, expected failures return values.
 - **docs** — lead with the reader's task, win the 10-second skim, never mislead.
@@ -60,16 +60,18 @@ CI only provides `mise` and calls `mise run ci`; a laptop runs the same
 tasks. Node comes from the environment; rumdl is pinned in `mise.toml` with
 checksums in `mise.lock`.
 
-- `mise run check` — fast: fails on bad frontmatter, a missing `## Hand off` or
-  `## Done when`, or the README table or this file's guide list out of sync.
+- `mise run check` — fast: fails on bad frontmatter, a description that does
+  not start with `Use when`, duplicate or skipped rule numbers, a missing
+  `## Hand off` or `## Done when`, or a README table, count, one-rule cell, or
+  guide list out of sync.
 - `mise run lint` — fast: fails on Markdown format (prose wraps at 80);
   `mise run fmt` fixes it.
 - `mise run links` — full: fails on a broken link, a citation that now
-  points at a different rule, a bad Skill tool call, an orphaned page, a
-  slash command that isn't a user-invoked skill, or an example that drifted
-  from its skill (an annotation, step, or template field that no longer
-  exists).
+  points at a different rule, a bad skill-loading instruction, an orphaned
+  page, or a code-comment citation that names a missing rule.
 - `mise run contract` — report only: labels the change unchanged /
   additive / changed / breaking. Removing or renaming a skill or guide is
   breaking: say so in the pull request.
 - `mise run ci` — the merge gate: contract, then every tier.
+- external links — weekly in `.github/workflows/links.yml`; a broken link
+  fails that job, not `mise run ci`.

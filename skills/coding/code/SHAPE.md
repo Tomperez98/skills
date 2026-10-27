@@ -17,9 +17,10 @@ contract (WRITE.md rule 8).
 
 Shape the surface so a caller can guess it:
 
-- **A few nouns, a few verbs, one pattern.** Name every operation
-  `Noun` + `Verb` (`OrderCreate`, `OrderCancel`), so the next operation is
-  predictable and a gap or a duplicate stands out.
+- **A few nouns, a few verbs, one pattern.** Name every operation with one
+  pattern — `Verb` + `Noun` (`CreateOrder`, `CancelOrder`) unless the
+  codebase already uses the reverse — so the next operation is predictable
+  and a gap or a duplicate stands out.
 - **One operation, one request type, one response type.** Give each
   operation one job, whatever its arguments; two jobs are two operations
   (rule 3).

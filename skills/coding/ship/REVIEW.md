@@ -13,8 +13,10 @@ review:
 
 - **Contract unchanged:** no spec or schema changed, and every affected
   spec is green against the build in both directions. Code only.
-- **Additive:** new operations or outcomes, and the last release's
-  contract still green. One owner of the spec approves.
+- **Additive:** new operations, or outcomes outside every closed set, and
+  the last release's contract still green. One owner of the spec approves.
+  A new value in a closed enum, status, or error set is breaking (accordant
+  skill, BASELINE.md rule 6; COMPAT.md rule 6).
 - **Breaking:** the last release's contract rejects the build. The spec's
   owners approve the declared break (COMPAT.md rule 6).
 - **Baseline:** no earlier release shipped a contract, so there is nothing

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Validate the skill collection: frontmatter, description budget, README sync,
-// Hand off and Done when sections, the router's map, link resolution, rule
-// references, Skill tool calls, orphaned pages, and the examples.
+// Hand off and Done when sections, link resolution, rule references, skill
+// loading instructions, orphaned pages, and code-comment citations.
 //
 // Run the whole suite, or one tier:
 //   node scripts/validate-skills.mjs        # everything
-//   node scripts/validate-skills.mjs check  # fast: frontmatter, sections, README sync, router map
-//   node scripts/validate-skills.mjs links  # links, rule references, Skill calls, orphans, examples
+//   node scripts/validate-skills.mjs check  # fast: frontmatter, sections, README sync
+//   node scripts/validate-skills.mjs links  # links, rule references, skill calls, orphans
 //
 // Exits 0 when clean, 1 when any check fails, 2 on a usage error. Every
 // message names the file and what to change. Warnings are advisory and do not
@@ -26,11 +26,12 @@ const AGENTS = join(REPO_ROOT, "AGENTS.md");
 const MAX_DESCRIPTION = 1024; // pi's hard ceiling
 const DESCRIPTION_BUDGET = 450; // AGENTS.md's "aim for under ~450"
 const MAX_SCAN_DEPTH = 16; // our own tree is bounded; deeper is a tool bug
-const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv", ".contract-report"]);
+const CODE_EXTENSIONS = [".yml", ".yaml", ".mjs", ".js"];
+const SKIP_DIRS = new Set([".git", "node_modules", ".mise", ".venv", ".contract-report", ".rumdl_cache"]);
 const TIER_LABELS = {
-  all: "frontmatter, sections, content rules, README sync, router map, links, rule references, Skill calls, orphans, examples",
-  check: "frontmatter, sections, content rules, README sync, router map",
-  links: "links, rule references, Skill calls, orphans, examples",
+  all: "frontmatter, descriptions, sections, README sync, rule numbers, links, rule references, skill calls, orphans, code citations",
+  check: "frontmatter, descriptions, sections, README sync, rule numbers",
+  links: "links, rule references, skill calls, orphans, code citations",
 };
 
 /**
@@ -40,7 +41,7 @@ const TIER_LABELS = {
  * @param {string} dir @param {number} [depth]
  * @returns {string[]} absolute paths
  */
-function collectMarkdown(dir, depth = 0) {
+function collectByExtension(dir, extensions, depth = 0) {
   if (depth > MAX_SCAN_DEPTH) {
     throw new Error(
       `directory nesting exceeds MAX_SCAN_DEPTH (${MAX_SCAN_DEPTH}) at ${relative(REPO_ROOT, dir)}`,
@@ -50,12 +51,16 @@ function collectMarkdown(dir, depth = 0) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
       if (SKIP_DIRS.has(entry.name)) continue;
-      found.push(...collectMarkdown(join(dir, entry.name), depth + 1));
-    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+      found.push(...collectByExtension(join(dir, entry.name), extensions, depth + 1));
+    } else if (entry.isFile() && extensions.some((extension) => entry.name.endsWith(extension))) {
       found.push(join(dir, entry.name));
     }
   }
   return found;
+}
+
+function collectMarkdown(dir, depth = 0) {
+  return collectByExtension(dir, [".md"], depth);
 }
 
 /**
@@ -302,8 +307,8 @@ function checkDoneWhen(file, text) {
 }
 
 /**
- * NEW.md rule 2: the one rule is stated once. The intro blockquote owns it;
- * a second copy in the body is a summary that can drift.
+ * The one-rule design: the intro blockquote owns the rule; a second copy in
+ * the body is a summary that can drift.
  */
 function checkOneRule(file, text) {
   const match = text.match(/^> \*\*([\s\S]*?)\*\*/m);
@@ -317,8 +322,8 @@ function checkOneRule(file, text) {
 }
 
 /**
- * NEW.md rule 5: a pointer is a trigger plus a target. In `## Pick a branch`,
- * every bullet ends at its guide link instead of summarizing the guide.
+ * A pointer is a trigger plus a target. In `## Pick a branch`, every bullet
+ * ends at its guide link instead of summarizing the guide.
  */
 function checkPointerSummaries(file, text) {
   const section = sectionLines(text, "## Pick a branch");
@@ -419,12 +424,38 @@ function wordToNumber(word) {
   return ones >= 0 && ones < 10 ? (tens + 2) * 10 + ones : undefined;
 }
 
+/** Rule headings must be 1..N with no duplicates or gaps. */
+function checkRuleSequence(file, text) {
+  const numbers = [...text.matchAll(/^## (\d+)\. /gm)].map((m) => Number(m[1]));
+  const seen = new Set();
+  for (const n of numbers) {
+    if (seen.has(n)) fail(file, `duplicate rule number ${n}`);
+    seen.add(n);
+  }
+  const max = numbers.length ? Math.max(...numbers) : 0;
+  for (let n = 1; n <= max; n++) {
+    if (!seen.has(n)) fail(file, `rule numbering skips ${n}`);
+  }
+}
+
 /**
- * The README's "N branch guides, M numbered rules" line is a claim about the
- * files on disk. Compute the counts instead of trusting the prose.
+ * The README's "N skills, M branch guides, K numbered rules" line is a claim
+ * about the files on disk. Compute the counts instead of trusting the prose.
  */
-function checkReadmeCounts(readme, text, markdownFiles) {
-  const match = text.match(/([A-Za-z]+(?:-[A-Za-z]+)?|\d+)\s+branch guides,\s+(\d+)\s+numbered rules/);
+function checkReadmeCounts(readme, text, markdownFiles, skillFiles) {
+  const skillMatch = text.match(/([A-Za-z]+(?:-[A-Za-z]+)?|\d+)\s+skills?,\s+\d+/);
+  if (!skillMatch) {
+    fail(readme, "missing the `N skills` summary");
+  } else {
+    const claimedSkills = wordToNumber(skillMatch[1]);
+    if (!Number.isInteger(claimedSkills)) {
+      fail(readme, `cannot read the skill count \`${skillMatch[1]}\``);
+    } else if (claimedSkills !== skillFiles.length) {
+      fail(readme, `says ${claimedSkills} skills; found ${skillFiles.length}`);
+    }
+  }
+
+  const match = text.match(/([A-Za-z]+(?:-[A-Za-z]+)?|\d+)\s+branch guides?,\s+(\d+)\s+numbered rules?/);
   if (!match) {
     fail(readme, "missing the `N branch guides, M numbered rules` summary");
     return;
@@ -483,6 +514,15 @@ function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
       } else if (length > DESCRIPTION_BUDGET) {
         warn(skill, `description is ${length} chars, over the ~${DESCRIPTION_BUDGET} budget — tighten it`);
       }
+      if (!/^Use when\b/.test(fields.description)) {
+        fail(skill, 'frontmatter: description must start with "Use when"');
+      }
+      if (/\b(?:you|your|yours)\b/i.test(fields.description)) {
+        fail(skill, "frontmatter: description must be third person, not address the reader as 'you'");
+      }
+      if (/\bone rule:/i.test(fields.description)) {
+        fail(skill, "frontmatter: description names the one rule; state triggers only");
+      }
     }
 
     // AGENTS.md: every SKILL.md names its transitions to other skills, states
@@ -491,7 +531,9 @@ function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
     checkOneRule(skill, text);
     checkPointerSummaries(skill, text);
     for (const guide of branchGuides(skill)) {
-      checkDoneWhen(guide, readFileSync(guide, "utf8"));
+      const guideText = readFileSync(guide, "utf8");
+      checkDoneWhen(guide, guideText);
+      checkRuleSequence(guide, guideText);
     }
 
     // README must link the skill and every branch guide in its folder.
@@ -508,35 +550,9 @@ function runCheck(markdownFiles, readme, readmeText, readmeLinks) {
   }
 
   checkReadmeTable(readme, readmeText, skillFiles);
-  checkReadmeCounts(readme, readmeText, markdownFiles);
+  checkReadmeOneRule(readme, readmeText, skillFiles);
+  checkReadmeCounts(readme, readmeText, markdownFiles, skillFiles);
   checkAgentsGuideList(skillFiles);
-  checkRouterMap(skillFiles);
-}
-
-/**
- * A router is a user-invoked skill with no branch guides and a `## The map`
- * section (AGENTS.md: `ask`); a workflow has no map. Its map must name every other skill and every guide they have, so a
- * new guide can't land without a route to it.
- */
-function checkRouterMap(skillFiles) {
-  const routers = skillFiles.filter(
-    (skill) =>
-      branchGuides(skill).length === 0 &&
-      /^## The map$/m.test(readFileSync(skill, "utf8")) &&
-      parseFrontmatter(readFileSync(skill, "utf8")).fields["disable-model-invocation"] === "true",
-  );
-  for (const router of routers) {
-    const words = new Set(stripNonProse(readFileSync(router, "utf8")).match(/[A-Za-z_][A-Za-z_-]*/g));
-    for (const skill of skillFiles) {
-      if (skill === router) continue;
-      const name = basename(dirname(skill));
-      if (!words.has(name)) fail(router, `map never names the \`${name}\` skill`);
-      for (const guide of branchGuides(skill)) {
-        const stem = basename(guide, ".md");
-        if (!words.has(stem)) fail(router, `map has no route to ${name}'s ${stem}`);
-      }
-    }
-  }
 }
 
 /** The README's `Skill` table must have one row per skill naming every guide. */
@@ -572,10 +588,44 @@ function checkReadmeTable(readme, readmeText, skillFiles) {
   }
 }
 
-// `call the Skill tool with "ship" and follow its CI.md, then RELEASE.md.`
-// The clause runs to the sentence's end: a period before whitespace, a colon,
-// a semicolon, or a closing parenthesis. A `.md` inside it is no boundary.
-const SKILL_CALL = /call\s+the\s+Skill\s+tool\s+with\s+"([^"]+)"([\s\S]*?)(?:\.(?=\s|$)|[:;)]|$)/gi;
+/** The README's `The one rule` cell must match the SKILL.md blockquote. */
+function checkReadmeOneRule(readme, readmeText, skillFiles) {
+  const table = parseTables(stripNonProse(readmeText)).find((t) =>
+    t.header.some((cell) => /^skill$/i.test(cell)),
+  );
+  if (!table) return;
+  const column = table.header.findIndex((cell) => /^the one rule$/i.test(cell));
+  if (column === -1) {
+    fail(readme, "skill table has no `The one rule` column");
+    return;
+  }
+  const normalize = (value) =>
+    value
+      .replace(/\*\*/g, "")
+      .replace(/`/g, "")
+      .replace(/\s+/g, " ")
+      .replace(/[.;]$/, "")
+      .trim()
+      .toLowerCase();
+  const linksFor = (row) => extractLinks(row[0] ?? "", readme).map((link) => link.resolved);
+  for (const skill of skillFiles) {
+    const row = table.rows.find((candidate) => linksFor(candidate).includes(skill));
+    if (!row) continue;
+    const rule = readFileSync(skill, "utf8").match(/^> \*\*([\s\S]*?)\*\*/m);
+    if (!rule) continue;
+    const expected = normalize(rule[1].replace(/\n> ?/g, " "));
+    const actual = normalize(row[column] ?? "");
+    if (expected !== actual) {
+      fail(readme, `skill table one rule for \`${basename(dirname(skill))}\` does not match SKILL.md`);
+    }
+  }
+}
+
+// `load the "ship" skill and follow its CI.md, then RELEASE.md`, or the legacy
+// `call the Skill tool with "ship"`. The clause runs to the sentence's end: a
+// period before whitespace, a colon, a semicolon, or a closing parenthesis. A
+// `.md` inside it is no boundary.
+const SKILL_CALL = /(?:load\s+the\s+"([^"]+)"\s+skill\s+and\s+follow|call\s+the\s+Skill\s+tool\s+with\s+"([^"]+)")([\s\S]*?)(?:\.(?=\s|$)|[:;)]|$)/gi;
 const GUIDE_NAME = /\b[A-Z][A-Z_]*\.md\b/g;
 
 /**
@@ -591,15 +641,16 @@ function checkSkillCalls(markdownFiles) {
   );
   for (const file of markdownFiles) {
     const text = tidy(readFileSync(file, "utf8").replace(/`/g, ""));
-    for (const [, name, clause] of text.matchAll(SKILL_CALL)) {
+    for (const [, loaded, called, clause] of text.matchAll(SKILL_CALL)) {
+      const name = loaded ?? called;
       const dir = skillDirs.get(name);
       if (!dir) {
-        fail(file, `Skill tool call names "${name}", which is not a skill`);
+        fail(file, `skill-loading instruction names "${name}", which is not a skill`);
         continue;
       }
       for (const guide of clause.match(GUIDE_NAME) ?? []) {
         if (!existsSync(join(dir, guide))) {
-          fail(file, `Skill tool call to "${name}" says to follow ${guide}, which ${name} doesn't have`);
+          fail(file, `skill-loading instruction to "${name}" says to follow ${guide}, which ${name} doesn't have`);
         }
       }
     }
@@ -610,6 +661,23 @@ function checkSkillCalls(markdownFiles) {
 function isUnderSkills(file) {
   const rel = relative(SKILLS_DIR, file);
   return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
+}
+
+/** Citations in YAML/JS comments must resolve to a rule in the markdown pages. */
+function checkCodeCitations(codeFiles, markdownFiles) {
+  const headings = new Map(
+    markdownFiles.map((file) => [file, ruleHeadings(readFileSync(file, "utf8"))]),
+  );
+  for (const file of codeFiles) {
+    for (const c of citations(readFileSync(file, "utf8"), file, markdownFiles)) {
+      if (c.local) continue;
+      if (c.error) {
+        fail(file, `"${c.ref}": ${c.error}`);
+      } else if (!headings.get(c.page).has(c.n)) {
+        fail(file, `"${c.ref}": ${relative(REPO_ROOT, c.page)} has no rule ${c.n}`);
+      }
+    }
+  }
 }
 
 function runLinks(markdownFiles) {
@@ -637,7 +705,7 @@ function runLinks(markdownFiles) {
 }
 
 const RULE_HEADING = /^## (\d+)\. (.+)$/gm;
-// "COMPAT.md rule 6", "ship skill, ROLLOUT.md rules 1–5", "(code skill, WRITE.md rule 28)"
+// "COMPAT.md rule 6", "ship skill, ROLLOUT.md rules 1–5", "(code skill, WRITE.md rule 9)"
 const QUALIFIED_RULE_REF = /(?:\b([a-z]+) skill,\s+)?\b([A-Z][A-Z_]*\.md)\s+rules?\s+(\d+)(?:\s*[–-]\s*(\d+))?/gi;
 // "rule 6", "rules 13–14": a rule in the same page
 const LOCAL_RULE_REF = /\brules?\s+(\d+)(?:\s*[–-]\s*(\d+))?/gi;
@@ -757,198 +825,6 @@ function checkCitationMeaning(markdownFiles, headings, cited) {
   }
 }
 
-const EXAMPLES_DIR = join(REPO_ROOT, "examples");
-// "_(mvp: RESEARCH, then SPEC)_", "_(implement)_", "_(code: WRITE, docs: CHANGELOG)_"
-const ANNOTATION = /_\(([^)]+)\)_/g;
-// "**3. Red (slice 1).**", "**3–6.**", "**1.** Base …"
-const STEP_REF = /\*\*(\d+)(?:\s*[–-]\s*(\d+))?\.(?:\s+([^*]+?))?\*\*/g;
-// "Rule:    <skill guide and rule number>", "Verdict: <confirmed | plausible>, …"
-const TEMPLATE_FIELD = /^\s*(?:<[^>]+>\s+)*([A-Z][a-z]+):\s+<([^>]+)>/;
-const FILLED_FIELD = /^\s*(?:\S.*?\s{2,})?([A-Z][a-z]+):\s+(.*)$/;
-
-/** True when `file` lives under `dir`, using path segments (Windows-safe). */
-function isUnder(dir, file) {
-  const rel = relative(dir, file);
-  return rel !== "" && !rel.startsWith("..") && !isAbsolute(rel);
-}
-
-/** Every skill by name: its folder, page, whether only the user starts it. */
-function skillIndex(markdownFiles) {
-  const index = new Map();
-  for (const file of markdownFiles.filter((f) => isUnderSkills(f) && basename(f) === "SKILL.md")) {
-    const text = readFileSync(file, "utf8");
-    index.set(basename(dirname(file)), {
-      dir: dirname(file),
-      page: file,
-      text,
-      userInvoked: parseFrontmatter(text).fields["disable-model-invocation"] === "true",
-    });
-  }
-  return index;
-}
-
-/**
- * An annotation's skills and guides: "code: WRITE, docs: CHANGELOG" →
- * [{ skill: "code", guides: ["WRITE"] }, { skill: "docs", guides: ["CHANGELOG"] }].
- */
-function parseAnnotation(body) {
-  const parts = [];
-  for (const segment of tidy(body).split(/,\s*/)) {
-    const head = segment.match(/^([a-z][a-z-]*)(?::\s*(.*))?$/);
-    if (head) parts.push({ skill: head[1], guides: [] });
-    const rest = head ? (head[2] ?? "") : segment;
-    if (parts.length) parts.at(-1).guides.push(...(rest.match(/\b[A-Z][A-Z_]+\b/g) ?? []));
-  }
-  return parts;
-}
-
-/** A skill's output templates: each field label, with its options if it has them. */
-function templateFields(text) {
-  const fields = new Map();
-  for (const [, block] of text.matchAll(/```[^\n]*\n([\s\S]*?)```/g)) {
-    for (const line of block.split("\n")) {
-      const m = line.match(TEMPLATE_FIELD);
-      if (!m) continue;
-      const options = m[2].includes("|") ? m[2].split("|").map((o) => o.trim()) : null;
-      fields.set(m[1], options);
-    }
-  }
-  return fields;
-}
-
-/**
- * A slash command names a skill the user starts by name. "Type `/x`" and a
- * user turn that opens with `/x` must name one; `/x` that matches a skill the
- * model starts is a wrong instruction either way.
- */
-function checkSlashCommands(markdownFiles, skills) {
-  const COMMAND = /(type\s+|\*\*You:\*\*\s+)?`\/([a-z][a-z-]*)`/gi;
-  for (const file of markdownFiles) {
-    for (const [, cue, name] of tidy(readFileSync(file, "utf8")).matchAll(COMMAND)) {
-      const skill = skills.get(name);
-      if (skill && !skill.userInvoked) {
-        fail(file, `\`/${name}\`: ${name} is started by the model, not by name; drop the slash`);
-      } else if (!skill && cue) {
-        fail(file, `\`/${name}\` names no skill`);
-      }
-    }
-  }
-}
-
-/**
- * The examples are mock sessions, so they can't run, but they can't drift
- * from the skills either. Every annotation names real skills and guides; a
- * numbered step names the step it claims; a filled template has every field
- * of the skill's template, with an allowed value; the index links every page.
- */
-function checkExamples(markdownFiles) {
-  const skills = skillIndex(markdownFiles);
-  checkSlashCommands(markdownFiles, skills);
-  if (!existsSync(EXAMPLES_DIR)) return;
-  const pages = markdownFiles.filter((file) => isUnder(EXAMPLES_DIR, file));
-  const index = join(EXAMPLES_DIR, "README.md");
-  const linked = existsSync(index)
-    ? new Set(extractLinks(readFileSync(index, "utf8"), index).map((l) => l.resolved))
-    : new Set();
-  for (const page of pages) {
-    if (page !== index && !linked.has(page)) fail(index, `does not link ${relative(REPO_ROOT, page)}`);
-    checkExamplePage(page, skills);
-  }
-}
-
-function checkExamplePage(page, skills) {
-  const lines = readFileSync(page, "utf8").split(/\r?\n/);
-  let context = []; // the parsed annotation the next turns run under
-  let fence = null;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (fence) {
-      if (/^\s*```/.test(line)) {
-        checkFilledTemplate(page, fence, context, skills);
-        fence = null;
-      } else fence.push(line);
-      continue;
-    }
-    if (/^\s*```/.test(line)) {
-      fence = [];
-      continue;
-    }
-    if (/^## /.test(line)) context = [];
-    // A step on the line belongs to the annotation in force before it.
-    for (const [, from, to, title] of line.matchAll(STEP_REF)) {
-      checkStepRef(page, context, skills, Number(from), to && Number(to), title);
-    }
-    // An annotation can wrap; read it with the next line.
-    const joined = `${line} ${lines[i + 1] ?? ""}`;
-    for (const [, body] of joined.matchAll(ANNOTATION)) {
-      if (!line.includes("_(")) continue;
-      context = parseAnnotation(body);
-      for (const { skill, guides } of context) {
-        const entry = skills.get(skill);
-        if (!entry) {
-          fail(page, `annotation \`_(${tidy(body)})_\` names \`${skill}\`, which is not a skill`);
-          continue;
-        }
-        for (const guide of guides) {
-          if (!existsSync(join(entry.dir, `${guide}.md`))) {
-            fail(page, `annotation \`_(${tidy(body)})_\`: ${skill} has no ${guide}.md`);
-          }
-        }
-      }
-    }
-  }
-}
-
-/**
- * "**3. Red …**" under `_(implement)_` claims implement's step 3. The page
- * whose steps it means is the workflow, or the one guide the annotation names.
- */
-function checkStepRef(page, context, skills, from, to, title) {
-  if (context.length !== 1) return;
-  const [{ skill, guides }] = context;
-  const entry = skills.get(skill);
-  if (!entry || guides.length > 1) return;
-  const target = guides.length ? join(entry.dir, `${guides[0]}.md`) : entry.page;
-  if (!existsSync(target)) return;
-  const steps = ruleHeadings(readFileSync(target, "utf8"));
-  if (steps.size === 0) return;
-  const name = relative(REPO_ROOT, target);
-  for (const n of to ? [from, to] : [from]) {
-    if (!steps.has(n)) fail(page, `step ${n} under \`${skill}\`: ${name} has no step ${n}`);
-  }
-  const word = title?.match(/[A-Za-z]+/)?.[0].toLowerCase();
-  const heading = steps.get(from);
-  if (word && heading && !heading.toLowerCase().includes(word)) {
-    fail(page, `"**${from}. ${title}**": ${name} step ${from} is "${heading}"`);
-  }
-}
-
-/** A fenced block that fills a skill's template has all its fields, once per item. */
-function checkFilledTemplate(page, block, context, skills) {
-  for (const { skill } of context) {
-    const entry = skills.get(skill);
-    if (!entry) continue;
-    const template = templateFields(entry.text);
-    if (template.size === 0) continue;
-    const counts = new Map([...template.keys()].map((label) => [label, 0]));
-    for (const line of block) {
-      const m = line.match(FILLED_FIELD);
-      if (!m || !template.has(m[1])) continue;
-      counts.set(m[1], counts.get(m[1]) + 1);
-      const options = template.get(m[1]);
-      if (options && !options.some((option) => m[2].trim().startsWith(option))) {
-        fail(page, `${skill} template: \`${m[1]}: ${m[2].trim().slice(0, 40)}\` is not one of ${options.join(", ")}`);
-      }
-    }
-    const used = [...counts.values()].filter((n) => n > 0);
-    if (used.length === 0) continue;
-    const most = Math.max(...used);
-    for (const [label, n] of counts) {
-      if (n < most) fail(page, `${skill} template: \`${label}:\` appears ${n} times, other fields ${most}`);
-    }
-  }
-}
-
 function report(markdownFiles, skillCount, tier) {
   const uniqueErrors = [...new Set(errors)].sort();
   const uniqueWarnings = [...new Set(warnings)].sort();
@@ -985,8 +861,8 @@ if (tier === "all" || tier === "check") {
 if (tier === "all" || tier === "links") {
   runLinks(markdownFiles);
   checkRuleReferences(markdownFiles);
+  checkCodeCitations(collectByExtension(REPO_ROOT, CODE_EXTENSIONS), markdownFiles);
   checkSkillCalls(markdownFiles);
-  checkExamples(markdownFiles);
 }
 
 const skillCount = markdownFiles.filter((file) => file.endsWith("SKILL.md")).length;

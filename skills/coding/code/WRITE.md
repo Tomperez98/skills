@@ -289,8 +289,8 @@ runs, which makes them the earliest crash you have. Let them fail the build.
   code safe, rewrite the code until it can instead of silencing the tool.
   If a tool can't reason about the code, a reviewer probably can't either.
 - **Gate the merge on it.** Run the compiler and analyzers in CI's fast tier
-  (ship skill, CI.md rules 2 and 7). To set that up, call the Skill tool
-  with "ship" and follow its CI.md.
+  (ship skill, CI.md rules 2 and 7). To set that up, load the "ship" skill
+  and follow its CI.md.
 
 ## Done when
 

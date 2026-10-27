@@ -1,12 +1,13 @@
 # Labels each pull request with what it does to the contract:
 # `contract: unchanged`, `additive`, `changed`, or `breaking`
-# (scripts/contract.mjs; ship skill, CI.md rule 10).
+# (scripts/contract.mjs; ship skill, REVIEW.md rules 1 and 3).
 #
 # The ci job runs the pull request's code with a read-only token and uploads
 # the label as data. This workflow holds the write token, so it runs only
 # trusted code from main: it never checks out the pull request, and it treats
 # the uploaded report as untrusted input. It applies the verdict only while it
-# still describes the pull request's current head and base (CI.md rule 10).
+# still describes the pull request's current head and base (ship skill,
+# REVIEW.md rule 3).
 # GitHub runs workflow_run workflows from the default branch only, so a pull
 # request can't change this file and label itself with it.
 name: contract label
@@ -77,7 +78,7 @@ jobs:
           fi
           # Label only the pull request's current head and base: a slow run for
           # an older push or a base that moved must not apply a stale verdict
-          # (CI.md rule 10).
+          # (ship skill, REVIEW.md rule 3).
           meta="$(gh pr view "$pr" --json headRefOid,baseRefOid --jq '.headRefOid + " " + .baseRefOid')"
           head="${meta%% *}"
           pr_base="${meta##* }"

@@ -60,14 +60,13 @@ rule.
 
 ## Hand off
 
-When the task crosses into another skill's ground, load it with the Skill
-tool rather than carrying on from memory:
+When the task crosses into another skill's ground, load that skill rather
+than carrying on from memory:
 
 - **The API is stateful and order matters** (an earlier call changes what a
-  later one returns) → call the Skill tool with "accordant" and follow
-  SPEC.md: a spec judges those sequences better than tests written one at a
-  time.
-- **Gating the merge on the compiler, analyzers, or tests** → call the
-  Skill tool with "ship" and follow CI.md.
-- **Documenting the API's errors and operations** → call the Skill tool
-  with "docs" and follow API.md.
+  later one returns) → load the "accordant" skill and follow SPEC.md: a spec
+  judges those sequences better than tests written one at a time.
+- **Gating the merge on the compiler, analyzers, or tests** → load the
+  "ship" skill and follow CI.md.
+- **Documenting the API's errors and operations** → load the "docs" skill
+  and follow API.md.

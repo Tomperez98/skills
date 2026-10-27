@@ -192,10 +192,11 @@ change produces each piece:
   sequence (DEBUG.md rule 2). The author pastes it into a test and has the
   failure in seconds.
 
-When an agent wrote the spec change and is also asked to review it, run
-the review in a subagent. A fresh context reads the four pieces instead of
-the intent behind them. Produce the pieces first. A review started without
-the replay results has nothing to judge. Then paste them in:
+When an agent wrote the spec change and is also asked to review it, run the
+review in a fresh context (a subagent where the harness has one). A fresh
+context reads the four pieces instead of the intent behind them. Produce
+the pieces first. A review started without the replay results has nothing
+to judge. Then paste them in:
 
 ```text
 Review this spec change as a contract change. Inputs: the explanation-

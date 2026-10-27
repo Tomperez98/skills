@@ -24,7 +24,7 @@ import { join } from "node:path";
 
 import { baselineCommit, REPO_ROOT, tryGit } from "./baseline.mjs";
 
-const SKILL_PAGE = /^skills\/[^/]+\/([^/]+)\/([^/]+\.md)$/;
+const SKILL_PAGE = /^skills\/(?:[^/]+\/)*([^/]+)\/([^/]+\.md)$/;
 const RULE_HEADING = /^## (\d+)\. (.+)$/gm;
 const ONE_RULE = /^> \*\*([\s\S]+?)\*\*/m;
 
@@ -54,8 +54,12 @@ function promises(paths, read) {
       found.add(`skill ${skill}`);
       const rule = ONE_RULE.exec(text);
       if (rule) found.add(`${skill} one rule: ${rule[1].replace(/\s+/g, " ")}`);
-      const description = /^description:\s*>?\s*\n((?:\s+.+\n)+)/m.exec(text);
-      if (description) found.add(`${skill} description: ${description[1].replace(/\s+/g, " ").trim()}`);
+      const block = /^description:\s*[>|][+-]?\s*\n((?:\s+.+\n)+)/m.exec(text);
+      const inline = /^description:\s*(.+)$/m.exec(text);
+      const description = block ?? inline;
+      if (description) {
+        found.add(`${skill} description: ${description[1].replace(/\s+/g, " ").trim()}`);
+      }
       continue;
     }
     found.add(`guide ${skill}/${page}`);
