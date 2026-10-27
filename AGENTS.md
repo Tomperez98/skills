@@ -73,5 +73,3 @@ checksums in `mise.lock`.
   additive / changed / breaking. Removing or renaming a skill or guide is
   breaking: say so in the pull request.
 - `mise run ci` — the merge gate: contract, then every tier.
-- external links — weekly in `.github/workflows/links.yml`; a broken link
-  fails that job, not `mise run ci`.
