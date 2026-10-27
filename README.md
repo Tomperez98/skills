@@ -41,55 +41,69 @@ the same layout (`~/.claude/skills`, `~/.codex/skills`):
 cp -r skills/*/* ~/.pi/agent/skills/
 ```
 
-## Use with Superpowers
+## Pair with a process framework
+
+These four skills are the *inner loop*: they say what the output must obey.
+A process framework — the *outer loop* — decides when and how the work
+proceeds: when to brainstorm, plan, test first, review, and ship. Install
+both, and the two layers compose: the process skill runs first, then the
+content rule applies inside each step. Two frameworks fill that slot.
+
+### Superpowers
 
 [Superpowers](https://github.com/obra/superpowers) is the process loop —
-brainstorming, planning, test-driven development, verification. These four
-coding skills supply the content rules. Superpowers decides *when and how*
-the work proceeds; `code`, `docs`, `ship`, and `accordant` decide *what the
-output must obey*. Install Superpowers through your agent's plugin system
-(Pi: add `git:github.com/obra/superpowers` to `packages` in
-`~/.pi/agent/settings.json`) alongside the skills above, and the two layers
-cooperate without either owning the other.
+brainstorming, planning, test-driven development, verification. Install it
+alongside these skills (Pi: add `git:github.com/obra/superpowers` to
+`packages` in `~/.pi/agent/settings.json`). `code`, `docs`, `ship`, and
+`accordant` then supply the content rules the loop enforces — Superpowers
+has no docs or modelling skill of its own, so those two are yours.
+
+### mattpocock/skills
+
+[mattpocock/skills](https://github.com/mattpocock/skills) is the same layer
+in a different shape: a set of workflow skills installed as a plugin (Claude
+Code, Codex, Copilot — or `npx skills add mattpocock/skills`). Its
+`grill-with-docs` aligns you with the agent and builds a shared language,
+`tdd` runs the red-green loop, `code-review` reviews, `diagnosing-bugs`
+finds the cause, and `implement` builds. Those own the loop; your four
+skills own what the loop must produce.
 
 ### One note routes the overlaps
 
-Superpowers ranks your instruction file above skills. Add this to your
-project `AGENTS.md` — or the global one — so the two sets hand off instead
+Both frameworks rank your instruction file above skills. Add this to your
+project `AGENTS.md` — or the global one — so the two layers hand off instead
 of colliding:
 
 ```text
-Superpowers drives the process; the coding skills supply the content.
+The process framework drives the loop; the coding skills supply the content.
 When a task matches both, run the process skill first, then apply the
 coding skill's guide inside each step:
 
 - Write a feature -> brainstorm, plan, then implement with code WRITE
-- Write tests     -> test-driven-development loop; code TEST owns the shape
-- Fix a bug       -> systematic-debugging finds the cause; code owns the fix
-- Write docs      -> docs (Superpowers has no docs skill)
-- Ship a release  -> ship CI/RELEASE, wrapped in superpowers'
-                     verification-before-completion and
-                     finishing-a-development-branch
-- Model a system  -> accordant (Superpowers has no modelling skill)
+- Write tests     -> the TDD loop; code TEST owns the shape of a good test
+- Fix a bug       -> systematic debugging finds the cause; code owns the fix
+- Write docs      -> docs (the frameworks own the loop, not README/API content)
+- Ship a release  -> ship CI/RELEASE, wrapped in the framework's
+                     verification and branch-finishing steps
+- Model a system  -> accordant (the frameworks own the loop, not state and specs)
 ```
 
-Overlap is expected: on "write tests" both `test-driven-development` and
-`code` fire — the note is what puts the loop and the assertions in
-different skills.
+Overlap is expected: on "write tests" both the TDD loop and `code` fire —
+the note is what puts the loop and the assertions in different skills.
 
 ## How it works
 
-The `description` in each `SKILL.md` decides when the skill fires:
+The `description` in each `SKILL.md` decides when the skill fires — triggers
+only, never a summary of the one rule:
 
 ```yaml
 name: code
 description: >
-  Write code that fails fast and tests well. One rule: bugs panic, expected
-  failures return values. Use when the user writes, tests, or refactors code,
-  finds it hard to test, designs an API, reads config, env vars, a cache, or a
-  schema, names or splits a function, simplifies a condition, adds a
-  dependency, or asks about error handling, performance, or crash safety —
-  even if they never say "testability" or "fail fast".
+  Use when the user writes, tests, or refactors code, finds it hard to test,
+  designs an API, reads config, env vars, a cache, or a schema, names or
+  splits a function, simplifies a condition, adds a dependency, or asks about
+  error handling, performance, or crash safety — even if they never say
+  "testability" or "fail fast".
 ```
 
 When a task matches, the agent reads the branch that fits the situation and

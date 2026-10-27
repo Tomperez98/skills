@@ -34,9 +34,14 @@ To write, change, or trim a skill, invoke Superpowers' writing-skills
 skill. This repo adds:
 
 - One skill per folder: `skills/<category>/<skill>/SKILL.md` plus one
-  branch guide per situation.
+  branch guide per situation. A branch guide earns its own file only when
+  the situation has enough numbered rules to fill a page; a one-rule
+  situation stays inline in `SKILL.md`.
 - Frontmatter: `name` (lowercase, hyphenated, matching the folder) +
-  `description`.
+  `description`. The `description` names only when to use the skill —
+  trigger phrases and symptoms, starting with "Use when" — never the one
+  rule or a summary of the procedure; the one rule lives in the SKILL.md
+  intro blockquote.
 - Keep `description` under ~450 folded characters (block-scalar newlines
   fold to spaces). 1024 is a hard limit: pi rejects longer with
   "description exceeds 1024 characters".

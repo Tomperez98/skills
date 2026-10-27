@@ -1,13 +1,10 @@
 ---
 name: accordant
 description: >
-  Specify and test any stateful system — any language, any transport —
-  with Accordant. One rule: write the contract once, in the spec, and let
-  it judge every response. Use when the user models a system, generates,
-  runs, or measures tests, scales one spec into suites, validates traces,
-  hunts races, models async jobs or faults, checks backward compatibility,
-  or changes or debugs a spec — even if they never say "model-based
-  testing" or "oracle".
+  Use when the user models a system, generates, runs, or measures tests,
+  scales one spec into suites, validates traces, hunts races, models async
+  jobs or faults, checks backward compatibility, or changes or debugs a
+  spec — even if they never say "model-based testing" or "oracle".
 ---
 
 # Accordant

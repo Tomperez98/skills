@@ -1,11 +1,9 @@
 ---
 name: docs
 description: >
-  Write docs and developer-marketing copy that meets a developer at their
-  task. One rule: lead with the reader's task, win the 10-second skim,
-  never mislead. Use when the user writes or fixes a README, API docs, a
-  tutorial or quickstart, a changelog or release notes, landing-page, blog,
-  or positioning copy, or asks about docs-driven growth or search ranking —
+  Use when the user writes or fixes a README, API docs, a tutorial or
+  quickstart, a changelog or release notes, landing-page, blog, or
+  positioning copy, or asks about docs-driven growth or search ranking —
   even if they never say "documentation" or "marketing".
 ---
 

@@ -1,12 +1,10 @@
 ---
 name: ship
 description: >
-  Run CI and releases that stay boring. One rule: keep main releasable, and
-  make every release scripted, re-runnable, and verified. Use when the user
-  sets up, fixes, or speeds up CI, publishes a package or library, plans a
-  release process or versioning scheme, asks whether a change is breaking,
-  recovers from a failed release, or watches main for regressions — even if
-  they never say "DevOps", "pipeline", or "release".
+  Use when the user sets up, fixes, or speeds up CI, publishes a package or
+  library, plans a release process or versioning scheme, asks whether a
+  change is breaking, recovers from a failed release, or watches main for
+  regressions — even if they never say "DevOps", "pipeline", or "release".
 ---
 
 # Ship
