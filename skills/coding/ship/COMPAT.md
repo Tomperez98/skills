@@ -41,6 +41,14 @@ Reserve a removed identifier (an enum value, a field number, an event
 type, an operation name) for good. An old caller or an old message still
 means the old thing by it.
 
+Adding breaks callers that match exhaustively. A new enum value breaks
+every `match` or `switch` that lists them all. A new field breaks every
+caller that builds the struct literally. A closed enum (code skill,
+SHAPE.md rule 1) shows every outcome, so each new one is a break. Mark an
+enum or struct that will grow across releases as open from its first
+release (`#[non_exhaustive]`, a required default branch, an unknown-value
+case in the schema), and treat closing it later as a break.
+
 ## 3. Write behavior down as an executable spec
 
 Behavior is checkable only when it's written as code that judges responses,

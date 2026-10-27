@@ -56,6 +56,11 @@ VM, a panic that aborts without running destructors. Rewrite anything that "must
 happen" during shutdown as something recovery reconstructs. The component's own
 code may be exactly what is broken, so its death needs no participation from it.
 
+The same holds for state a crash left half-written: a lock released
+mid-update (Rust calls it poisoned), a buffer the failed request was
+filling. Never read it to carry on. Treat it as part of the crash, and let
+recovery rebuild it from the store (rule 8).
+
 ## 4. Make retryable effects idempotent
 
 Recovery and retry are only sound if re-running an operation is safe. Give

@@ -29,7 +29,14 @@ the caller's (precondition) or yours (postcondition).
 Write the panic message for the person who reads it: name the invariant and
 the value that broke it — `"quantity must be positive, got {q}"`, not
 `"assertion failed"`. A specific panic tells the reader which bug it is; a
-cryptic one becomes a support ticket.
+cryptic one becomes a support ticket. An `unwrap()` is an assert with no
+message: write `expect("config was validated at startup")` instead.
+
+**Let the panic reach the top.** A `catch` that swallows a panic and keeps
+going turns the crash at the exact line back into the cascade it stopped.
+Fix a defect in the code, not at runtime. A catch-all at a unit-of-work
+boundary (a request handler, a job loop) may log and abandon that unit, but
+never resume it on the state the panic left (CRASHONLY.md rule 3).
 
 ```
 let adult = generate_adult()
@@ -85,6 +92,19 @@ Make the compiler enforce it with `#[must_use]`, `[[nodiscard]]`,
 `errcheck`, or `no-floating-promises`. The other half of the check lives
 with the function being called: it asserts its own parameters as
 preconditions (rule 8).
+
+**Check and extract in one step.** A test followed by a forced unwrap is a
+panic the compiler can't see: the next edit moves the use away from the
+check. Match, narrow, or destructure so the value exists only on the branch
+where it is valid:
+
+```
+// Wrong — check and use drift apart
+if user.is_some() { greet(user.unwrap()) }
+
+// Right — the value exists only where it's present
+if let Some(u) = user { greet(u) }
+```
 
 **Write the error for the person who has to act on it.** A returned error is
 a message to a caller — or to you, three months later, at 2 a.m. Say what
@@ -285,6 +305,11 @@ runs, which makes them the earliest crash you have. Let them fail the build.
 - **Keep the count at zero.** A warning that stays becomes noise, and noise
   hides the next real warning. Fix it, or suppress it on that one line with
   a comment saying why.
+- **Justify every escape hatch on its line.** `unsafe`, `any`, a cast,
+  `# type: ignore`, and `@ts-expect-error` each switch a check off. Prefer
+  a rewrite that needs none. Where one must stay, comment the invariant
+  that makes it correct (Rust's `// SAFETY:` convention) and wrap it behind
+  an interface that callers can't misuse.
 - **Simplify code the tool can't follow.** When the analyzer can't prove the
   code safe, rewrite the code until it can instead of silencing the tool.
   If a tool can't reason about the code, a reviewer probably can't either.
@@ -297,7 +322,8 @@ runs, which makes them the earliest crash you have. Let them fail the build.
 - Every expected failure is a returned value the signature shows, and every
   call site handles, propagates, or visibly discards it (rule 2).
 - Every broken invariant or precondition panics at its line, with a message
-  that names the value that broke it (rules 1 and 8).
+  that names the value that broke it, and no handler resumes after one
+  (rules 1 and 8).
 - Raw input is parsed once, at the edge, into typed values (rule 3).
 - Errors are translated once per boundary: no driver error type or
   transport code reaches the domain (rules 5 and 7).
