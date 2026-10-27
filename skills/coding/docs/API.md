@@ -16,7 +16,8 @@ twenty pages, so each can be linked to, searched within, and skimmed.
 
 Order: the signature (exactly as it's called), each parameter with its type and
 meaning, the return, then one complete example. A reference is the answer in a
-fixed shape.
+fixed shape. Each line says what the signature can't: `remove_item —
+removes an item` is noise; say what happens to an absent item.
 
 ```
 // fetch_user(id: UserId) -> Result<User, UserError>
@@ -36,7 +37,13 @@ the code skill.
 Errors:
 - NotFound(id)        — no such user; the caller should 404.
 - StoreUnavailable(e) — the store is down; the caller should retry later.
+
+Panics:
+- id is the nil UserId — a caller bug; validate ids at the edge.
 ```
+
+List the panics too: every input that crashes the call instead of
+returning an error is a precondition the caller has to know.
 
 ## 4. One complete example per operation
 
@@ -86,7 +93,7 @@ both work.
 
 - Each operation has its own page, titled with the task it does (rules 1, 7).
 - Each page gives the signature, parameters, and return in that order, and
-  lists every error with what the caller should do (rules 2–3).
+  lists every error and panic with what the caller should do (rules 2–3).
 - Each example runs as pasted from a file CI runs, has no `...`, and shows
   its output (rule 4).
 - Reference and explanation sit in separate sections or pages, and the

@@ -7,6 +7,13 @@ pseudocode, as in [WRITE.md](WRITE.md). When where a seam goes, what an
 interface exposes, or whether an abstraction earns its place is the user's
 call, ask the user before you write it.
 
+Scale the rules to who calls the code. In a library, which other teams or
+projects call, rules 1 and 2 are binding: every caller pays for a loose
+surface, and tightening it later is a breaking release. In application code
+whose callers you update in the same change, they are strong defaults: take
+the simplest signature that works (a plain list over a generic iterable)
+and generalize when a second caller shows up (rule 5).
+
 ## 1. Minimize the interface surface; name the fault model
 
 An interface is a contract. Keep its surface small — fewer methods, fewer
@@ -32,7 +39,7 @@ Shape the surface so a caller can guess it:
   operation's input carries that request instead of redeclaring its fields,
   so each concept is defined once.
 - **Make misuse hard.** Required parameters over ordered optional ones, distinct
-  types for ids that look alike (STATE.md rule 4), enums instead of booleans.
+  types for ids that look alike (rule 7), enums instead of booleans.
 - **Hide what callers don't need.** Storage layout and internal states stay
   behind the interface, so they can change without a breaking change
   (WRITE.md rule 8).
@@ -119,6 +126,8 @@ Names are the mental model; make them carry it.
 - Use your language's prevailing case convention — `snake_case`,
   `camelCase`, `PascalCase`, whatever the codebase already uses — and don't
   abbreviate: a crisp name beats a short one.
+- Name fields, not positions: `pair.1` loses its meaning a screen away;
+  `range.end` keeps it.
 
 ## 5. Solve the problem before you abstract
 
@@ -135,6 +144,10 @@ from then on.
   need it later" is not a concrete need.
 - Keep the abstraction as small as that need. Build only what
   today's problem needs.
+- Reach for metaprogramming last: a function or type before a macro, a
+  declarative macro before code generation, code generation before a
+  compiler plugin. Each step up costs IDE navigation, search, and automated
+  refactoring, and adds a dialect the next reader must learn.
 
 ```
 // first: the real work, plain dispatch
@@ -206,6 +219,29 @@ s = new Set(); s.add([1]); s.add([1])   // two members: different identities
 s.has([1])                               // false
 ```
 
+The same holds for single values. Wrap a value that can be mixed up (an
+id, a unit, a validated string) in a new type, not an alias. An alias is
+the old type under a new name, so the compiler accepts a swap:
+
+```
+// Alias — compiles with the arguments swapped
+type AccountId = u64
+type UserId = u64
+transfer(from: AccountId, to: UserId)
+transfer(user_id, account_id)            // silent wrong answer
+
+// New type — the swap is a compile error
+struct AccountId(u64)
+struct UserId(u64)
+```
+
+Give the value a new type when it has its own meaning, its own operations,
+a representation likely to change, or a neighbor it can be confused with.
+Validate in the constructor (`Email::parse(s) -> Result<Email, _>`), so
+holding the type proves the value is valid and inner code never re-checks
+it (WRITE.md rule 3). Keep aliases for shortening a long type name; they
+guarantee nothing.
+
 ## Done when
 
 - The interface names its failures and keeps its surface to one pattern:
@@ -216,4 +252,5 @@ s.has([1])                               // false
 - Names follow the codebase's case convention, unabbreviated, with
   qualifiers after the base name, most significant word first (rule 4).
 - Every function fits on a screen and does one named job, and each
-  collection's type holds the guarantee its data needs (rules 6–7).
+  collection's type holds the guarantee its data needs; values that can be
+  mixed up are new types, not aliases (rules 6–7).
