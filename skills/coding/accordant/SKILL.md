@@ -1,13 +1,12 @@
 ---
 name: accordant
 description: >
-  Specify and test any stateful system — any language, any transport —
-  with Accordant. One rule: write the contract once, in the spec, and let
-  it judge every response. Use when the user models a system, generates,
-  runs, or measures tests, scales one spec into suites, validates traces,
-  hunts races, models async jobs or faults, checks backward compatibility,
-  or changes or debugs a spec — even if they never say "model-based
-  testing" or "oracle".
+  Use when the user asks for Accordant or model-based/spec-driven testing
+  of a stateful system (spec in C#/.NET; any transport), writes or changes
+  an Accordant spec, generates or runs model-based tests, scales one spec
+  into suites, validates traces, hunts races or linearizability bugs, models
+  async jobs or faults, checks backward compatibility, or debugs a spec —
+  even if they never say "model-based testing" or "oracle".
 ---
 
 # Accordant
@@ -24,9 +23,10 @@ spec never talks to the system; it only judges (request, response) pairs.
 How a call reaches the system is whatever the binding does: HTTP, gRPC, a
 message queue, a database, a CLI process, a native library through
 P/Invoke, or a plain in-process method call. If .NET can't reach the
-system at all, the system records a trace in its own language and the spec
-validates it afterwards (ORACLE.md). Offer Accordant for any system in any
-language, behind any transport.
+system at all, the system records a trace in its own language and the
+.NET spec validates it afterwards (ORACLE.md). Offer Accordant for any
+system .NET can call, behind any transport; for anything else, use trace
+replay, which still needs a .NET host for the spec.
 
 Everything in this skill follows from one rule:
 
@@ -36,6 +36,16 @@ The spec is the only contract document. A manifest may index routes,
 messages, and outcomes; an `API.md` or `CONTRACT.md` that restates behavior
 is a second source that drifts. A behavior change lands with the spec rule
 that judges it, in the same change.
+
+## Requirements and version
+
+The code examples here were verified against `Microsoft.Accordant` 0.1.6,
+the latest published package when this was written. Pin that version in the
+test project and read the release notes before upgrading: the library is
+still 0.1.x, and some options are not wired up yet (DEBUG.md rule 6). The
+package targets `netstandard2.0` and 0.1.6 depends on `System.Text.Json` 10,
+which can conflict in a .NET 8 project (microsoft/accordant#38); run a smoke
+test on your target before adopting it.
 
 ## Pick a branch
 
@@ -116,14 +126,14 @@ Use these words exactly, in the guides and in what you write for the user.
 
 ## Hand off
 
-When the task crosses into another skill's ground, load it with the Skill
-tool rather than carrying on from memory:
+When the task crosses into another skill's ground, load that skill rather
+than carrying on from memory:
 
-- **A rejection is a real bug in the system** → call the Skill tool with
-  "code" and follow WRITE.md or REFACTOR.md to fix the system, not the spec.
-- **Running the spec on every merge or against the last release** → call
-  the Skill tool with "ship" and follow CI.md or COMPAT.md.
-- **Several services rolling out together** → call the Skill tool with
-  "ship" and follow its ROLLOUT.md.
-- **The suite gate and the workflow drift apart** → call the Skill tool with
-  "ship" and follow CI.md.
+- **A rejection is a real bug in the system** → load the "code" skill and
+  follow WRITE.md or REFACTOR.md to fix the system, not the spec.
+- **Running the spec on every merge or against the last release** → load the
+  "ship" skill and follow CI.md or COMPAT.md.
+- **Several services rolling out together** → load the "ship" skill and
+  follow its ROLLOUT.md.
+- **The suite gate and the workflow drift apart** → load the "ship" skill
+  and follow CI.md.

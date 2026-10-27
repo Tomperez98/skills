@@ -139,7 +139,7 @@ predicate checks that field, the break passes.
 The failure message is the old rule the new build violated ("User 'ghost'
 doesn't exist → 404", but the build answered 200). Either the new behavior
 is a regression (fix the system) or it's a deliberate break (declare it:
-call the Skill tool with "ship" and follow its COMPAT.md rule 6).
+load the "ship" skill and follow its COMPAT.md rule 6).
 Never edit the baseline spec to make it pass: the baseline is what users
 were promised, and changing it hides the break instead of declaring it.
 
@@ -171,7 +171,8 @@ even though nothing was removed. Write those predicates against the
 released set (`r.Status is JobStatus.Pending or JobStatus.Completed`), so
 the baseline rejects the new value and the decision goes through rule 4.
 A set the docs say is open (new values may appear, clients must ignore
-unknown ones) is checked like any other field.
+unknown ones) is checked for presence and type only; never assert
+membership, or the baseline rejects the additions it is meant to allow.
 
 ## 7. Upgrade a system that already holds data
 
@@ -220,9 +221,9 @@ responses, interleavings — that no per-PR run ever records.
 
 ## 9. Several services: every spec judges both directions and the rollout
 
-When several services, each with its own spec, ship together, call the Skill
-tool with "ship" and follow its ROLLOUT.md for the directions to check and
-the deploy order. A single package stops at rule 8. What Accordant adds:
+When several services, each with its own spec, ship together, load the
+"ship" skill and follow its ROLLOUT.md for the directions to check and the
+deploy order. A single package stops at rule 8. What Accordant adds:
 
 - **Both directions run every service's suite.** Backward runs every
   service's baseline suite against the new build (rule 2); forward runs every

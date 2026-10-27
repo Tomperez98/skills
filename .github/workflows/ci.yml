@@ -51,5 +51,5 @@ jobs:
           path: .contract-report/
           include-hidden-files: true # the folder starts with a dot; skipped by default
           # The report runs first, so a missing one is a bug: fail, don't warn
-          # (ship skill, CI.md rule 5).
+          # (ship skill, CI.md rule 6).
           if-no-files-found: error

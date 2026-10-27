@@ -1,12 +1,10 @@
 ---
 name: docs
 description: >
-  Write docs and developer-marketing copy that meets a developer at their
-  task. One rule: lead with the reader's task, win the 10-second skim,
-  never mislead. Use when the user writes or fixes a README, API docs, a
-  tutorial or quickstart, a changelog or release notes, landing-page, blog,
-  or positioning copy, or asks about docs-driven growth or search ranking —
-  even if they never say "documentation" or "marketing".
+  Use when the user writes or fixes a README, API docs, a tutorial or
+  quickstart, a changelog or release notes, landing-page, blog or launch
+  post, or positioning copy, or asks about docs-driven growth or search
+  ranking — even if they never say "documentation" or "marketing".
 ---
 
 # Docs & Developer Marketing
@@ -28,6 +26,8 @@ surrounding context, or by asking if the user is around:
   [CHANGELOG.md](CHANGELOG.md).
 - **"Write / fix landing-page or positioning copy"** →
   [LANDING.md](LANDING.md).
+- **"Write a blog post, launch post, or announcement"** →
+  [DOCS_MARKETING.md](DOCS_MARKETING.md).
 - **"Make docs acquire / convert / rank"** →
   [DOCS_MARKETING.md](DOCS_MARKETING.md).
 
@@ -57,10 +57,10 @@ one the request names and state the assumption at the top.
 
 ## Hand off
 
-When the task crosses into another skill's ground, load it with the Skill
-tool rather than carrying on from memory:
+When the task crosses into another skill's ground, load that skill rather
+than carrying on from memory:
 
-- **Keeping a docs example runnable** → call the Skill tool with "ship" and
-  follow CI.md: CI runs the file the example is cut from.
-- **Release notes for a version about to ship** → call the Skill tool with
-  "ship" and follow RELEASE.md for the version the entry belongs to.
+- **Keeping a docs example runnable** → load the "ship" skill and follow
+  CI.md: CI runs the file the example is cut from.
+- **Release notes for a version about to ship** → load the "ship" skill and
+  follow RELEASE.md for the version the entry belongs to.

@@ -1,12 +1,11 @@
 # Writing a spec
 
-You're writing the contract, not code that does the job: a minimal state
-and, for each operation, the rule that maps (request, state) to the
+You're writing the contract, not code that does the job: a minimal state and,
+for each operation, the rule that maps (request, state) to the
 *responses that are correct* and the next state. The system produces one
 response; the spec says which ones it may produce. Nothing here calls the
-system. Apply the rules in order. When what the state holds or which
-operations form the cluster is the user's call, call the Skill tool with
-"grill" before you write it.
+system. Apply the rules in order. When what the state holds or which operations
+form the cluster is the user's call, ask the user before you write it.
 
 ## 1. Pick a small cluster of related operations
 

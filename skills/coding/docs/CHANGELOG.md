@@ -45,7 +45,9 @@ A bullet that needs "and" twice is two bullets.
 ## 5. Skip the noise
 
 Log only changes that alter user-visible behavior; leave out internal
-refactors, dependency bumps, and typo fixes. Every entry then matters, and
+refactors, dependency bumps that change nothing users see, and typo fixes.
+A dependency update that fixes a security issue or changes behavior is an
+entry (code skill, DEPENDENCIES.md rules 4–5). Every entry then matters, and
 readers keep reading.
 
 ## 6. Write it as you go, not at release time

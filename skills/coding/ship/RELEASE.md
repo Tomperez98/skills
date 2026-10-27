@@ -3,8 +3,7 @@
 You're deciding what ships, what it's called, and what happens when it's
 wrong. Whatever the cadence, the process should be dull enough that anyone
 can run it. Apply the rules in order. When the cadence or the versioning
-scheme is the user's call, call the Skill tool with "grill" before you
-write it down.
+scheme is the user's call, ask the user before you write it down.
 
 ## 1. Write the checklist down
 
@@ -40,14 +39,14 @@ written in several files, they drift apart; a placeholder that a script
 rewrites can't.
 
 Change the version in a reviewed pull request like any other change, so the
-number is checked before it ships. Derive the next version number from the
-last changelog entry (patch + 1) rather than typing it; the human's job is
-to verify it, not produce it.
+number is checked before it ships. Derive the candidate version from the
+last changelog entry and the changes since it, rather than typing it; the
+human's job is to verify it, not produce it.
 
 Which numbers can be published, reused, or resumed follows PUBLISH.md
 rule 3. Pick a scheme users can understand, such as SemVer, and stick to
 it. Under SemVer, the compatibility checks pick the bump (COMPAT.md
-rule 6).
+rule 6); confirm the candidate against that bump before publishing.
 
 ## 4. Build the changelog from what merged
 

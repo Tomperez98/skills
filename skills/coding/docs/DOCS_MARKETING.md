@@ -3,6 +3,8 @@
 Your docs are your best marketing, because a developer trusts a working
 example more than any ad. This file is about the docs *as* a growth channel:
 making them findable, shareable, and able to convert a reader into a trier.
+A blog post or launch post is the same artifact with a different frame: the
+example is the ad, the page must stand alone, and the artifact is reused.
 Apply the rules in order.
 
 ## 1. One page, one search intent

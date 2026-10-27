@@ -53,7 +53,7 @@ Give the exact command(s) in one block, runnable as written.
 The example must run as pasted — imports, setup, expected output. It is the
 strongest thing on the page, so keep the interesting part complete, with no
 `...`. To keep it that way, cut it from a file CI runs (ship skill, CI.md):
-call the Skill tool with "ship" and follow its CI.md to wire that up.
+load the "ship" skill and follow its CI.md to wire that up.
 
 ```
 // complete, self-contained, with the output shown

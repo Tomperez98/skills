@@ -1,10 +1,10 @@
 # mise pins the one tool the checks need beyond Node: rumdl, the Markdown
 # linter and formatter. Node comes from the environment.
 #
-#   mise run check     # fast tier: frontmatter + README sync
+#   mise run check     # fast tier: frontmatter, descriptions, README sync, rule numbers
 #   mise run lint      # fast tier: Markdown formatting and lint (rumdl)
 #   mise run fmt       # fix what `lint` reports, in place
-#   mise run links     # full tier: links, rule references, orphaned pages
+#   mise run links     # full tier: links, rule references, skill calls, orphans, code citations
 #   mise run contract  # report: what this change does to the contract (never fails on a diff)
 #   mise run ci        # the gate: every tier, in order
 
@@ -15,7 +15,7 @@ lockfile = true # mise.lock pins each tool's checksum, not just its version
 rumdl = "0.2.78"
 
 [tasks.check]
-description = "Fast tier: validate skill frontmatter and README sync"
+description = "Fast tier: validate frontmatter, descriptions, README sync, rule numbers"
 run = "node scripts/validate-skills.mjs check"
 
 [tasks.lint]
@@ -27,7 +27,7 @@ description = "Fix Markdown formatting in place (rumdl)"
 run = "rumdl fmt ."
 
 [tasks.links]
-description = "Full tier: resolve internal links and rule references, find orphaned pages"
+description = "Full tier: resolve links, rule references, skill calls, orphans, code citations"
 run = "node scripts/validate-skills.mjs links"
 
 [tasks.contract]

@@ -1,12 +1,10 @@
 ---
 name: ship
 description: >
-  Run CI and releases that stay boring. One rule: keep main releasable, and
-  make every release scripted, re-runnable, and verified. Use when the user
-  sets up, fixes, or speeds up CI, publishes a package or library, plans a
-  release process or versioning scheme, asks whether a change is breaking,
-  recovers from a failed release, or watches main for regressions — even if
-  they never say "DevOps", "pipeline", or "release".
+  Use when the user sets up, fixes, or speeds up CI, publishes a package or
+  library, plans a release process or versioning scheme, asks whether a
+  change is breaking, recovers from a failed release, or watches main for
+  regressions — even if they never say "DevOps", "pipeline", or "release".
 ---
 
 # Ship
@@ -80,12 +78,12 @@ Use these words exactly, in the guides and in what you write for the user.
 
 ## Hand off
 
-When the task crosses into another skill's ground, load it with the Skill
-tool rather than carrying on from memory:
+When the task crosses into another skill's ground, load that skill rather
+than carrying on from memory:
 
-- **Writing the behavior spec COMPAT.md checks** → call the Skill tool with
-  "accordant" and follow SPEC.md, then its BASELINE.md.
-- **Writing the changelog entry a release or a break needs** → call the
-  Skill tool with "docs" and follow CHANGELOG.md.
-- **Fixing the code a failing gate points at** → call the Skill tool with
-  "code" and follow the branch that fits.
+- **Writing the behavior spec COMPAT.md checks** → load the "accordant"
+  skill and follow SPEC.md, then its BASELINE.md.
+- **Writing the changelog entry a release or a break needs** → load the
+  "docs" skill and follow CHANGELOG.md.
+- **Fixing the code a failing gate points at** → load the "code" skill and
+  follow the branch that fits.
