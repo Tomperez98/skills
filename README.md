@@ -13,10 +13,15 @@ branch guides, 256 numbered rules.
 
 ## What it is
 
-Skills for AI coding assistants (pi, Claude, Codex). Each skill is one
-load-bearing idea stated in one sentence, and the branch guides turn that
-idea into rules the agent can actually follow. The one rule is the contract;
-the branches are the procedure.
+Skills for AI coding assistants. Each skill is one load-bearing idea stated
+in one sentence, and the branch guides turn that idea into rules the agent
+can actually follow. The one rule is the contract; the branches are the
+procedure.
+
+They follow the
+[Agent Skills specification](https://agentskills.io/specification), so any
+agent that loads `SKILL.md` can use them. The install below covers Claude
+Code, Codex, and Pi.
 
 ## Install
 
@@ -25,8 +30,8 @@ npx skills add Tomperez98/skills
 ```
 
 The [`skills`](https://github.com/vercel-labs/skills) CLI finds every skill,
-detects which agents you have installed, and asks where to put them.
-Target pi (or any agent) globally in one shot:
+detects your agents, and installs into the current project by default. Add
+`-g` to install for every project, and `-a` to target one agent:
 
 ```bash
 npx skills add Tomperez98/skills -g -a pi
@@ -36,62 +41,64 @@ Preview before installing with `npx skills add Tomperez98/skills --list`.
 Nested category folders such as `skills/<category>/<skill>` need `skills`
 1.5.22 or newer; `npx skills@latest` is enough.
 
-Already have the repo? Copy the folders directly — Claude and Codex read
-the same layout (`~/.claude/skills`, `~/.codex/skills`):
+The CLI writes each agent's own skills directory. To copy by hand, use that
+agent's global or project path and create it first:
+
+| Agent | Global | Project |
+|-------|--------|---------|
+| Claude Code | `~/.claude/skills/` | `.claude/skills/` |
+| Codex | `~/.agents/skills/` | `.agents/skills/` |
+| Pi | `~/.pi/agent/skills/` or `~/.agents/skills/` | `.pi/skills/` or `.agents/skills/` |
+
+From the repo root:
 
 ```bash
-cp -r skills/*/* ~/.pi/agent/skills/
+mkdir -p ~/.agents/skills
+cp -r skills/*/* ~/.agents/skills/
 ```
+
+Prefer the CLI: it symlinks the skills, so `npx skills update` refreshes
+them. A manual copy must be re-copied to update.
 
 ## Pair with a process framework
 
-These four skills are the *inner loop*: they say what the output must obey.
-A process framework — the *outer loop* — decides when and how the work
-proceeds: when to brainstorm, plan, test first, review, and ship. Install
-both, and the two layers compose: the process skill runs first, then the
-content rule applies inside each step. Two frameworks fill that slot.
+These four skills are the *content layer*: they say what the output must
+obey. A process framework is the *outer loop*: it decides when and how the
+work proceeds — when to brainstorm, plan, test first, review, and ship.
+Install the framework you use alongside these skills. The two layers
+compose: the process skill runs first, then the content rule applies inside
+each step. If you do not use a process framework, the content skills still
+work on their own.
 
-### Superpowers
+### Route the overlaps once
 
-[Superpowers](https://github.com/obra/superpowers) is the process loop —
-brainstorming, planning, test-driven development, verification. Install it
-alongside these skills (Pi: add `git:github.com/obra/superpowers` to
-`packages` in `~/.pi/agent/settings.json`). `code`, `docs`, `ship`, and
-`accordant` then supply the content rules the loop enforces — Superpowers
-has no docs or modelling skill of its own, so those two are yours.
-
-### mattpocock/skills
-
-[mattpocock/skills](https://github.com/mattpocock/skills) is the same layer
-in a different shape: a set of workflow skills installed as a plugin (Claude
-Code, Codex, Copilot — or `npx skills add mattpocock/skills`). Its
-`grill-with-docs` aligns you with the agent and builds a shared language,
-`tdd` runs the red-green loop, `code-review` reviews, `diagnosing-bugs`
-finds the cause, and `implement` builds. Those own the loop; your four
-skills own what the loop must produce.
-
-### One note routes the overlaps
-
-Both frameworks rank your instruction file above skills. Add this to your
-project `AGENTS.md` — or the global one — so the two layers hand off instead
-of colliding:
+Put this note where your agent reads project instructions, so the two layers
+hand off instead of colliding. Codex and Pi read `AGENTS.md`; Claude Code
+reads `CLAUDE.md` (and `AGENTS.md` only when no `CLAUDE.md` exists, unless
+you enable `claude-md-and-agents-md`).
 
 ```text
-The process framework drives the loop; the coding skills supply the content.
-When a task matches both, run the process skill first, then apply the
-coding skill's guide inside each step:
+These skills are the content layer. If you use a process framework, it owns
+the loop — when to brainstorm, plan, test, review, and ship. Apply the
+content skill inside each step; don't let it replace the process.
 
-- Write a feature -> brainstorm, plan, then implement with code WRITE
-- Write tests     -> the TDD loop; code TEST owns the shape of a good test
-- Fix a bug       -> systematic debugging finds the cause; code owns the fix
-- Write docs      -> docs (the frameworks own the loop, not README/API content)
-- Ship a release  -> ship CI/RELEASE, wrapped in the framework's
-                     verification and branch-finishing steps
-- Model a system  -> accordant (the spec runs in .NET; trace replay covers what it can't call)
+- Write a feature -> brainstorm, plan, then code WRITE
+- Write tests     -> your TDD loop; code TEST owns the shape of a good test
+- Fix a bug       -> your debugging step finds the cause; code owns the fix
+- Write docs      -> docs (the process framework owns timing, not README/API content)
+- Ship a release  -> ship RELEASE; the process framework decides when it is allowed
+- Model a system  -> accordant; a spec judges stateful sequences, and trace
+                     replay covers what it can't call
+
+If no process framework is installed, use the content skill directly.
 ```
 
 Overlap is expected: on "write tests" both the TDD loop and `code` fire —
 the note is what puts the loop and the assertions in different skills.
+
+Installed skills share one name space in an agent. If a process framework
+also installs a skill named `code`, `docs`, `ship`, or `accordant`, rename or
+remove one before relying on the hand-off instructions.
 
 ## How it works
 
@@ -155,8 +162,11 @@ follows its rules in order:
 Each `SKILL.md` ends with a **Hand off** section naming the skill that
 picks up next and the guide to follow. A guide that needs another skill
 says so as an instruction: `load the "ship" skill and follow its CI.md`.
-A citation like "ship skill, CI.md rule 7" stays a reference: it explains
-why, and doesn't ask the agent to load anything.
+That is plain language, not a tool call: the agent loads the named skill,
+then reads the guide from that skill's directory. A citation like "ship
+skill, CI.md rule 7" stays a reference: it explains why, and doesn't ask the
+agent to load anything. If your agent namespaces skills (for example
+`plugin:skill`), use the namespaced name for the hand-off.
 
 ## Why one rule
 
@@ -171,6 +181,8 @@ surrounding code and state the assumption at the top.
 
 A new skill is three things: a one-sentence rule, a `description` that
 triggers at the right moment, and branch guides that tell the agent exactly
-what to do. Write it with Superpowers' writing-skills skill; keep the rule
-honest, label pseudocode as pseudocode, and cut any example that claims to
-run from a file CI runs.
+what to do. Use your process framework's skill-authoring guide when one is
+available, otherwise follow the
+[Agent Skills specification](https://agentskills.io/specification); keep the
+rule honest, label pseudocode as pseudocode, and cut any example that claims
+to run from a file CI runs.
