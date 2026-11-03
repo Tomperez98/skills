@@ -129,15 +129,57 @@ into its neighbors can't. Name the wall-clock budget the suite must fit,
 and fix state that leaks between tests as a bug: at a hundred pulls a day
 the suite's speed is the merge queue's speed.
 
-## 8. Golden files for complex output
+## 8. Expect tests for complex output
 
-Capture a correct run, eyeball it, commit it as the golden file, and compare
-future output against it. Use it for complex structures (config rendering,
-serialization, formatted text) instead of per-line assertions. Golden files fit
-output whose exact bytes are the contract. When output carries values that
-change every run (IDs, timestamps, ordering), normalize them before comparing,
-or judge the output against rules instead: a golden that passes on every correct
-run keeps its meaning.
+For complex results, render any observable outcome as stable text and let
+the runner write the expected output. That outcome can be a return value or
+error payload, a trace of calls or events, or a rendered form (config,
+serialization, formatted text, a DOM tree, a query plan, CLI output). Start
+with an empty expectation, run the test, read the diff, and accept it only
+when the output is right. A later change to the code then shows up as a diff
+in the frozen output. Frameworks: OCaml `ppx_expect`, Rust `expect-test`,
+Jest inline snapshots, Python `inline-snapshot`.
+
+The text must be deterministic and readable by eye. If you can't tell
+whether it is right, the expectation only freezes what the code does today.
+
+```
+test "order book after two bids" {
+    book = new_book()
+    book.add(Bid, price = 10, size = 5)
+    book.add(Bid, price = 11, size = 2)
+
+    print_book(book)
+    expect("""
+        BID  11 x 2
+        BID  10 x 5
+    """)
+}
+```
+
+- **Keep the expectation next to the code that prints it,** inline or in
+  a file beside the test. The scenario and its result read together, and
+  the output doubles as an example of the function's use.
+- **Print a story, not a dump.** Write a small printer that shows the
+  state that matters and elides the rest, on a small example. A raw dump
+  buries the point and changes for reasons no one cares about.
+- **Use several expectations in one scenario** to show state after each
+  step, so a diff points at the step that changed.
+- **Read every diff before accepting it.** Accepting is one keystroke, so
+  an unread acceptance turns the test into noise. A diff in an existing
+  expectation is a regression until you have judged it.
+- **Normalize values that change every run** (IDs, timestamps, ordering)
+  before comparing, or judge the output against rules instead: an
+  expectation that passes on every correct run keeps its meaning.
+
+An expect test captures output you never thought to assert on, so it
+catches changes a hand-written assertion misses. It is not stronger than
+an assertion, though. Use assertions (rules 1–2) for a narrow contract, such
+as one variant or one payload, and properties (rule 10) for a rule that must
+hold on every input. This fits output whose exact text is the contract, and a
+suite whose diffs a person reads. A change that rewrites hundreds of
+expectations at once is too large to review: split the change, or assert
+the contract instead.
 
 ## 9. Pin the important unions at compile time
 
@@ -241,6 +283,8 @@ the test is the artifact.
   variant before the payload (rules 1–2).
 - A workflow's tests show later steps don't run after an early failure, and
   retry tests assert the exact attempt list with zero delay (rules 3–4).
+- Each expect test prints a small, focused output, and you read its diff
+  before accepting it (rule 8).
 - Each property test's generators include empty, single, duplicate, and
   boundary inputs, and each shrunk counterexample is kept as an example
   test (rule 10).
