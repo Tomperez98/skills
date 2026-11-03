@@ -299,8 +299,8 @@ The compiler and the static analyzer can catch a bug before the code ever
 runs, which makes them the earliest crash you have. Let them fail the build.
 
 - **Use the strictest settings from the first commit:**
-  `-Wall -Wextra -Werror -pedantic`, TypeScript `strict`, `mypy --strict`,
-  Clippy with `-D warnings`. Turning strictness on later means working
+  your compiler's strictest mode, its warnings-as-errors flag, and the
+  linter's strict ruleset. Turning strictness on later means working
   through a backlog first. Turning it on at the start costs nothing.
 - **Keep the count at zero.** A warning that stays becomes noise, and noise
   hides the next real warning. Fix it, or suppress it on that one line with

@@ -34,7 +34,7 @@ tutorial and a maze.
 ```
 Run:
 
-    $ npm run dev
+    $ <start command>
 
 You should see "Listening on :3000". Open http://localhost:3000 and you'll
 see the JSON. If you see "EADDRINUSE", port 3000 is taken.
