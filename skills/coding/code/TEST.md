@@ -137,8 +137,8 @@ error payload, a trace of calls or events, or a rendered form (config,
 serialization, formatted text, a DOM tree, a query plan, CLI output). Start
 with an empty expectation, run the test, read the diff, and accept it only
 when the output is right. A later change to the code then shows up as a diff
-in the frozen output. Frameworks: OCaml `ppx_expect`, Rust `expect-test`,
-Jest inline snapshots, Python `inline-snapshot`.
+in the frozen output. Use whatever inline expectation or snapshot support
+your test runner already has.
 
 The text must be deterministic and readable by eye. If you can't tell
 whether it is right, the expectation only freezes what the code does today.
@@ -184,8 +184,7 @@ the contract instead.
 ## 9. Pin the important unions at compile time
 
 The compiler is a test runner you already have. Pin a signature so it can't
-drift silently, using your language's compile-time type assertion
-(TypeScript's `expectTypeOf`, Rust's const coercion, or similar):
+drift silently, using your language's compile-time type assertion:
 
 ```
 // Asserts register_user is exactly (str) -> Result<User, RegisterUserError>
@@ -195,8 +194,8 @@ type_assert(register_user, fn(str) -> Result<User, RegisterUserError>)
 ## 10. Test the contract as properties
 
 An example test checks one input. A property test states the contract (WRITE.md
-rule 8) once, and a library such as Hypothesis, fast-check,
-proptest, or QuickCheck checks it against hundreds of generated inputs. Generate
+rule 8) once, and a property-testing library checks it against hundreds of
+generated inputs. Generate
 only inputs that meet the precondition; a precondition violation is a bug, so
 test it in `expect_crash` (rule 5).
 
@@ -255,8 +254,8 @@ assert(result == Caught, "suite survived the mutant — the test is blind")
 Choose the mutation to match the level of the test:
 
 - **Unit tests: a mechanical mutation is enough.** Flip a comparison, swap
-  a signed operator, force a branch, delete a statement. Tooling
-  (`cargo-mutants`, `mutmut`, Stryker, PIT) enumerates these for you.
+  a signed operator, force a branch, delete a statement. A mutation-testing
+  tool for your language can enumerate these for you.
 - **System, property, and end-to-end tests: inject a semantic bug.**
   Mechanical mutations panic or short-circuit and never reach the deep path the
   test exists to exercise. Pick one that keeps
