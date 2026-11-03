@@ -34,8 +34,8 @@ parentheses and state the assumption at the top of your work.
   [STATE.md](STATE.md).
 - **Design an in-process interface or add an abstraction** →
   [SHAPE.md rules 1, 2, and 5](SHAPE.md).
-- **Name things, split a long function, or narrow a call site's branches**
-  → [SHAPE.md rules 3, 4, and 6](SHAPE.md).
+- **Name things, comment, split a long function, or narrow a call site's
+  branches** → [SHAPE.md rules 3, 4, 6, and 8](SHAPE.md).
 - **Choose a collection type** (list, set, bag) **or wrap a value in a new
   type** (an id, a unit, a validated string) →
   [SHAPE.md rule 7](SHAPE.md).

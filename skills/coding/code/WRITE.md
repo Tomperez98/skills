@@ -310,6 +310,11 @@ runs, which makes them the earliest crash you have. Let them fail the build.
   a rewrite that needs none. Where one must stay, comment the invariant
   that makes it correct (Rust's `// SAFETY:` convention) and wrap it behind
   an interface that callers can't misuse.
+- **Match every variant, with no wildcard arm.** Make the incomplete-match
+  check an error and skip the catch-all `_`: when someone adds a variant,
+  the compiler lists every match that needs a decision. Where you handle
+  only some variants, write the rest out by name and panic on them (rule 1),
+  so the gap is deliberate and a reader sees it.
 - **Simplify code the tool can't follow.** When the analyzer can't prove the
   code safe, rewrite the code until it can instead of silencing the tool.
   If a tool can't reason about the code, a reviewer probably can't either.
