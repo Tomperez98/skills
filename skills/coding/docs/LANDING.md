@@ -30,7 +30,7 @@ single call to action. The snippet *is* the claim.
 Stop writing backoff by hand. retry adds exponential backoff with jitter in
 one function — and returns your error type unchanged.
 
-    $ npm install retry
+    $ <install command> retry
     // one complete example
 
 [Get started]  [Read the docs]

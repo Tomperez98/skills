@@ -23,11 +23,9 @@ replaces the other.
 
 Diff the current schema or public API against the one from the last
 released tag, with a tool that classifies each change as breaking or not:
-`oasdiff breaking` (OpenAPI), `buf breaking` (protobuf), GraphQL Inspector,
-`cargo-semver-checks` (Rust), API Extractor (TypeScript), package
-validation with a baseline version (.NET), `japicmp` (Java), `apidiff`
-(Go), `griffe check` (Python). It runs in seconds, so it belongs in the
-fast tier (CI.md rule 2).
+a schema-diff tool for your schema format, or an API-diff tool for your
+language's public API. Compare against a baseline version. It runs in
+seconds, so it belongs in the fast tier (CI.md rule 2).
 
 Diff only the schema files the pull request touched, and run the full set
 on main and the release. Diffing

@@ -6,10 +6,10 @@ every time, and a failure points at its cause. Apply the rules in order.
 
 ## 1. CI is code in the repo, runnable locally
 
-Put the whole check suite behind one command that behaves the same on a
-laptop and on a CI runner (`make ci`, `./ci`, `npm run ci`). The CI config
-only sets up the environment and calls that command. Logic that lives only
-in CI config can only be debugged by pushing commits.
+Put the whole check suite behind one command that behaves the same on a laptop
+and on a CI runner (`make ci`, `./ci`, or your task runner's `ci` task). The CI
+config only sets up the environment and calls that command. Logic that lives
+only in CI config can only be debugged by pushing commits.
 
 ```yaml
 # The CI config is glue: set up, then call the same command a developer runs.
