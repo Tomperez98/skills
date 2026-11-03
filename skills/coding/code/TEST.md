@@ -222,6 +222,12 @@ Shapes that find bugs:
   `true`, `any([])` is `false`, and `sum([])` is `0`. Assert the empty case
   explicitly. If an empty input should be rejected, reject it at the edge,
   because `all(valid(x) for x in xs)` passes on `[]`.
+- **Simulate the clock and the network.** Put time and transport behind an
+  interface (WRITE.md rule 8) and give tests a fake that delays, drops, or
+  reorders messages on command. Runs are fast and deterministic, and a
+  failure replays from its seed. Feed the same state machine random event
+  orders (a property) or fuzzer bytes. Test new *combinations* of old code:
+  reuse hides failure modes the old callers never hit.
 - **Same properties, every implementation.** Run the same property suite
   against each implementation of an interface and against the new version
   of an API. That is how you check "requires no more, promises no less".

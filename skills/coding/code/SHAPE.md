@@ -242,6 +242,37 @@ holding the type proves the value is valid and inner code never re-checks
 it (WRITE.md rule 3). Keep aliases for shortening a long type name; they
 guarantee nothing.
 
+Absence is a value the type should show. Don't encode "missing" as `NaN`,
+`NULL`, `-1`, or `""`: they flow through computation unannounced. `NaN`
+compares false with everything, so `max` and a range check can disagree
+about it, and a SQL `NULL` in a condition counts as false. Return an
+option (or a nullable the compiler checks) so the caller must unpack it, and
+pick the default at the call site, where a reader sees it. Mark a column
+`NOT NULL` when it can't be missing. Use an option for expected absence; a
+value that must be there and isn't is a broken invariant (WRITE.md rule 1).
+
+## 8. Comment what the code can't say
+
+Code shows how it works; a comment carries what the code can't show. Write
+fewer comments and make each one earn its place.
+
+- **Start with a one-sentence overview** at the top of a module: "behaves
+  like an array of unboxed pairs." It does more for a reader than a comment
+  on every function.
+- **Explain the outside world.** The tick size an exchange accepts, the
+  quirk of the vendor's API, the law behind a rule. The mechanics are
+  visible in the code; the context isn't.
+- **Say what it doesn't do.** Name the cases that fail or aren't handled,
+  and mark deliberate slowness (`// perf: don't simplify`) so nobody "fixes"
+  it.
+- **Try to delete the comment first.** If a rename, a type, or an assert
+  says it (rule 4, WRITE.md rule 8), do that instead.
+- **Skip what the reader would learn from the name or the module overview.**
+  Give intuition and an example (the first few terms) before a proof.
+- **Keep it true, or delete it.** A stale comment is worse than none.
+  Update comments in the same change as the code, and split them by
+  audience: users in the interface file, maintainers beside the code.
+
 ## Done when
 
 - The interface names its failures and keeps its surface to one pattern:
@@ -250,7 +281,9 @@ guarantee nothing.
 - Call sites branch as little as the answer allows, and each variable lives
   in its smallest scope (rule 3).
 - Names follow the codebase's case convention, unabbreviated, with
-  qualifiers after the base name, most significant word first (rule 4).
+  qualifiers after the base name, most significant word first, and comments
+  give the overview, outside context, and limits, none stale (rules 4, 8).
 - Every function fits on a screen and does one named job, and each
   collection's type holds the guarantee its data needs; values that can be
-  mixed up are new types, not aliases (rules 6–7).
+  mixed up are new types, not aliases; absence is an option, not a sentinel
+  (rules 6–7).
