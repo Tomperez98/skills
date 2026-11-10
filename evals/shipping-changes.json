@@ -37,5 +37,41 @@
       "If the break is declared, requires a breaking changelog entry with a migration note and a major bump",
       "Stops and asks before declaring a break or publishing; does not publish or tag on its own"
     ]
+  },
+  {
+    "skills": ["shipping-changes"],
+    "query": "Rename the users.fullname column to users.display_name in our web service's Postgres database and update the code. We deploy with rolling restarts.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/migrations.md before writing the migration",
+      "Does not rename in place: adds display_name, writes both columns, backfills, switches reads, then stops writing fullname",
+      "Ships the schema expansion and the code that depends on it in separate deploys",
+      "Backfills in bounded, resumable batches off the request path, with a lock timeout on the migration",
+      "Leaves dropping fullname for a later deploy and stops to ask before it, after showing the column is unused"
+    ]
+  },
+  {
+    "skills": ["shipping-changes"],
+    "query": "I've finished the retry-budget feature and a cleanup of the logging module in this working tree. Commit it and open a PR.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/commits-and-prs.md before committing",
+      "Splits the work into separate commits: the logging cleanup apart from the retry-budget behavior change",
+      "Follows the repo's commit message convention from git log, and each body says why",
+      "Reviews the staged diff for secrets, debug output, and unrelated files, and commits only paths changed for this task",
+      "Writes a PR description with what changed and why, how it was verified, what was left alone, and open risks; does not force-push"
+    ]
+  },
+  {
+    "skills": ["shipping-changes"],
+    "query": "We're launching the new pricing engine to production next week. Plan the deploy.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/deploys.md before writing the plan",
+      "Puts the new engine behind a flag that defaults off, read through config, with an owner and a removal date",
+      "Plans a canary with advance, hold, and roll-back thresholds written down before it starts",
+      "Writes the rollback plan first, including what happens to data the new version wrote, and keeps rollback inside the N-1..N window",
+      "Lists the post-deploy checks from outside and names who watches the first hour"
+    ]
   }
 ]
