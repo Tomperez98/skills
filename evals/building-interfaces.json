@@ -1,0 +1,38 @@
+[
+  {
+    "skills": ["building-interfaces"],
+    "query": "Build the project list page: it fetches the user's projects and shows them as cards with a delete button on each.",
+    "files": [],
+    "expected_behavior": [
+      "Renders loading, empty, error with retry, no permission, and success states, modeled as one union rather than several booleans",
+      "Uses a native button with an accessible name for delete, reachable and usable from the keyboard with visible focus",
+      "Rolls back an optimistic removal and tells the user if the delete request fails",
+      "Uses the project's design tokens and existing components, with no raw hex values",
+      "Checks the layout at 320 px wide with no horizontal scroll"
+    ]
+  },
+  {
+    "skills": ["building-interfaces"],
+    "query": "Add a signup form with email and password, and show errors from the API.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/forms.md before building the form",
+      "Ties a label to each input and uses the email type and the right autocomplete tokens",
+      "Shows each error in text beside its field, maps server errors back to fields, and moves focus to the first invalid field on submit",
+      "Keeps every typed value when submission fails, and disables or deduplicates the submit while in flight",
+      "Validates on blur or submit rather than on every keystroke"
+    ]
+  },
+  {
+    "skills": ["building-interfaces"],
+    "query": "Our product landing page scores poorly on Largest Contentful Paint and the layout jumps while it loads. Fix it.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/web-performance.md before changing code",
+      "Measures LCP and CLS before and after on a throttled mobile profile, the same way each time",
+      "Gives the hero image high priority and never lazy-loads it, while lazy-loading images below the fold",
+      "Declares width and height or aspect ratio on every image and embed, and reserves space for late content",
+      "Reports the before and after numbers and keeps only changes that beat run-to-run variance"
+    ]
+  }
+]
