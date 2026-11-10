@@ -34,5 +34,41 @@
       "Maps the result union to HTTP status and stable error code values in exactly one place, with no wildcard arm",
       "States whether the operation is safe to repeat, and has one test per error variant that asserts the variant before the payload"
     ]
+  },
+  {
+    "skills": ["writing-code"],
+    "query": "Add an endpoint that fetches a URL the user pastes and returns its page title, for link previews. Only members of the workspace may call it.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/security.md and reference/http-apis.md before writing the endpoint",
+      "Checks that the caller belongs to the specific workspace in the path, not only that they are logged in, and has a test for a member of another workspace",
+      "Allowlists the scheme, rejects loopback, private, link-local, and reserved addresses among all resolved IPs, connects to the checked IP, and does not follow redirects",
+      "Gives the outbound fetch a timeout and caps the response size it reads",
+      "Treats the fetched page as untrusted input and escapes the title before returning it"
+    ]
+  },
+  {
+    "skills": ["writing-code"],
+    "query": "test_checkout_total fails on CI about one run in five but always passes on my laptop. Fix it.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/debugging.md and reference/tests.md before editing code",
+      "Tries to reproduce first: runs the test alone and in the full suite, with the CI seed, and under repetition, before changing code",
+      "Names a single hypothesis (shared state, ordering, time, or a race) and tests it by changing one thing",
+      "Fixes the cause where the wrong value is produced, not by adding a retry, a sleep, or a loosened assertion",
+      "Does not skip, delete, or quarantine the test as the fix, and removes any temporary debug output"
+    ]
+  },
+  {
+    "skills": ["writing-code"],
+    "query": "Review this diff before I merge it: it adds a discount calculation to checkout and refactors the cart module.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/reviews.md before writing the review",
+      "Traces the callers and tests that reach each changed line before reporting a finding, and drops findings they rule out",
+      "Prefixes each finding with a severity, gives file:line and the breaking input, and orders correctness before style",
+      "Separates defects this change introduced from pre-existing ones",
+      "Asks for the refactor and the behavior change to be split into separate commits, and flags any test that the refactor had to change"
+    ]
   }
 ]

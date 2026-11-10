@@ -2,6 +2,9 @@
 
 Part of the writing-code skill. The core rules in [SKILL.md](../SKILL.md) still apply.
 
+- Bug fix: first write a test that reproduces the bug and watch it fail for the reported reason, then fix it.
+- A new test that passes on its first run proves nothing yet. Break the code or the assertion once, see it fail at that assertion, then restore.
+- Run the repo's own focused-test command while iterating and the command CI runs before finishing. Read both from the repo (AGENTS.md, task runner, package scripts); never guess.
 - Assert the variant before the payload. Write one test per error variant, with its payload.
 - Test short-circuiting: record calls and assert later steps did NOT run after an early failure.
 - Test retries deterministically: inject the operation, use zero delay, and assert the exact attempt list.
