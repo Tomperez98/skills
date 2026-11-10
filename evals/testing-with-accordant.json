@@ -1,0 +1,81 @@
+[
+  {
+    "skills": [
+      "testing-with-accordant"
+    ],
+    "query": "Add model-based tests with Accordant for our TodoList API's CreateTodo, GetTodo, and DeleteTodo endpoints. The repo already has integration tests using WebApplicationFactory and xUnit.",
+    "files": [],
+    "expected_behavior": [
+      "Reads the existing integration tests first and reuses their WebApplicationFactory setup, HTTP client, reset mechanism, and xUnit",
+      "Adds Microsoft.Accordant with dotnet add package so the version is pinned, never Version=\"*\"",
+      "Writes a minimal [State] partial class, and asks about domain rules it can't read from the code instead of guessing",
+      "Writes each operation with error guard clauses first, SameState for errors and reads, ThenState for mutations, and an explanation on every Expect.That that checks status and payload",
+      "Binds with BindAsync, resets state in BeforeEachAsync, runs dotnet test, and breaks one predicate to confirm a generated test fails"
+    ]
+  },
+  {
+    "skills": [
+      "testing-with-accordant"
+    ],
+    "query": "Our booking service sometimes double-books a slot under load. Use our Accordant spec to reproduce it.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/concurrency.md before writing the test",
+      "Generates concurrent tests with GenerateConcurrentTests and sets MaxConcurrencyLevel deliberately",
+      "Explains a failure as a result no sequential ordering of the operations can explain (not linearizable)",
+      "Uses BindAsync for the bindings instead of the .Result pattern in the upstream examples"
+    ]
+  },
+  {
+    "skills": [
+      "testing-with-accordant"
+    ],
+    "query": "CreateJob returns Pending and a worker finishes the job later as Completed or Failed. Model this in the Accordant spec.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/async-operations.md before changing the spec",
+      "Uses .Triggers with AsyncOperation.Create, an isTerminal predicate, and one transition per possible outcome (Completed and Failed)",
+      "Configures PollingSetup with explicit WaitTimeInMs and MaxRetryCount sized to the job's real duration",
+      "Any hand-written poll loop is bounded, checks every spec.Allows result, and carries the returned StateProfile forward"
+    ]
+  },
+  {
+    "skills": [
+      "testing-with-accordant"
+    ],
+    "query": "Our payments service is a Go HTTP API with Go integration tests that start it in Docker. Add model-based tests for Charge, GetCharge, and Refund.",
+    "files": [],
+    "expected_behavior": [
+      "Uses Accordant anyway: creates a standalone .NET test project and binds each operation to a typed HTTP client against the running service",
+      "Reuses the Docker startup and state reset from the Go integration tests, and takes the base URL from config",
+      "Does not default to trace validation or exported test plans, since the service is reachable over HTTP",
+      "Tells the user the test project needs the .NET SDK"
+    ]
+  },
+  {
+    "skills": [
+      "testing-with-accordant"
+    ],
+    "query": "Our firmware runs on a device we can only drive from an existing Python harness. Can we check its behavior against an Accordant spec?",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/testing-any-system.md before answering",
+      "Recommends one of the two options with a reason: the Python harness records traces that a .NET spec validates with spec.Allows, or runs test plans exported as JSON",
+      "Keeps the spec in .NET as the oracle rather than suggesting a different framework",
+      "The trace starts from a known initial state, and the validator checks every spec.Allows result and carries the StateProfile forward"
+    ]
+  },
+  {
+    "skills": [
+      "testing-with-accordant"
+    ],
+    "query": "Change the BankAccount spec so withdrawals that would overdraw by up to 50 are allowed for premium accounts. Make sure the change doesn't break the spec.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/validating-your-model.md before changing the spec",
+      "Replays the existing trace database (or creates one from traces the current spec accepts) before and after the change",
+      "Treats a previously accepted trace that is now rejected as a spec regression to explain, not something to re-record silently",
+      "Asks how a premium account is identified instead of guessing, and adds the new rule as its own guard clause with an explanation"
+    ]
+  }
+]
