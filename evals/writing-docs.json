@@ -1,0 +1,40 @@
+[
+  {
+    "skills": ["writing-docs"],
+    "query": "Write a README.md for this library.",
+    "files": ["fixtures/tryagain"],
+    "expected_behavior": [
+      "Reads reference/readme.md before writing",
+      "Opens with one line of what the reader can do (retry a flaky call) plus a snippet that proves it, then what it is, then install",
+      "The hero snippet runs as pasted (imports included, output shown) and was actually run, or is marked illustrative",
+      "Install is one runnable block; every snippet is fenced with its language",
+      "No unshown superlatives ('powerful', 'blazing fast', 'robust'); describes the jitter and cap behavior concretely",
+      "Links out rather than documenting every parameter inline at length"
+    ]
+  },
+  {
+    "skills": ["writing-docs"],
+    "query": "Write the changelog entry for the next release, from COMMITS_SINCE_v1.3.0.txt.",
+    "files": ["fixtures/tryagain"],
+    "expected_behavior": [
+      "Reads reference/changelogs.md before writing",
+      "Identifies the attempts -> max_attempts rename as breaking, puts it first with a migration note showing before/after and what happens if you don't change",
+      "Uses a major version (2.0.0), dated, with a compare link, grouped Added / Changed / Removed / Fixed / Security",
+      "Lists the credential-leak fix under Security and the on_retry callback under Added, each stated as user impact",
+      "Omits the pytest bump and the docstring typo"
+    ]
+  },
+  {
+    "skills": ["writing-docs"],
+    "query": "Write a quickstart tutorial for this library.",
+    "files": ["fixtures/tryagain"],
+    "expected_behavior": [
+      "Reads reference/tutorials.md before writing",
+      "States one outcome in the first line, plus prerequisites with how to check each",
+      "Every step is copy-paste and shows what success looks like",
+      "Names one or two real failures a reader would hit and how to recover",
+      "Ran the steps from a clean environment, or says which parts were not run",
+      "Ends with the finished result and one concrete next step"
+    ]
+  }
+]

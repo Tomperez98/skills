@@ -1,0 +1,41 @@
+[
+  {
+    "skills": ["shipping-changes"],
+    "query": "Set up GitHub Actions CI for this package.",
+    "files": ["fixtures/tryagain"],
+    "expected_behavior": [
+      "Reads reference/ci.md before writing",
+      "Puts the suite behind one local command (Makefile target or script) that CI only calls",
+      "Pins actions to a commit SHA and the toolchain version in one place both laptop and CI read",
+      "Sets default permissions to none and grants only contents: read",
+      "Cancels superseded runs on PRs only, not on main",
+      "Gives the job a timeout"
+    ]
+  },
+  {
+    "skills": ["shipping-changes"],
+    "query": "Write a script that releases this package to PyPI.",
+    "files": ["fixtures/tryagain"],
+    "expected_behavior": [
+      "Reads reference/releases.md and reference/publishing.md before writing",
+      "Separates build (no secrets) from publish, and publishes the exact bytes it built and tested",
+      "Resolves remote main to a SHA and releases that frozen commit; never tags from the local checkout",
+      "Writes a manifest with a checksum per file and asserts the built set equals an explicit expected list",
+      "Asserts preconditions before upload (version is new or a partial publish of the same bytes, CI passed) and skips steps already done",
+      "Stops and asks before the first upload, and prefers trusted publishing (OIDC) over a long-lived token",
+      "Verifies from the public registry after publishing"
+    ]
+  },
+  {
+    "skills": ["shipping-changes"],
+    "query": "We want to rename the `attempts` parameter to `max_attempts` and ship it in the next release. Make the change and prepare the release.",
+    "files": ["fixtures/tryagain"],
+    "expected_behavior": [
+      "Reads reference/compatibility.md and reference/releases.md before acting",
+      "Identifies the rename as a contract break for callers of the last release",
+      "Prefers deprecation: keeps `attempts` working with a warning for at least one release, or explains why not",
+      "If the break is declared, requires a breaking changelog entry with a migration note and a major bump",
+      "Stops and asks before declaring a break or publishing; does not publish or tag on its own"
+    ]
+  }
+]
