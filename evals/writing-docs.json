@@ -36,5 +36,17 @@
       "Ran the steps from a clean environment, or says which parts were not run",
       "Ends with the finished result and one concrete next step"
     ]
+  },
+  {
+    "skills": ["writing-docs"],
+    "query": "We decided to move job queues from Redis to Postgres (SKIP LOCKED). Write it up so future engineers know why.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/adrs.md before writing",
+      "Looks for an existing ADR location and numbering scheme and follows it, or uses docs/adr/NNNN-title.md when none exists",
+      "Has Status, Context, Decision, Alternatives, and Consequences sections, in that order",
+      "Lists Redis and at least one other alternative, each with why it lost, and states what gets harder",
+      "If an earlier ADR chose Redis, supersedes it with a link both ways instead of editing it"
+    ]
   }
 ]
