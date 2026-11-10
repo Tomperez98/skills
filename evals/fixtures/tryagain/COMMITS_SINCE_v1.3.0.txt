@@ -1,0 +1,6 @@
+a1f3c2e feat: add on_retry(attempt, error, delay) callback, called before each sleep
+9b02d77 fix: max_delay was ignored when base_delay * 2**n overflowed to inf
+4c11e90 refactor: rename `attempts` to `max_attempts`; `attempts` is removed
+77de1a3 chore: bump pytest 8.3.2 -> 8.3.3
+e5a9b14 docs: fix typo in docstring
+2d8c6f0 fix(security): stop including fn's repr (may hold credentials) in RetryExhausted message

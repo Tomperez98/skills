@@ -1,0 +1,38 @@
+[
+  {
+    "skills": ["writing-code"],
+    "query": "Add retries to this HTTP client's fetch_user call so transient failures don't surface to callers.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/crash-only.md and reference/tests.md before writing the change",
+      "Caps retries with a named constant and uses exponential backoff with jitter",
+      "Gives every call a timeout, and returns an error (not a panic) when retries are exhausted",
+      "Retries only idempotent requests, or adds an idempotency key",
+      "The test injects the operation, uses zero delay, and asserts the exact attempt list"
+    ]
+  },
+  {
+    "skills": ["writing-code"],
+    "query": "Load the database URL and the server port from environment variables and pass them to the app.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/config.md before writing the change",
+      "Reads the environment once at the edge into a typed config value; the parser takes env as a parameter",
+      "Treats every value as required: a missing or malformed value fails at startup and names the variable, with no dev default",
+      "Passes each function the narrowest slice it uses (a DbUrl or a port), not the whole config",
+      "Tests pass env as a map and never mutate process environment variables"
+    ]
+  },
+  {
+    "skills": ["writing-code"],
+    "query": "Add an endpoint that lets a customer cancel a booking. Cancelling an already-cancelled or expired booking should be rejected.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/http-apis.md before designing the endpoint",
+      "Models the action as a resource, e.g. POST /v1/bookings/{id}/cancellation",
+      "Returns the rejections as named, expected failures in one closed union, not as panics or booleans",
+      "Maps the result union to HTTP status and stable error code values in exactly one place, with no wildcard arm",
+      "States whether the operation is safe to repeat, and has one test per error variant that asserts the variant before the payload"
+    ]
+  }
+]

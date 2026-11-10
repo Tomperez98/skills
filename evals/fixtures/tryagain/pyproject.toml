@@ -1,0 +1,13 @@
+[project]
+name = "tryagain"
+version = "1.3.0"
+description = "Retry a flaky call with capped exponential backoff and full jitter"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest==8.3.3"]
+
+[build-system]
+requires = ["hatchling==1.25.0"]
+build-backend = "hatchling.build"

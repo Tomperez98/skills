@@ -2,9 +2,16 @@
 # formatter. This file is the only place its version lives; CI and a laptop
 # both read it, and mise.lock pins the checksum.
 #
-#   mise run lint  # fast tier: Markdown lint (rumdl)
-#   mise run fmt   # fix what `lint` reports, in place
-#   mise run ci    # the gate: every tier, in order
+#   mise run lint          # fast tier: Markdown lint (rumdl)
+#   mise run fmt           # fix what `lint` reports, in place
+#   mise run test-scripts  # unit tests for the checker in scripts/
+#   mise run check-skills  # structural rules from skills/writing-skills
+#   mise run ci            # the gate: every tier, in order
+#
+# scripts/ uses only the Python 3.9+ standard library, so it runs on the stock
+# `python3` of an ubuntu-24.04 runner (3.12) and of macOS (3.9) with no install.
+# That is the one tool deliberately not pinned here: pinning would add a
+# download for no gain, and the script exits with a clear error if too old.
 
 [settings]
 lockfile = true # mise.lock pins each tool's checksum, not just its version
@@ -20,6 +27,14 @@ run = "rumdl check ."
 description = "Fix Markdown formatting in place (rumdl)"
 run = "rumdl fmt ."
 
+[tasks.test-scripts]
+description = "Unit tests for scripts/check_skills.py (-B: no __pycache__ in the repo)"
+run = "python3 -B -m unittest discover -s scripts"
+
+[tasks.check-skills]
+description = "Check every skill against skills/writing-skills; warnings fail too"
+run = "python3 -B scripts/check_skills.py --strict"
+
 [tasks.ci]
 description = "Run every tier in order: the gate a merge must pass"
-run = ["mise run lint"]
+run = ["mise run lint", "mise run test-scripts", "mise run check-skills"]

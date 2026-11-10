@@ -1,0 +1,44 @@
+[
+  {
+    "skills": ["writing-skills"],
+    "query": "Turn our incident-response runbook into a skill. It has a 9-step procedure for declaring and running an incident, a postmortem template that must be followed exactly, and a 200-line appendix of paging policies per team that only matters when paging someone.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/workflows.md and reference/evaluation.md before writing the skill",
+      "Names the skill for the activity in lowercase hyphenated form (e.g. running-incidents), with no 'claude' or 'anthropic' and at most 64 characters",
+      "Writes the description in third person with what it does and a 'Use when' clause naming triggers such as declaring an incident, paging, or writing a postmortem",
+      "Keeps the 9-step procedure in SKILL.md as numbered steps, and moves the paging appendix to its own reference file linked directly from SKILL.md with the task that needs it",
+      "Gives the postmortem template under 'ALWAYS use this exact structure', and adds a validate-fix-repeat loop to the procedure",
+      "Writes at least three evaluation scenarios as data (skills, query, files, expected_behavior), including one behavior that names the reference file that should be read",
+      "Does not explain what an incident or a postmortem is"
+    ]
+  },
+  {
+    "skills": ["writing-skills"],
+    "query": "Review this skill and fix it. Frontmatter: name: Claude Document Helper; description: I can help you with documents. Body: a 620-line SKILL.md that also says 'before March 2025 use the v1 API' and links to reference\\forms.md, which in turn links to reference\\forms-advanced.md.",
+    "files": [],
+    "expected_behavior": [
+      "Renames the skill to lowercase letters, digits, and hyphens with no 'claude' and no vague word like 'helper', preferably as a gerund (e.g. processing-documents)",
+      "Rewrites the description in third person, says what the skill does, and adds a 'Use when' clause with trigger words such as file types and phrasings",
+      "Splits the 620-line body so SKILL.md is under 500 lines, moving area-specific material into files named for their content",
+      "Links forms-advanced.md directly from SKILL.md instead of only through forms.md, and each link says which task reads that file",
+      "Changes backslashes in paths to forward slashes",
+      "Moves the dated v1 API instruction into a collapsed 'Old patterns' section and describes the current method in the main text",
+      "Ends by reviewing the result against the 'Before finishing' checklist and says which items were fixed"
+    ]
+  },
+  {
+    "skills": ["writing-skills"],
+    "query": "Add a script to my pdf-forms skill that checks a fields.json file against the form's real field names before we fill it in.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/scripts.md before writing the script",
+      "Handles expected failures itself: a missing or unreadable fields.json and invalid JSON each print what failed and what to do next, instead of crashing",
+      "Validator errors name the bad value and list the valid ones, e.g. \"Field 'signature_date' not found. Available fields: ...\"",
+      "Every constant (timeouts, limits) has a comment justifying its value",
+      "SKILL.md says to run the script, gives the exact command and arguments, and describes the output format",
+      "Names every package the script needs with its install command, or uses only the standard library",
+      "Uses forward slashes and paths relative to the skill directory"
+    ]
+  }
+]
