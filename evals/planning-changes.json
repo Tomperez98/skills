@@ -45,5 +45,17 @@
       "Asks where to put the record, or puts it in the response",
       "States that the next session must read the record and the current tree before acting, and that earlier approvals cover only the steps listed"
     ]
+  },
+  {
+    "skills": ["planning-changes"],
+    "query": "Write me a script that runs a coding agent headless overnight over every file in files.txt, migrating each to the new logger API and committing.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/unattended-runs.md before writing the script",
+      "Defines done and a pass/fail check per file, such as a test or build command, before the loop runs",
+      "Pre-approves only the tools the run needs, refuses the rest, and caps turns or spend per file",
+      "Has each file report a parseable verdict such as OK or FAIL, and suggests piloting on two or three files first",
+      "Sends results to a branch or PR for a person to approve, never merging or pushing to main on its own"
+    ]
   }
 ]

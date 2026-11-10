@@ -1,6 +1,6 @@
 ---
 name: writing-skills
-description: Applies authoring rules for Agent Skills - SKILL.md frontmatter, names, descriptions, progressive disclosure, reference files, workflows, bundled scripts, and evaluations. Use when creating, editing, splitting, reviewing, or testing a skill, turning a guide or prompt into a skill, writing a project rules file such as AGENTS.md or CLAUDE.md, or when a skill triggers at the wrong time or its instructions are ignored.
+description: Applies authoring rules for Agent Skills - SKILL.md frontmatter, names, descriptions, progressive disclosure, reference files, workflows, bundled scripts, and evaluations. Use when creating, editing, splitting, reviewing, or testing a skill, turning a guide or prompt into a skill, writing a project rules file such as AGENTS.md or CLAUDE.md, deciding whether a rule belongs in a rules file or a hook or permission rule, or when a skill triggers at the wrong time or its instructions are ignored.
 ---
 
 # Writing skills
@@ -41,7 +41,7 @@ Read the whole file before starting that part of the task:
 - Multistep procedures, checklists, validation loops, output templates, input/output examples, branching workflows → [reference/workflows.md](reference/workflows.md)
 - Bundling scripts, validators, or utilities with a skill → [reference/scripts.md](reference/scripts.md)
 - Building evaluations, testing across models, iterating on a skill from observed use → [reference/evaluation.md](reference/evaluation.md)
-- Writing or editing a project rules file (AGENTS.md, CLAUDE.md) → [reference/rules-files.md](reference/rules-files.md)
+- Writing or editing a project rules file (AGENTS.md, CLAUDE.md), or choosing between a written rule and an enforced one → [reference/rules-files.md](reference/rules-files.md)
 
 ## Before finishing
 Review the skill against this list. Fix each miss and re-check until the list is clean:
