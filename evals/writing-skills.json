@@ -52,5 +52,17 @@
       "Leaves out general advice the model already follows and anything a linter already enforces",
       "Stays short: no restated README content or language tutorials"
     ]
+  },
+  {
+    "skills": ["writing-skills"],
+    "query": "Our AGENTS.md says 'IMPORTANT: NEVER edit files in src/gen/' and 'ALWAYS run the formatter after editing', and agents still sometimes skip both. Make it stick.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/rules-files.md before editing",
+      "Does not add more emphasis, and explains that a rules file is guidance the model weighs, not a guarantee",
+      "Moves both rules into harness enforcement, such as a deny rule or pre-edit hook for src/gen/ and a post-edit hook that runs the formatter",
+      "Removes or shortens the now-enforced lines in AGENTS.md instead of keeping both copies",
+      "Tells the user if the harness in use can't enforce one of them"
+    ]
   }
 ]

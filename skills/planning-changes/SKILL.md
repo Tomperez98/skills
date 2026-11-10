@@ -1,6 +1,6 @@
 ---
 name: planning-changes
-description: Applies a workflow for turning a request into a finished change - clarifying intent, writing a spec, breaking work into vertical slices, building in increments that stay green, fresh-context review of risky claims, and session handoffs. Use when a request is vague or large, when asked to plan, spec, scope, or break down a feature, when ideating what to build, when implementing a change that spans several files or steps, before trusting a non-trivial conclusion or crossing a one-way door, or when pausing, compacting, or resuming work across sessions.
+description: Applies a workflow for turning a request into a finished change - clarifying intent, writing a spec, breaking work into vertical slices, building in increments that stay green, fresh-context review of risky claims, and session handoffs. Use when a request is vague or large, when asked to plan, spec, scope, or break down a feature, when ideating what to build, when implementing a change that spans several files or steps, before trusting a non-trivial conclusion or crossing a one-way door, when pausing, compacting, or resuming work across sessions, or before starting an unattended background, headless, scheduled, or batch agent run.
 ---
 
 # Planning changes
@@ -30,6 +30,7 @@ Read the whole file before starting that part of the task:
 - Breaking work into tasks, ordering them, or running them in parallel → [reference/tasks.md](reference/tasks.md)
 - Checking a non-trivial claim or your own change before trusting it → [reference/fresh-context-review.md](reference/fresh-context-review.md)
 - Ending a session, compacting context, or resuming earlier work → [reference/handoffs.md](reference/handoffs.md)
+- Starting work nobody will watch: a background agent, headless or scripted run, scheduled job, or batch over many files → [reference/unattended-runs.md](reference/unattended-runs.md)
 
 ## Before finishing
 Review the work against this list. Fix each miss and re-check until the list is clean:
