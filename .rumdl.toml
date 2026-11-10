@@ -1,7 +1,7 @@
 # Markdown lint and format rules for `mise run lint` / `mise run fmt`.
 
 [global]
-# CODE.md, DOCS.md, and SHIP.md are written compactly on purpose:
+# The skills (skills/**) are written compactly on purpose:
 # - MD013: one rule per line, however long.
 # - MD022, MD032: a list follows its heading or lead-in with no blank line.
 # - MD040: the examples are language-agnostic pseudocode, so a fence names a
