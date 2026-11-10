@@ -1,3 +1,1 @@
 .DS_Store
-# `mise run contract` output; CI hands it to contract-label.yml
-.contract-report/
