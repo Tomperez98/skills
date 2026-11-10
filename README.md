@@ -23,9 +23,10 @@ Each skill is a `SKILL.md` plus `reference/*.md` files. The agent keeps only the
 | [`writing-code`](skills/writing-code/SKILL.md) | Write, change, or review code: errors vs. panics, contracts, config, tests, dependencies, HTTP APIs | `conditions`, `config`, `crash-only`, `dependencies`, `http-apis`, `performance`, `tests` |
 | [`writing-docs`](skills/writing-docs/SKILL.md) | Write READMEs, API references, tutorials, changelogs, landing pages, launch posts | `readme`, `api-reference`, `tutorials`, `changelogs`, `landing-pages`, `growth-content` |
 | [`shipping-changes`](skills/shipping-changes/SKILL.md) | Set up CI, check compatibility, cut releases, publish packages, roll out across services, watch main | `ci`, `compatibility`, `review-routing`, `watching-main`, `releases`, `publishing`, `rollout` |
+| [`testing-with-accordant`](skills/testing-with-accordant/SKILL.md) | Write model-based tests with Accordant for a system in any language: specs, generated sequences, race conditions, background jobs, traces | `state`, `modeling-large-data`, `operations`, `better-error-messages`, `test-generation`, `resetting-state`, `patterns`, `request-derivations`, `indefinite-failures`, `concurrency`, `async-operations`, `step-functions`, `conformance-testing`, `testing-any-system`, `models-vs-fakes`, `validating-your-model`, `troubleshooting`, `test-logs`, `quickref` |
 | [`writing-skills`](skills/writing-skills/SKILL.md) | Write or review a skill: frontmatter, progressive disclosure, scripts, evals | `workflows`, `scripts`, `evaluation` |
 
-The rules are language-, framework-, and tool-agnostic. Examples are pseudocode, so the agent translates them to your stack.
+The rules are language-, framework-, and tool-agnostic, and examples are pseudocode the agent translates to your stack. The exception is `testing-with-accordant`, which commits to one framework: [Accordant](https://github.com/microsoft/accordant). Specs are C#, and the system under test can be in any language.
 
 [`writing-skills`](skills/writing-skills/SKILL.md) is the rulebook for every skill here, including itself.
 

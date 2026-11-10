@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Repo of Agent Skills (Markdown, not an app). Six skills in `skills/`: `writing-code`, `writing-docs`, `shipping-changes`, `building-interfaces`, `writing-skills` (domain rules), and `planning-changes` (the one workflow skill; it owns the steps and the domain skills win on content). Each is `SKILL.md` plus `reference/*.md`.
+Repo of Agent Skills (Markdown, not an app). Seven skills in `skills/`: `writing-code`, `writing-docs`, `shipping-changes`, `building-interfaces`, `testing-with-accordant`, `writing-skills` (domain rules), and `planning-changes` (the one workflow skill; it owns the steps and the domain skills win on content). Each is `SKILL.md` plus `reference/*.md`. `testing-with-accordant` bundles text adapted from microsoft/accordant; its `NOTICE.md` holds the MIT license, the pinned upstream commit, and how to resync.
 
 ## Commands
 - `mise run ci` is the merge gate (CI runs exactly this): `lint` → `test-scripts` → `check-skills`. Run it before finishing any change.
