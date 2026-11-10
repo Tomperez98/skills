@@ -1,6 +1,6 @@
 ---
 name: writing-code
-description: Applies language-agnostic engineering rules for errors vs. panics, contracts, bounded loops, types, config, crash-only design, tests, dependencies, and HTTP APIs. Use when writing, modifying, refactoring, or reviewing code, designing a module or API, adding a dependency, writing tests, or handling errors, retries, timeouts, or configuration.
+description: Applies language-agnostic engineering rules for errors vs. panics, contracts, bounded loops, types, config, crash-only design, tests, dependencies, HTTP APIs, security, logging and metrics, debugging, code review, and framework APIs. Use when writing, modifying, refactoring, simplifying, or reviewing code, designing a module or API, adding a dependency, writing tests, fixing a bug or failing test, handling errors, retries, idempotency, timeouts, or configuration, handling untrusted input, auth, or secrets, adding logs, metrics, or traces, optimizing a slow path, or calling a framework or library API.
 ---
 
 # Writing code
@@ -53,7 +53,12 @@ Read the whole file before starting that part of the task:
 - Services, workers, retries, timeouts, leases, shutdown, recovery → [reference/crash-only.md](reference/crash-only.md)
 - Adding, updating, or wrapping a dependency → [reference/dependencies.md](reference/dependencies.md)
 - Designing or changing HTTP, REST, gRPC, or GraphQL endpoints → [reference/http-apis.md](reference/http-apis.md)
-- Design-time sizing, or a hot loop a profiler named → [reference/performance.md](reference/performance.md)
+- Design-time sizing, a slow path, queries, indexes, pools, caches, or a hot loop a profiler named → [reference/performance.md](reference/performance.md)
+- Untrusted input, auth and authorization, secrets, sessions, file paths, outbound URLs, personal data → [reference/security.md](reference/security.md)
+- Logs, metrics, traces, correlation IDs → [reference/observability.md](reference/observability.md)
+- A bug, a failing or flaky test, an error you must diagnose → [reference/debugging.md](reference/debugging.md)
+- Reviewing a diff or PR, refactoring, simplifying, or deleting code → [reference/reviews.md](reference/reviews.md)
+- Code against a framework or library API whose behavior varies by version → [reference/framework-apis.md](reference/framework-apis.md)
 
 ## Before finishing
 Review the diff against this list. Fix each miss and re-check until the list is clean:
@@ -62,4 +67,5 @@ Review the diff against this list. Fix each miss and re-check until the list is 
 - [ ] Every new loop, retry, and call has a named bound or a timeout.
 - [ ] No wildcard arm on a union you own. Every escape hatch is justified on its line.
 - [ ] No `getenv` below the edge, and no config fallback to a dev default.
+- [ ] The diff lowers no bar: no unjustified suppression, skipped or deleted test, removed assertion, empty `catch`, stub, or loosened check.
 - [ ] Each reference file the task matched was read and applied.

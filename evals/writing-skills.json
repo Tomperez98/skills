@@ -40,5 +40,17 @@
       "Names every package the script needs with its install command, or uses only the standard library",
       "Uses forward slashes and paths relative to the skill directory"
     ]
+  },
+  {
+    "skills": ["writing-skills"],
+    "query": "Write an AGENTS.md for this Python package so coding agents know how to work in it.",
+    "files": ["fixtures/tryagain"],
+    "expected_behavior": [
+      "Reads reference/rules-files.md before writing",
+      "Gives exact copy-paste commands for the full test run and for running one test by name, taken from the repo rather than guessed",
+      "Groups boundaries as always, ask first, and never, with a reason for any rule that isn't obvious",
+      "Leaves out general advice the model already follows and anything a linter already enforces",
+      "Stays short: no restated README content or language tutorials"
+    ]
   }
 ]

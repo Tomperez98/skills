@@ -1,6 +1,6 @@
 ---
 name: writing-docs
-description: Applies rules for developer-facing writing - READMEs, API reference pages, guides, tutorials and quickstarts, changelogs and release notes, landing pages, and blog or launch posts. Use when writing, editing, or reviewing documentation, a docs example, a README, a changelog entry, release notes, product positioning, or marketing copy for a developer tool.
+description: Applies rules for developer-facing writing - READMEs, API reference pages, guides, tutorials and quickstarts, changelogs and release notes, architecture decision records, landing pages, and blog or launch posts. Use when writing, editing, or reviewing documentation, a docs example, a README, a changelog entry, release notes, an ADR or design decision record, product positioning, or marketing copy for a developer tool.
 ---
 
 # Writing docs
@@ -12,6 +12,7 @@ Rules for READMEs, API references, tutorials, changelogs, landing pages, and doc
 - Readers skim the TL;DR, the first image, the headings, and the code. If the page tells its story through those alone, it's done; if it needs the prose, it isn't. Something that runs proves more than a paragraph.
 - No clickbait, no superlative you can't show, no overselling. Cut company history, adjective pile-ups ("powerful, flexible, robust"), and every sentence that doesn't serve the reader's task.
 - When the artifact is ambiguous and the user isn't reachable, write the one the request names and state the assumption at the top.
+- When editing existing prose, first list the facts that must survive (numbers, commands, qualifiers, caveats), then check the new version keeps each one.
 
 ## Examples (all artifacts)
 - Every example runs as pasted: imports, setup, and the output shown. No `...` in the interesting part.
@@ -25,6 +26,7 @@ Read the whole file before writing that artifact:
 - API reference page, or a conceptual or migration guide → [reference/api-reference.md](reference/api-reference.md)
 - Tutorial, quickstart, or getting-started page → [reference/tutorials.md](reference/tutorials.md)
 - Changelog entry, changelog file, or release notes → [reference/changelogs.md](reference/changelogs.md)
+- Architecture decision record (ADR), or recording why a hard-to-reverse choice was made → [reference/adrs.md](reference/adrs.md)
 - Landing page, homepage, positioning, or a comparison → [reference/landing-pages.md](reference/landing-pages.md)
 - Blog post, launch post, or a page meant to rank in search → [reference/growth-content.md](reference/growth-content.md)
 

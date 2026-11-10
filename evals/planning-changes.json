@@ -1,0 +1,49 @@
+[
+  {
+    "skills": ["planning-changes"],
+    "query": "Make our app more scalable.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/clarifying-intent.md before planning",
+      "Opens with a one-line hypothesis, a confidence level, and what's missing, instead of starting to change code",
+      "Asks one question at a time, each with a proposed answer",
+      "Turns 'scalable' into an observable target, such as a request rate with a latency percentile",
+      "Restates Outcome, User, Why now, Success check, Constraints, and a non-empty Out of scope before building"
+    ]
+  },
+  {
+    "skills": ["planning-changes"],
+    "query": "Add team invitations: an admin invites by email, the invitee accepts via a link, and the admin can revoke a pending invite. Plan it and build it.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/specs.md and reference/tasks.md before writing code",
+      "States checkable success criteria and boundaries (always, ask first, never) before building",
+      "Slices vertically: invite, accept, and revoke are each one task through every layer, not schema first then API",
+      "Gives each task at most three acceptance criteria, a verify command, and its dependencies, and puts the riskiest task first",
+      "Keeps build and tests green after every increment and reports what changed, how it was verified, and what was left alone"
+    ]
+  },
+  {
+    "skills": ["planning-changes"],
+    "query": "I think the new deduplication in the webhook consumer is safe under concurrent deliveries. Confirm before we ship it.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/fresh-context-review.md before answering",
+      "Sends a fresh context only the diff, the contract, and the relevant callers and tests, not its own conclusion",
+      "Asks the reviewer adversarially for inputs or interleavings that break the contract, with file:line and a reproduction",
+      "Reports the reviewer's findings as written, then classifies each as contract unclear, defect, accepted trade-off, or noise",
+      "Stops after at most three review rounds and escalates anything unresolved; says so if the review could only be a self-review"
+    ]
+  },
+  {
+    "skills": ["planning-changes"],
+    "query": "We're out of time for today; I'll pick this migration work up tomorrow in a new session.",
+    "files": [],
+    "expected_behavior": [
+      "Reads reference/handoffs.md before ending",
+      "Writes a handoff record with the approved scope, task status and next task, changed files and tree state, verification commands with results, open questions, and approvals granted",
+      "Asks where to put the record, or puts it in the response",
+      "States that the next session must read the record and the current tree before acting, and that earlier approvals cover only the steps listed"
+    ]
+  }
+]

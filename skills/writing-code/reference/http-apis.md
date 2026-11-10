@@ -10,3 +10,7 @@ Ask the user when the protocol, versioning scheme, or auth model is their call.
 - Error `code` values are part of the contract. Clients branch on `code`, never `message`, and fall back to the status class for unknown codes. There's one generic 5xx code and no internals.
 - Version explicitly from the first release (`/v1` unless URLs must stay stable). Clients ignore unknown fields. Adding an enum value, adding a required param, or changing meaning or units is breaking. Serve the old version alongside the new one with a stated sunset.
 - Cap request body size as well as page size.
+- A non-idempotent write (payment, order, message) takes an idempotency key derived from the client's intent (`charge:{order_id}`), never one minted per attempt (a fresh UUID or timestamp).
+- Claim the key with one atomic insert under a unique constraint; check-then-insert is a race. Store a hash of the request with it: the same key with a different body fails (`idempotency_key_reused`) and never replays the first response.
+- Decide what a duplicate gets while the first is still in flight: 409, a bounded wait, or 202 with a status resource. Keep keys longer than the longest redelivery path, including dead-letter replay.
+- Every observable behavior becomes a contract (Hyrum's law), including order and timing. Sort explicitly, or document that the order is unspecified.
